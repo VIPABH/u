@@ -1,4 +1,4 @@
-from ABH import ABH, events, bot_token
+from ABH import ABH, events
 import json, pytz, asyncio, os, sys
 from datetime import datetime
 from code import *
