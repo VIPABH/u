@@ -4,7 +4,6 @@ import asyncio, re
 target_user_id = 1421907917
 @ABH.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$", from_users=[1910015590, 201728276]))
 async def words(event):
-    await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     time = int(event.pattern_match.group(2)) or 1
     for i in range(num):
@@ -26,7 +25,6 @@ async def words(event):
                 return
 @ABH.on(events.NewMessage(pattern=r"^.?تركيب (\d+)$", from_users=[1910015590, 201728276]))
 async def unspilt(event):
-    await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for i in range(num):
         async with ABH.conversation(event.chat_id, timeout=10) as conv:
@@ -47,7 +45,6 @@ async def unspilt(event):
                 return
 @ABH.on(events.NewMessage(pattern=r"^.?تفكيك (\d+)$", from_users=[1910015590, 201728276]))
 async def spilt(event):
-    await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for i in range(num):
         async with ABH.conversation(event.chat_id, timeout=10) as conv:
@@ -69,7 +66,6 @@ async def spilt(event):
                 return
 @ABH.on(events.NewMessage(pattern=r"^.?احسب (\d+)$", from_users=[1910015590, 201728276]))
 async def calc(event):
-    await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for _ in range(num):
         async with ABH.conversation(event.chat_id, timeout=10) as conv:
@@ -96,7 +92,6 @@ async def calc(event):
                 return
 @ABH.on(events.NewMessage(pattern=r"^.?جمل (\d+)$", from_users=[1910015590, 201728276]))
 async def j(event):
-    await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for _ in range(num):
         async with ABH.conversation(event.chat_id, timeout=10) as conv:
