@@ -1,4 +1,4 @@
-from from telethon import events
+from telethon import events
 from ABH import ABH
 import asyncio, re
 target_user_id = 1421907917
