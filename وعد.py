@@ -1,19 +1,131 @@
-from telethon import TelegramClient, events
-from telethon.sessions import StringSession
-import asyncio, os, json
-api_id = int(os.getenv("API_ID"))
-api_hash = os.getenv("API_HASH")
-SESSION_FILE = "session.txt"
-if os.path.exists(SESSION_FILE):
-    with open(SESSION_FILE, "r") as f:
-        session_str = f.read().strip()
-else:
-    session_str = None
-ABH = TelegramClient(StringSession(session_str), api_id, api_hash)
-@ABH.on(events.NewMessage(pattern=r"^(كود الجلسة|/session)$", outgoing=True))
-async def send_session(event):
-    session_string = ABH.session.save()
-    with open(SESSION_FILE, "w") as f:
-        f.write(session_string)
-    await ABH.send_message("me", f" Session String:\n`{session_string}`")
-    await event.edit(" تم إرسال الجلسة إلى الرسائل المحفوظة")
+from from telethon import events
+from ABH import ABH
+import asyncio, re
+target_user_id = 1421907917
+@ABH.on(events.NewMessage(pattern=r"^.كلمات (\d+)\s+(\d+)$", from_users=[1910015590، 201728276]))
+async def words(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    time = int(event.pattern_match.group(2)) or 1
+    for i in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("كلمات")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\(\s*(.+?)\s*\)", text)
+                    if match:
+                        text = match.group(1)
+                        await asyncio.sleep(time)
+                        await conv.send_message(text)
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.تركيب (\d+)$", from_users=[1910015590، 201728276]))
+async def unspilt(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for i in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("تركيب")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\(\s*(.+?)\s*\)", text)
+                    if match:
+                        text = match.group(1)
+                        merged = ''.join(text.split())
+                        await conv.send_message(merged)
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.تفكيك (\d+)$", from_users=[1910015590، 201728276]))
+async def spilt(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for i in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("تفكيك")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\(\s*(.+?)\s*\)", text)
+                    if match:
+                        text = match.group(1)
+                        clean = ''.join(text.split())
+                        separated = ' '.join(clean)
+                        await conv.send_message(separated)
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.احسب (\d+)$", from_users=[1910015590، 201728276]))
+async def calc(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for _ in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("احسب")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+
+                    text = msg.raw_text.strip()
+                    match = re.search(r"([\d\s\+\-\*÷\/\.]+)\s*=", text)
+                    if match:
+                        expression = match.group(1).replace('÷', '/').replace('×', '*').strip()
+                        try:
+                            result = eval(expression)
+                            if isinstance(result, float) and result.is_integer():
+                                result = int(result)
+                            await conv.send_message(str(result))
+                        except Exception:
+                            await conv.send_message("خطأ في الحساب.")
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.جمل (\d+)$",, from_users=[1910015590، 201728276]))
+async def j(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for _ in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("جمل")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\((.*?)\)", text)
+                    if match:
+                        inside = match.group(1)
+                        cleaned = re.sub(r"[↢⇜'«»]", "", inside)
+                        normalized = re.sub(r"\s+", " ", cleaned).strip()
+                        await conv.send_message(normalized)
+                    else:
+                        return
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$", from_users=[1910015590، 201728276]))
+async def sends(event):
+    much = int(event.pattern_match.group(1))
+    time = float(event.pattern_match.group(2))
+    r = await event.get_reply_message()
+    if not r:
+        await event.edit('🤔 يجب أن ترد على رسالة.')
+        return
+    for i in range(much):
+        await words(event)
+        await asyncio.sleep(time)
