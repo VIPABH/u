@@ -94,7 +94,7 @@ async def calc(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.جمل (\d+)$",, from_users=[1910015590, 201728276]))
+@ABH.on(events.NewMessage(pattern=r"^.جمل (\d+)$", from_users=[1910015590, 201728276]))
 async def j(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
