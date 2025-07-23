@@ -10,15 +10,6 @@ async def run_cmd(command: str):
     )
     stdout, stderr = await process.communicate()
     return stdout.decode().strip(), stderr.decode().strip(), process.returncode
-@ABH.on(events.NewMessage(pattern="^تحديث$", from_users=[1910015590]))
-async def update_repo(event):
-    stdout, stderr, code = await run_cmd("git pull")
-    if code == 0:
-        await event.reply(f" تحديث السورس بنجاح")
-        os.execv(sys.executable, [sys.executable, "p.py"])
-    else:
-        await event.reply(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
-
 @ABH.on(events.NewMessage(pattern="^اطفاء$", from_users=[1910015590]))
 async def shutdown(event):
     me = await ABH.get_me()
