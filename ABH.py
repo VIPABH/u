@@ -1,4 +1,5 @@
 from telethon import events, TelegramClient
+from telethon.tl.types import PeerUser
 import os
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
@@ -25,6 +26,7 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
 async def s(e):
     if e.is_private:
         for ABH in ABHS:
-            await ABH.send_message(wfffp, 'ها')
+            user = await ABH.get_entity(wfffp)
+            await ABH.send_message(user, "ها")
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
