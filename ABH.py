@@ -30,5 +30,5 @@ async def s(e):
                 user = await ABH.get_input_entity(wfffp)
                 await ABH.send_message(user, "ها")
             except ValueError:
-                print(f"❌ {ABH.session.filename} لم يجد المستخدم، يحتاج التفاعل أولًا.")
+                await e.reply(f"❌ {ABH.session.filename} لم يجد المستخدم، يحتاج التفاعل أولًا.")
 bot.run_until_disconnected()
