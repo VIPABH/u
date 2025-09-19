@@ -26,7 +26,9 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
 async def s(e):
     if e.is_private:
         for ABH in ABHS:
-            user = await ABH.get_entity(wfffp)
-            await ABH.send_message(user, "ها")
-print("✅ البوت والحسابات الإضافية اشتغلوا")
+            try:
+                user = await ABH.get_input_entity(wfffp)
+                await ABH.send_message(user, "ها")
+            except ValueError:
+                print(f"❌ {ABH.session.filename} لم يجد المستخدم، يحتاج التفاعل أولًا.")
 bot.run_until_disconnected()
