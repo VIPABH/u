@@ -1,19 +1,17 @@
-from telethon import TelegramClient, events
-from telethon.sessions import StringSession
-import asyncio, os, json
-api_id = int(os.getenv("API_ID"))
-api_hash = os.getenv("API_HASH")
-SESSION_FILE = "session.txt"
-if os.path.exists(SESSION_FILE):
-    with open(SESSION_FILE, "r") as f:
-        session_str = f.read().strip()
-else:
-    session_str = None
-ABH = TelegramClient(StringSession(session_str), api_id, api_hash)
-@ABH.on(events.NewMessage(pattern=r"^(كود الجلسة|/session)$", outgoing=True))
-async def send_session(event):
-    session_string = ABH.session.save()
-    with open(SESSION_FILE, "w") as f:
-        f.write(session_string)
-    await ABH.send_message("me", f" Session String:\n`{session_string}`")
-    await event.edit(" تم إرسال الجلسة إلى الرسائل المحفوظة")
+from telethon import events ,TelegramClient
+import os
+api_id1 = int(os.getenv("API_ID1"))
+api_hash1 = os.getenv("API_HASH1")
+ABH1 = TelegramClient("code1", api_id1, api_hash1)
+api_id2 = int(os.getenv("API_ID2"))
+api_hash2 = os.getenv("API_HASH2")
+ABH2 = TelegramClient("code2", api_id2, api_hash2)
+api_id3 = int(os.getenv("API_ID3"))
+api_hash3 = os.getenv("API_HASH3")
+ABH3 = TelegramClient("code3", api_id3, api_hash3)
+api_id4 = int(os.getenv("API_ID4"))
+api_hash4 = os.getenv("API_HASH4")
+ABH4 = TelegramClient("code4", api_id4, api_hash4)
+api_id5 = int(os.getenv("API_ID5"))
+api_hash5 = os.getenv("API_HASH5")
+ABH5 = TelegramClient("code5", api_id5, api_hash5)
