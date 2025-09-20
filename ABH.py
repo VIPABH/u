@@ -111,6 +111,7 @@ async def ensure_joined(ABH, chat_id):
     try:
         me = await ABH.get_me()
         invite_link = await get_invite_link(ABH, chat_id)
+        print(invite_link)
         if invite_link:
             invite_hash = invite_link.split("/")[-1].replace("+", "")
             try:
