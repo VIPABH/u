@@ -2,6 +2,7 @@ from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.messages import SendReactionRequest
 from telethon.errors import UserAlreadyParticipantError
+from telethon.tl.types import InputPeerChannel
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 from telethon.tl.types import PeerChannel
@@ -91,7 +92,8 @@ async def react(event):
 async def ensure_joined(ABH, chat_id):
     try:
         print(f"🔄 محاولة الانضمام إلى {chat_id} باستخدام {await ABH.get_me()}")
-        await ABH(JoinChannelRequest(chat_id))
+        entity = await ABH.get_input_entity(chat_id)
+        await ABH(JoinChannelRequest(entity))
         print(f"✅ الحساب {await ABH.get_me()} انضم إلى {chat_id}")
     except UserAlreadyParticipantError:
         pass
