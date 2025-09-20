@@ -20,22 +20,34 @@ ABH4 = TelegramClient("code4", api_id4, api_hash4).start()
 api_id5 = int(os.getenv("API_ID5"))
 api_hash5 = os.getenv("API_HASH5")
 ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
+from telethon.tl.types import PeerChannel
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.errors import UserAlreadyParticipantError
+
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
+
 @bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?$', from_users=wfffp))
 async def s(e):
     reply = await e.get_reply_message()
     if not reply:
         return
+
     num = e.pattern_match.group(1) or str(wfffp)
+
     for ABH in ABHS:
         try:
             entity = None
+
             if num.isdigit():
-                entity = await ABH.get_entity(int(num))
+                # إذا كان ID عادي أو -100xxxx
+                chat_id = int(num)
+                if str(num).startswith("-100"):
+                    entity = PeerChannel(chat_id)
+                else:
+                    entity = await ABH.get_entity(chat_id)
             else:
+                # username أو رابط
                 try:
                     entity = await ABH.get_entity(num)
                 except ValueError:
@@ -45,16 +57,22 @@ async def s(e):
                             entity = await ABH(ImportChatInviteRequest(invite))
                         except UserAlreadyParticipantError:
                             entity = await ABH.get_entity(num)
-            if entity and hasattr(entity, "id"):
+
+            # محاولة الانضمام إذا مجموعة/قناة
+            if entity and isinstance(entity, PeerChannel):
                 try:
                     await ABH(JoinChannelRequest(entity))
                 except UserAlreadyParticipantError:
                     pass
+
+            # إرسال
             if reply.text and not reply.media:
                 await ABH.send_message(entity, reply.text)
             elif reply.media:
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
+
         except Exception as err:
             print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
+
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
