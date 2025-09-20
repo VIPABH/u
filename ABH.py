@@ -23,13 +23,17 @@ ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
 @bot.on(events.NewMessage(pattern=r'^ارسل(?: (\d+))?$', from_users=wfffp))
 async def s(e):
-    if  not e.is_private:
+    if not e.is_private:
         return
     reply = await e.get_reply_message()
     if not reply:
         return
     num = int(e.pattern_match.group(1) or wfffp)
     for ABH in ABHS:
-        await ABH.send_message(num, reply.text)
+        try:
+            user = await ABH.get_entity(num)
+            await ABH.send_message(user, reply.text)
+        except Exception as err:
+            print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
