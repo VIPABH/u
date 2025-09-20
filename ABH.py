@@ -11,6 +11,7 @@ wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
+r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 # ABH = TelegramClient("ABH", api_id, api_hash).start()
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 api_id1 = int(os.getenv("API_ID1"))
@@ -65,55 +66,33 @@ async def s(e):
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
             print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
-import redis, random
-from telethon import events
-from telethon.tl.functions.messages import SendReactionRequest
-from telethon.tl.types import ReactionEmoji
-
-r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
-
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
-
 def remove_chat(chat_id):
     r.srem("whitelist_chats", str(chat_id))
-
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
-
-
 async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
             await ensure_joined(ABH, event.chat_id)
-            # إرسال الريأكشن
             await ABH(
                 SendReactionRequest(
                     peer=event.chat_id,
-                    msg_id=event.message.id,   # ✅ التصحيح
+                    msg_id=event.message.id,
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
                     big=True
                 )
             )
-            
-            # عمل قراءة للرسالة
             await ABH.send_read_acknowledge(event.chat_id, event.message.id)
-
         except Exception as ex:
             print(f"خطأ بالريأكشن: {ex}")
-
 async def ensure_joined(ABH, chat_id):
-    """
-    يتأكد أن الحساب منضم للقناة/المجموعة
-    إذا مو منضم → يحاول ينضم
-    """
     try:
-        # محاولة الانضمام
         await ABH(JoinChannelRequest(chat_id))
         print(f"✅ الحساب {await ABH.get_me()} انضم إلى {chat_id}")
     except UserAlreadyParticipantError:
-        # إذا هو أصلاً منضم
         pass
     except Exception as ex:
         print(f"❌ خطأ أثناء محاولة الانضمام: {ex}")
@@ -136,7 +115,5 @@ async def reactauto(e):
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
     elif is_chat_allowed(e.chat_id):
         await react(e)
-
-
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
