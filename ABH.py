@@ -1,4 +1,3 @@
-import random
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.messages import SendReactionRequest
@@ -6,7 +5,8 @@ from telethon.errors import UserAlreadyParticipantError
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 from telethon.tl.types import PeerChannel
-import os, random
+import os, random, redis
+r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
@@ -65,18 +65,49 @@ async def s(e):
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
             print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
+ء
+def add_chat(chat_id):
+    r.sadd("whitelist_chats", chat_id)
+
+def remove_chat(chat_id):
+    r.srem("whitelist_chats", chat_id)
+
+def is_chat_allowed(chat_id):
+    return str(chat_id) in r.smembers("whitelist_chats")
+
+
+# الدالة الرئيسية للتفاعل
 async def react(event):
     for ABH in ABHS:
         x = random.choice(['👍', '🤣', '😁'])
-        await ABH(SendReactionRequest(
-            peer=event.chat_id,
-            msg_id=event.id,
-            reaction=[ReactionEmoji(emoticon=f'{x}')],
-            big=True
-        ))
+        await ABH(
+            SendReactionRequest(
+                peer=event.chat_id,
+                msg_id=event.id,
+                reaction=[ReactionEmoji(emoticon=f'{x}')],
+                big=True
+            )
+        )
+
+
 @bot.on(events.NewMessage)
-async def reactaotu(e):
-    if e.chat_id == -1002398894610:
+async def reactauto(e):
+    t = e.text.strip()
+    if t.startswith("اضف"):
+        try:
+            chat_id = t.split(" ", 1)[1]
+            add_chat(chat_id)
+            await e.reply(f"✅ تم إضافة المجموعة `{chat_id}` إلى القائمة البيضاء")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
+    elif t.startswith("حذف"):
+        try:
+            chat_id = t.split(" ", 1)[1]
+            remove_chat(chat_id)
+            await e.reply(f"🗑️ تم حذف المجموعة `{chat_id}` من القائمة البيضاء")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
+    elif is_chat_allowed(e.chat_id):
         await react(e)
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
