@@ -105,8 +105,6 @@ async def get_invite_link(ABH, chat):
         print(f"خطأ أثناء جلب الكيان: {ex}")
         return None
 from telethon.tl.functions.channels import GetParticipantRequest
-from telethon.tl.types import ChannelParticipantsSearch
-
 async def is_member(ABH, chat_id, user_id):
     """
     يتحقق إذا كان الحساب عضو في المجموعة
@@ -124,7 +122,6 @@ async def ensure_joined(ABH, chat_id):
     me = await ABH.get_me()
     member = await is_member(ABH, chat_id, me.id)
     if member:
-        print(f"✅ الحساب {me.id} موجود أصلاً في {chat_id}")
         return
     invite_link = await get_invite_link(bot, chat_id)
     if invite_link:
@@ -133,7 +130,7 @@ async def ensure_joined(ABH, chat_id):
             await ABH(ImportChatInviteRequest(invite_hash))
             print(f"✅ الحساب {me.id} انضم إلى {chat_id} عبر الرابط")
         except UserAlreadyParticipantError:
-            print(f"✅ الحساب {me.id} مشترك أصلاً في {chat_id}")
+            pass
         except Exception as ex:
             try:
                 invite_link = await get_invite_link(bot, chat_id)
