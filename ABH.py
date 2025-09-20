@@ -65,7 +65,6 @@ async def s(e):
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
             print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
-ء
 def add_chat(chat_id):
     r.sadd("whitelist_chats", chat_id)
 
