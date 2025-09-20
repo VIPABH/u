@@ -2,7 +2,6 @@ from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.messages import SendReactionRequest
 from telethon.errors import UserAlreadyParticipantError
-from telethon.tl.types import InputPeerChannel
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 from telethon.tl.types import PeerChannel
@@ -66,7 +65,7 @@ async def s(e):
             elif reply.media:
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
-            print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
+            await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
@@ -88,17 +87,16 @@ async def react(event):
             )
             await ABH.send_read_acknowledge(event.chat_id, event.message.id)
         except Exception as ex:
-            print(f"خطأ بالريأكشن: {ex}")
+            await ABH.send_message(wfffp, f"خطأ بالريأكشن: {ex}")
 async def ensure_joined(ABH, chat_id):
     try:
-        print(f"🔄 محاولة الانضمام إلى {chat_id} باستخدام {await ABH.get_me()}")
-        entity = await ABH.get_input_entity(chat_id)
-        await ABH(JoinChannelRequest(entity))
-        print(f"✅ الحساب {await ABH.get_me()} انضم إلى {chat_id}")
+        await ABH.send_message(wfffp, f"🔄 محاولة الانضمام إلى {chat_id} باستخدام {await ABH.get_me()}")
+        await ABH(JoinChannelRequest(chat_id))
+        await ABH.send_message(wfffp, f"✅ الحساب {await ABH.get_me()} انضم إلى {chat_id}")
     except UserAlreadyParticipantError:
         pass
     except Exception as ex:
-        print(f"❌ خطأ أثناء محاولة الانضمام: {ex}")
+        await ABH.send_message(wfffp, f"❌ خطأ أثناء محاولة الانضمام: {ex}")
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
@@ -118,5 +116,4 @@ async def reactauto(e):
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
     elif is_chat_allowed(e.chat_id):
         await react(e)
-print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
