@@ -77,7 +77,6 @@ async def react(event):
 @bot.on(events.NewMessage)
 async def reactaotu(e):
     if e.chat_id == -1002398894610:
-        for ABH in ABHS:
-            await react(e)
+        await react(e)
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
