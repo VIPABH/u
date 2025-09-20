@@ -89,7 +89,7 @@ async def react(event):
             )
             await ABH.send_read_acknowledge(event.chat_id, event.message.id)
         except Exception as ex:
-            await ABH.send_message(wfffp, f"خطأ بالريأكشن: {ex}")
+            pass
 async def get_invite_link(ABH, chat):
     try:
         entity = await ABH.get_entity(chat)
@@ -122,8 +122,6 @@ async def ensure_joined(ABH, chat_id):
     يضيف الحساب إذا لم يكن عضوًا
     """
     me = await ABH.get_me()
-
-    # تحقق إذا الحساب عضو
     member = await is_member(ABH, chat_id, me.id)
     if member:
         print(f"✅ الحساب {me.id} موجود أصلاً في {chat_id}")
