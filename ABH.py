@@ -97,7 +97,7 @@ async def get_invite_link(ABH, chat):
     try:
         entity = await ABH.get_entity(chat)
         try:
-            result = await ABH(ExportChatInviteRequest(entity))
+            result = await bot(ExportChatInviteRequest(entity))
             invite_link = result.link
             print(f"رابط الدعوة: {invite_link}")
             return invite_link
