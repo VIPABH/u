@@ -90,9 +90,10 @@ async def react(event):
             await ABH.send_message(wfffp, f"خطأ بالريأكشن: {ex}")
 async def ensure_joined(ABH, chat_id):
     try:
-        await ABH.send_message(wfffp, f"🔄 محاولة الانضمام إلى {chat_id} باستخدام {await ABH.get_me()}")
+        i = await ABH.get_me()
+        await ABH.send_message(wfffp, f"🔄 محاولة الانضمام إلى {chat_id} باستخدام {i.id}")
         await ABH(JoinChannelRequest(chat_id))
-        await ABH.send_message(wfffp, f"✅ الحساب {await ABH.get_me()} انضم إلى {chat_id}")
+        await ABH.send_message(wfffp, f"✅ الحساب {i.id} انضم إلى {chat_id}")
     except UserAlreadyParticipantError:
         pass
     except Exception as ex:
