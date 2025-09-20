@@ -21,7 +21,7 @@ api_id5 = int(os.getenv("API_ID5"))
 api_hash5 = os.getenv("API_HASH5")
 ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
-@bot.on(events.NewMessage(pattern='^ارسل (?: (\d+))?$', from_users=wfffp))
+@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\d+))?$', from_users=wfffp))
 async def s(e):
     if  not e.is_private:
         return
