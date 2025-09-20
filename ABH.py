@@ -65,28 +65,37 @@ async def s(e):
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
             print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
+import redis, random
+from telethon import events
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.types import ReactionEmoji
+
+r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
 def add_chat(chat_id):
-    r.sadd("whitelist_chats", chat_id)
+    r.sadd("whitelist_chats", str(chat_id))
 
 def remove_chat(chat_id):
-    r.srem("whitelist_chats", chat_id)
+    r.srem("whitelist_chats", str(chat_id))
 
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
 
 
-# الدالة الرئيسية للتفاعل
 async def react(event):
     for ABH in ABHS:
-        x = random.choice(['👍', '🤣', '😁'])
-        await ABH(
-            SendReactionRequest(
-                peer=event.chat_id,
-                msg_id=event.id,
-                reaction=[ReactionEmoji(emoticon=f'{x}')],
-                big=True
+        try:
+            x = random.choice(['👍', '🤣', '😁'])
+            await ABH(
+                SendReactionRequest(
+                    peer=event.chat_id,
+                    msg_id=event.message.id,   # ✅ هنا التصحيح
+                    reaction=[ReactionEmoji(emoticon=f'{x}')],
+                    big=True
+                )
             )
-        )
+        except Exception as ex:
+            print(f"خطأ بالريأكشن: {ex}")
 
 
 @bot.on(events.NewMessage)
@@ -108,5 +117,7 @@ async def reactauto(e):
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
     elif is_chat_allowed(e.chat_id):
         await react(e)
+
+
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
