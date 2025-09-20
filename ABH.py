@@ -86,7 +86,7 @@ async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🤣', '😁'])
-            
+            await ensure_joined(ABH, event.chat_id)
             # إرسال الريأكشن
             await ABH(
                 SendReactionRequest(
@@ -103,7 +103,20 @@ async def react(event):
         except Exception as ex:
             print(f"خطأ بالريأكشن: {ex}")
 
-
+async def ensure_joined(ABH, chat_id):
+    """
+    يتأكد أن الحساب منضم للقناة/المجموعة
+    إذا مو منضم → يحاول ينضم
+    """
+    try:
+        # محاولة الانضمام
+        await ABH(JoinChannelRequest(chat_id))
+        print(f"✅ الحساب {await ABH.get_me()} انضم إلى {chat_id}")
+    except UserAlreadyParticipantError:
+        # إذا هو أصلاً منضم
+        pass
+    except Exception as ex:
+        print(f"❌ خطأ أثناء محاولة الانضمام: {ex}")
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
