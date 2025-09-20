@@ -143,7 +143,7 @@ async def ensure_joined(ABH, chat_id):
             except Exception as ex:
                 print(f"❌ فشل الانضمام للحساب {me.id}: {ex}")
     else:
-        print(f"⚠️ لا يمكن الحصول على رابط الدعوة للحساب {me.id}")
+        return
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
