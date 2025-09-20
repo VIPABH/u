@@ -26,15 +26,21 @@ async def s(e):
     reply = await e.get_reply_message()
     if not reply:
         return
-    num = e.pattern_match.group(1) or wfffp
+    # نخليها سترنك، سواء رقم أو يوزر
+    num = e.pattern_match.group(1) or str(wfffp)
+
     for ABH in ABHS:
         try:
+            # إذا سترنك رقم نحوله إلى int، غير هذا نخليه سترنك (username, link, ...)
             entity = await ABH.get_entity(int(num)) if num.isdigit() else await ABH.get_entity(num)
+
             if reply.text and not reply.media:
                 await ABH.send_message(entity, reply.text)
             elif reply.media:
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
+
         except Exception as err:
             print(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
+
 print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
