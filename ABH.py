@@ -1,7 +1,9 @@
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.tl.functions.messages import ExportChatInviteRequest
 from telethon.tl.functions.messages import SendReactionRequest
 from telethon.errors import UserAlreadyParticipantError
+from telethon.errors import ChatAdminRequiredError
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 from telethon.tl.types import PeerChannel
@@ -88,16 +90,39 @@ async def react(event):
             await ABH.send_read_acknowledge(event.chat_id, event.message.id)
         except Exception as ex:
             await ABH.send_message(wfffp, f"خطأ بالريأكشن: {ex}")
+from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.errors import UserAlreadyParticipantError, ChatAdminRequiredError
+
+async def get_invite_link(ABH, chat):
+    try:
+        entity = await ABH.get_entity(chat)
+        try:
+            result = await ABH(ExportChatInviteRequest(entity))
+            invite_link = result.link
+            print(f"رابط الدعوة: {invite_link}")
+            return invite_link
+        except ChatAdminRequiredError:
+            print("الحساب ليس مشرفًا، لا يمكن استخراج رابط الدعوة")
+            return None
+    except Exception as ex:
+        print(f"خطأ أثناء جلب الكيان: {ex}")
+        return None
 async def ensure_joined(ABH, chat_id):
     try:
-        i = await ABH.get_me()
-        await ABH.send_message(wfffp, f"🔄 محاولة الانضمام إلى {chat_id} باستخدام {i.id}")
-        await ABH(JoinChannelRequest(chat_id))
-        await ABH.send_message(wfffp, f"✅ الحساب {i.id} انضم إلى {chat_id}")
-    except UserAlreadyParticipantError:
-        pass
+        me = await ABH.get_me()
+        invite_link = await get_invite_link(ABH, chat_id)
+        if invite_link:
+            invite_hash = invite_link.split("/")[-1].replace("+", "")
+            try:
+                await ABH(ImportChatInviteRequest(invite_hash))
+                print(f"✅ الحساب {me.id} انضم إلى {chat_id}")
+            except UserAlreadyParticipantError:
+                print(f"✅ الحساب {me.id} مشترك أصلاً في {chat_id}")
+        else:
+            print(f"⚠️ لا يمكن الحصول على رابط الدعوة للحساب {me.id}")
+
     except Exception as ex:
-        await ABH.send_message(wfffp, f"❌ خطأ أثناء محاولة الانضمام: {ex}")
+        print(f"❌ خطأ أثناء محاولة الانضمام: {ex}")
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
