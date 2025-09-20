@@ -86,14 +86,20 @@ async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🤣', '😁'])
+            
+            # إرسال الريأكشن
             await ABH(
                 SendReactionRequest(
                     peer=event.chat_id,
-                    msg_id=event.message.id,   # ✅ هنا التصحيح
+                    msg_id=event.message.id,   # ✅ التصحيح
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
                     big=True
                 )
             )
+            
+            # عمل قراءة للرسالة
+            await ABH.send_read_acknowledge(event.chat_id, event.message.id)
+
         except Exception as ex:
             print(f"خطأ بالريأكشن: {ex}")
 
