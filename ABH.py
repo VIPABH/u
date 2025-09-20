@@ -11,7 +11,7 @@ wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
-ABH = TelegramClient("ABH", api_id, api_hash).start()
+# ABH = TelegramClient("ABH", api_id, api_hash).start()
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 api_id1 = int(os.getenv("API_ID1"))
 api_hash1 = os.getenv("API_HASH1")
