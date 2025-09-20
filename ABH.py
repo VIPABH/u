@@ -90,9 +90,6 @@ async def react(event):
             await ABH.send_read_acknowledge(event.chat_id, event.message.id)
         except Exception as ex:
             await ABH.send_message(wfffp, f"خطأ بالريأكشن: {ex}")
-from telethon.tl.functions.messages import ImportChatInviteRequest
-from telethon.errors import UserAlreadyParticipantError, ChatAdminRequiredError
-
 async def get_invite_link(ABH, chat):
     try:
         entity = await ABH.get_entity(chat)
@@ -107,23 +104,44 @@ async def get_invite_link(ABH, chat):
     except Exception as ex:
         print(f"خطأ أثناء جلب الكيان: {ex}")
         return None
-async def ensure_joined(ABH, chat_id):
-    try:
-        me = await ABH.get_me()
-        invite_link = await get_invite_link(ABH, chat_id)
-        print(invite_link)
-        if invite_link:
-            invite_hash = invite_link.split("/")[-1].replace("+", "")
-            try:
-                await ABH(ImportChatInviteRequest(invite_hash))
-                print(f"✅ الحساب {me.id} انضم إلى {chat_id}")
-            except UserAlreadyParticipantError:
-                print(f"✅ الحساب {me.id} مشترك أصلاً في {chat_id}")
-        else:
-            print(f"⚠️ لا يمكن الحصول على رابط الدعوة للحساب {me.id}")
+from telethon.tl.functions.channels import GetParticipantRequest
+from telethon.tl.types import ChannelParticipantsSearch
 
-    except Exception as ex:
-        print(f"❌ خطأ أثناء محاولة الانضمام: {ex}")
+async def is_member(ABH, chat_id, user_id):
+    """
+    يتحقق إذا كان الحساب عضو في المجموعة
+    """
+    try:
+        participant = await ABH(GetParticipantRequest(chat_id, user_id))
+        return True
+    except:
+        return False
+
+async def ensure_joined(ABH, chat_id):
+    """
+    يضيف الحساب إذا لم يكن عضوًا
+    """
+    me = await ABH.get_me()
+
+    # تحقق إذا الحساب عضو
+    member = await is_member(ABH, chat_id, me.id)
+    if member:
+        print(f"✅ الحساب {me.id} موجود أصلاً في {chat_id}")
+        return
+
+    # الحصول على رابط الدعوة عبر البوت
+    invite_link = await get_invite_link(bot, chat_id)
+    if invite_link:
+        invite_hash = invite_link.split("/")[-1].replace("+", "")
+        try:
+            await ABH(ImportChatInviteRequest(invite_hash))
+            print(f"✅ الحساب {me.id} انضم إلى {chat_id} عبر الرابط")
+        except UserAlreadyParticipantError:
+            print(f"✅ الحساب {me.id} مشترك أصلاً في {chat_id}")
+        except Exception as ex:
+            print(f"❌ فشل الانضمام للحساب {me.id}: {ex}")
+    else:
+        print(f"⚠️ لا يمكن الحصول على رابط الدعوة للحساب {me.id}")
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
