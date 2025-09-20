@@ -1,5 +1,4 @@
 from telethon import events, TelegramClient
-from telethon.tl.types import PeerUser
 import os
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
@@ -22,14 +21,15 @@ api_id5 = int(os.getenv("API_ID5"))
 api_hash5 = os.getenv("API_HASH5")
 ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
-# ABHS = [ABH1, ABH2, ABH4, ABH5]
-@bot.on(events.NewMessage(pattern='^ارسل$', from_users=wfffp))
+@bot.on(events.NewMessage(pattern='^ارسل (?: (\d+))?$', from_users=wfffp))
 async def s(e):
-    if e.is_private:
-        for ABH in ABHS:
-            try:
-                user = await ABH.get_input_entity(wfffp)
-                await ABH.send_message(user, "ها")
-            except ValueError:
-                await e.reply(f"❌ {ABH.session.filename} لم يجد المستخدم، يحتاج التفاعل أولًا.")
+    if  not e.is_private:
+        return
+    reply = await e.get_reply_message()
+    if not reply:
+        return
+    num = int(e.pattern_match.group(1) or wfffp)
+    for ABH in ABHS:
+        await ABH.send_message(num, reply.text)
+print("✅ البوت والحسابات الإضافية اشتغلوا")
 bot.run_until_disconnected()
