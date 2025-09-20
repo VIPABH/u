@@ -145,14 +145,14 @@ async def ensure_joined(ABH, chat_id):
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
-    if t.startswith("اضف"):
+    if t.startswith("اضف") and e.sender_id == wfffp:
         try:
             chat_id = t.split(" ", 1)[1]
             add_chat(chat_id)
             await e.reply(f"✅ تم إضافة المجموعة `{chat_id}` إلى القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
-    elif t.startswith("حذف"):
+    elif t.startswith("حذف") and e.sender_id == wfffp:
         try:
             chat_id = t.split(" ", 1)[1]
             remove_chat(chat_id)
