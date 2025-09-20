@@ -90,6 +90,7 @@ async def react(event):
             print(f"خطأ بالريأكشن: {ex}")
 async def ensure_joined(ABH, chat_id):
     try:
+        print(f"🔄 محاولة الانضمام إلى {chat_id} باستخدام {await ABH.get_me()}")
         await ABH(JoinChannelRequest(chat_id))
         print(f"✅ الحساب {await ABH.get_me()} انضم إلى {chat_id}")
     except UserAlreadyParticipantError:
