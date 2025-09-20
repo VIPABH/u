@@ -128,8 +128,6 @@ async def ensure_joined(ABH, chat_id):
     if member:
         print(f"✅ الحساب {me.id} موجود أصلاً في {chat_id}")
         return
-
-    # الحصول على رابط الدعوة عبر البوت
     invite_link = await get_invite_link(bot, chat_id)
     if invite_link:
         invite_hash = invite_link.split("/")[-1].replace("+", "")
@@ -139,7 +137,11 @@ async def ensure_joined(ABH, chat_id):
         except UserAlreadyParticipantError:
             print(f"✅ الحساب {me.id} مشترك أصلاً في {chat_id}")
         except Exception as ex:
-            print(f"❌ فشل الانضمام للحساب {me.id}: {ex}")
+            try:
+                invite_link = await get_invite_link(bot, chat_id)
+                await ABH(ImportChatInviteRequest(invite_hash))
+            except Exception as ex:
+                print(f"❌ فشل الانضمام للحساب {me.id}: {ex}")
     else:
         print(f"⚠️ لا يمكن الحصول على رابط الدعوة للحساب {me.id}")
 @bot.on(events.NewMessage)
