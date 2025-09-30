@@ -2,12 +2,10 @@ from telethon import events
 import asyncio, re
 from ABH import *
 target_user_id = 1421907917
-@bot.on(events.NewMessage(pattern='!تجربة'))
+@bot.on(events.NewMessage(pattern='!تجربة', from_users=[wfffp]))
 async def test(e):
-    a = 0
     for ABH in ABHS:
-        x = f'ABH{a+1}'
-        await x.send_message(e.chat_id, 'نعم', reply_to=e.id)
+        await ABH.send_message(wfffp, 'نعم')
 @bot.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$", from_users=[1910015590, 201728276]))
 async def words(event):
     num = int(event.pattern_match.group(1)) or 1
