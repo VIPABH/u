@@ -2,7 +2,7 @@ from telethon import events
 import asyncio, re
 from ABH import *
 target_user_id = 1421907917
-@bot.on(events.NewMessage(pattern='!تجربة', from_users=[wfffp]))
+@bot.on(events.NewMessage(pattern='!تجربة'))
 async def test(e):
     a = 0
     for ABH in ABHS:
