@@ -7,7 +7,7 @@ from telethon.errors import ChatAdminRequiredError
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 from telethon.tl.types import PeerChannel
-import os, random, redis
+import os, random, redis, re, asyncio
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
@@ -32,10 +32,11 @@ api_id5 = int(os.getenv("API_ID5"))
 api_hash5 = os.getenv("API_HASH5")
 ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
-@bot.on(events.NewMessage(pattern='تجربة', from_users=[wfffp]))
+target_user_id = 1421907917
+@bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS:
-        await ABH.send_message(wfffp, 'نعم')
+        await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
 @bot.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$", from_users=[1910015590, 201728276]))
 async def words(event):
     num = int(event.pattern_match.group(1)) or 1
