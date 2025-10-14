@@ -108,6 +108,7 @@ def remove_chat(chat_id):
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
 async def react(event):
+    print("...")
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
