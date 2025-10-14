@@ -209,7 +209,7 @@ async def ensure_joined(ABH, bot, chat_id):
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
 from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
 from telethon.tl.types import ChatAdminRights
-async def process_ABHs(bot, ABHs, chat_identifier):
+async def process_ABHs(chat_identifier):
     """
     - يتخطى الحسابات العادية
     - إذا كان البوت عضوًا مسبقًا: يتم تخطي رفع المشرفين
