@@ -108,7 +108,7 @@ def remove_chat(chat_id):
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
 async def react(event):
-    print("...")
+    
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
@@ -131,7 +131,7 @@ async def get_invite_link(ABH, chat):
         try:
             result = await bot(ExportChatInviteRequest(entity))
             invite_link = result.link
-            print(f"رابط الدعوة: {invite_link}")
+            
             return invite_link
         except ChatAdminRequiredError:
             print("الحساب ليس مشرفًا، لا يمكن استخراج رابط الدعوة")
@@ -154,7 +154,7 @@ async def ensure_joined(ABH, bot, chat_id):
     """
     يضيف الحساب إذا لم يكن عضوًا، وإذا فشل يحاول رفعه مشرفًا.
     """
-    print("@")
+    
     try:
         me = await ABH.get_me()
         member = await is_member(ABH, chat_id, me.id)
@@ -185,7 +185,7 @@ async def ensure_joined(ABH, bot, chat_id):
                     await ABH(ImportChatInviteRequest(invite_hash))
 
                 except Exception:
-                    print(f"⚠️ فشل الانضمام للحساب {me.id}، محاولة رفعه مشرف بدل الانضمام...")
+                    
                     try:
                         # محاولة رفع الحساب مشرفاً سواء كانت قناة أو مجموعة
                         await bot.edit_admin(
