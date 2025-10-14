@@ -221,7 +221,7 @@ async def process_ABHs(chat_id):
     - إذا كان بوت يتم رفعه مشرفًا مباشرة مع صلاحيات محدودة
     - إذا كان الحساب موجود بالفعل في المجموعة/القناة، يتم تخطيه
     """
-    for ABH in ABHs:
+    for ABH in ABHS:
         print("جاري تشغيل الحلقة")
         try:
             me = await ABH.get_me()
