@@ -122,6 +122,7 @@ async def react(event):
             )
             await ABH.send_read_acknowledge(event.chat_id, event.message.id)
         except Exception as ex:
+            await bot.send_message(wfffp, str(ex))
             pass
 async def get_invite_link(ABH, chat):
     try:
