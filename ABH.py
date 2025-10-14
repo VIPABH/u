@@ -226,7 +226,7 @@ async def process_ABHs(chat_identifier):
 
             # الحصول على كيان القناة/المجموعة
             try:
-                channel_entity = await bot.get_input_entity(chat_identifier)
+                channel_entity = await bot.get_input_entity(int(chat_identifier))
             except Exception as e:
                 print(f"❌ فشل الحصول على كيان {chat_identifier}: {e}")
                 continue
