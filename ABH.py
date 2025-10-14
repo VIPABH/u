@@ -207,40 +207,46 @@ async def ensure_joined(ABH, bot, chat_id):
 
     except Exception as ex:
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
-from telethon.tl.functions.channels import InviteToChannelRequest, EditAdminRequest
-from telethon.tl.types import ChatAdminRights
-
-from telethon.tl.functions.messages import ImportChatInviteRequest
 from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
 from telethon.tl.types import ChatAdminRights
-
-async def process_ABHs(chat_id):
+async def process_ABHs(bot, ABHs, chat_identifier):
     """
-    لكل عنصر في ABHs:
-    - إذا كان مستخدم عادي يتم دعوته عبر رابط الدعوة
-    - إذا كان بوت يتم رفعه مشرفًا مباشرة مع صلاحيات محدودة
-    - إذا كان الحساب موجود بالفعل في المجموعة/القناة، يتم تخطيه
+    - يتخطى الحسابات العادية
+    - إذا كان البوت عضوًا مسبقًا: يتم تخطي رفع المشرفين
+    - إذا كان البوت غير عضو: يتم رفعه مشرف بصلاحيات محدودة
     """
-    for ABH in ABHS:
-        print("جاري تشغيل الحلقة")
+    for ABH in ABHs:
         try:
             me = await ABH.get_me()
 
-            # التحقق إذا كان الحساب موجود بالفعل في المجموعة/القناة
+            # تجاهل الحسابات العادية
+            if not me.bot:
+                print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
+                continue
+
+            # الحصول على كيان القناة/المجموعة
+            try:
+                channel_entity = await bot.get_input_entity(chat_identifier)
+            except Exception as e:
+                print(f"❌ فشل الحصول على كيان {chat_identifier}: {e}")
+                continue
+
+            # التحقق إذا كان البوت عضوًا بالفعل
+            is_member = False
             try:
                 participant = await bot(GetParticipantRequest(
-                    channel=int(chat_id),
+                    channel=channel_entity,
                     user_id=int(me.id)
                 ))
                 if participant:
-                    print(f"⚠️ الحساب {me.id} موجود بالفعل في {chat_id}, تخطي...")
-                    continue
+                    is_member = True
+                    print(f"⚠️ البوت {me.id} عضو بالفعل في {chat_identifier}, تخطي رفع المشرفين")
             except Exception:
-                # إذا لم يكن موجودًا، تابع العملية
+                # لم يكن عضوًا
                 pass
 
-            # التحقق إذا كان الحساب بوت
-            if me.bot:
+            # إذا لم يكن عضوًا، رفعه مشرف
+            if not is_member:
                 try:
                     admin_rights = ChatAdminRights(
                         change_info=False,
@@ -248,36 +254,23 @@ async def process_ABHs(chat_id):
                         edit_messages=False,
                         delete_messages=False,
                         ban_users=False,
-                        invite_users=True,   # السماح بإضافة أعضاء
-                        pin_messages=True,   # السماح بتثبيت الرسائل
+                        invite_users=True,  # السماح بدعوة أعضاء
+                        pin_messages=True,  # السماح بتثبيت الرسائل
                         add_admins=False,
                         manage_call=False,
                         anonymous=False
                     )
 
                     await bot(EditAdminRequest(
-                        channel=int(chat_id),
+                        channel=channel_entity,
                         user_id=int(me.id),
                         admin_rights=admin_rights,
                         rank="مشرف بوت"
                     ))
-                    print(f"✅ تم رفع البوت {me.id} مشرفاً في {chat_id}")
+                    print(f"✅ تم رفع البوت {me.id} مشرفاً في {chat_identifier}")
 
                 except Exception as e:
                     print(f"❌ فشل رفع البوت {me.id} مشرفاً: {e}")
-
-            else:
-                try:
-                    invite_link = await get_invite_link(bot, chat_id)
-                    if invite_link:
-                        invite_hash = invite_link.split("/")[-1].replace("+", "")
-                        await ABH(ImportChatInviteRequest(invite_hash))
-                        print(f"✅ انضم المستخدم {me.id} إلى {chat_id} عبر رابط الدعوة")
-                    else:
-                        print(f"❌ لا يوجد رابط دعوة متاح لـ {chat_id}")
-
-                except Exception as e:
-                    print(f"❌ فشل دعوة المستخدم {me.id} عبر رابط الدعوة: {e}")
 
         except Exception as e:
             print(f"❌ حدث خطأ مع الحساب {ABH}: {e}")
