@@ -255,7 +255,7 @@ async def process_ABHs(chat_id):
                     # دعوة المستخدم للمجموعة/القناة
                     await bot(InviteToChannelRequest(
                         channel=chat_id,
-                        users=[me.id]
+                        users=[int(me.id)]
                     ))
                     print(f"✅ تم دعوة المستخدم {me.id} إلى {chat_id}")
 
