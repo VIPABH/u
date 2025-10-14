@@ -210,7 +210,7 @@ async def ensure_joined(ABH, bot, chat_id):
 from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
 from telethon.tl.types import ChatAdminRights
 
-async def promote_ABHS(chat_identifier, bot, ABHS):
+async def promote_ABHS(chat_identifier):
     """
     - bot: البوت الأساسي الذي سيرفع ABH1 مشرف كامل
     - ABHS: قائمة البوتات [ABH1, ABH2, ..., ABHn]
