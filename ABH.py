@@ -300,7 +300,7 @@ async def promote_ABHS(chat_identifier):
                 me = await ABH.get_me()
                 await ABH1(EditAdminRequest(
                     channel=channel_entity_bot,
-                    user_id=int(me1.id),
+                    user_id=int(me.id),
                     admin_rights=admin_rights_add_admins_only,
                     rank="مشرف رئيسي"
         ))
