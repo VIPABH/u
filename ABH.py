@@ -297,13 +297,13 @@ async def promote_ABHS(chat_identifier):
                     manage_call=False,
                     anonymous=False
                 )
-
+                me = await ABH.get_me()
                 await ABH1(EditAdminRequest(
-                    channel=channel_entity_abh1,
-                    user_id=int(me.id),
-                    admin_rights=admin_rights_limited,
-                    rank="مشرف بوت"
-                ))
+                    channel=channel_entity_bot,
+                    user_id=int(me1.id),
+                    admin_rights=admin_rights_add_admins_only,
+                    rank="مشرف رئيسي"
+        ))
                 print(f"✅ تم رفع البوت {me.id} مشرفاً بواسطة ABH1")
 
         except Exception as e:
