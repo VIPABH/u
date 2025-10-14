@@ -240,7 +240,7 @@ async def process_ABHs(chat_id):
 
                     # رفع البوت مشرفًا
                     await bot(EditAdminRequest(
-                        channel=chat_id,
+                        channel=int(chat_id),
                         user_id=int(me.id),
                         admin_rights=admin_rights,
                         rank="مشرف بوت"
