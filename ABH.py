@@ -208,7 +208,7 @@ async def ensure_joined(ABH, bot, chat_id):
     except Exception as ex:
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
 from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
-from telethon.tl.types import ChatAdminRights
+from telethon.tl.types import ChatAdminRights, Channel, Chat
 
 async def promote_ABHS(chat_identifier):
     """
@@ -226,6 +226,11 @@ async def promote_ABHS(chat_identifier):
     try:
         # الحصول على كيان القناة/المجموعة بواسطة البوت الأساسي
         channel_entity_bot = await bot.get_input_entity(int(chat_identifier))
+        # تحديد نوع الكيان
+        if isinstance(channel_entity_bot, Channel):
+            is_channel = True
+        else:
+            is_channel = False
     except Exception as e:
         print(f"❌ فشل الحصول على كيان {chat_identifier} بواسطة البوت الأساسي: {e}")
         return
@@ -234,18 +239,33 @@ async def promote_ABHS(chat_identifier):
     try:
         me1 = await ABH1.get_me()
 
-        admin_rights_full = ChatAdminRights(
-            change_info=False,
-            post_messages=False,
-            edit_messages=False,
-            delete_messages=False,
-            ban_users=False,
-            invite_users=True,
-            pin_messages=True,
-            add_admins=False,
-            manage_call=False,
-            anonymous=False
-        )
+        # ضبط الصلاحيات حسب نوع الكيان
+        if is_channel:
+            admin_rights_full = ChatAdminRights(
+                change_info=True,
+                post_messages=True,
+                edit_messages=True,
+                delete_messages=True,
+                ban_users=False,       # لا يمكن حظر الأعضاء في القناة
+                invite_users=True,
+                pin_messages=True,
+                add_admins=True,
+                manage_call=False,
+                anonymous=False
+            )
+        else:  # مجموعة أو سوبرجروب
+            admin_rights_full = ChatAdminRights(
+                change_info=True,
+                post_messages=True,
+                edit_messages=True,
+                delete_messages=True,
+                ban_users=True,
+                invite_users=True,
+                pin_messages=True,
+                add_admins=True,
+                manage_call=False,
+                anonymous=False
+            )
 
         await bot(EditAdminRequest(
             channel=channel_entity_bot,
@@ -291,18 +311,33 @@ async def promote_ABHS(chat_identifier):
 
             # رفع البوت إذا لم يكن عضوًا
             if not is_member:
-                admin_rights_limited = ChatAdminRights(
-                    change_info=False,
-                    post_messages=False,
-                    edit_messages=False,
-                    delete_messages=False,
-                    ban_users=False,
-                    invite_users=True,
-                    pin_messages=True,
-                    add_admins=False,
-                    manage_call=False,
-                    anonymous=False
-                )
+                # صلاحيات محدودة حسب نوع الكيان
+                if is_channel:
+                    admin_rights_limited = ChatAdminRights(
+                        change_info=False,
+                        post_messages=False,
+                        edit_messages=False,
+                        delete_messages=False,
+                        ban_users=False,
+                        invite_users=True,
+                        pin_messages=True,
+                        add_admins=False,
+                        manage_call=False,
+                        anonymous=False
+                    )
+                else:  # مجموعة أو سوبرجروب
+                    admin_rights_limited = ChatAdminRights(
+                        change_info=False,
+                        post_messages=False,
+                        edit_messages=False,
+                        delete_messages=False,
+                        ban_users=False,
+                        invite_users=True,
+                        pin_messages=True,
+                        add_admins=False,
+                        manage_call=False,
+                        anonymous=False
+                    )
 
                 await ABH1(EditAdminRequest(
                     channel=channel_entity_abh1,
