@@ -216,7 +216,7 @@ async def process_ABHs(chat_id):
     - إذا كان مستخدم عادي يتم دعوته للمجموعة/القناة
     - إذا كان بوت يتم رفعه مشرفًا مباشرة مع صلاحيات محدودة
     """
-    for ABH in ABHs:
+    for ABH in ABHS:
         print("جاري تشغيل الحلقة")
         try:
             me = await ABH.get_me()
