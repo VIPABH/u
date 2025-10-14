@@ -154,6 +154,7 @@ async def ensure_joined(ABH, bot, chat_id):
     """
     يضيف الحساب إذا لم يكن عضوًا، وإذا فشل يحاول رفعه مشرفًا.
     """
+    print("@")
     try:
         me = await ABH.get_me()
         member = await is_member(ABH, chat_id, me.id)
@@ -206,6 +207,48 @@ async def ensure_joined(ABH, bot, chat_id):
 
     except Exception as ex:
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
+from telethon.tl.functions.channels import InviteToChannelRequest, EditAdminRequest
+from telethon.tl.types import ChannelParticipantsAdmins
+
+async def process_ABHs(chat_id):
+    """
+    لكل عنصر في ABHs:
+    - إذا كان مستخدم عادي يتم دعوته للمجموعة/القناة
+    - إذا كان بوت يتم رفعه مشرفًا مباشرة
+    """
+    for ABH in ABHs:
+        try:
+            me = await ABH.get_me()
+            # التحقق إذا كان الحساب بوت
+            if me.bot:
+                try:
+                    # رفع البوت مشرفًا
+                    await bot.edit_admin(
+                        chat_id,
+                        me.id,
+                        title="مشرف بوت",
+                        invite_users=True,
+                        change_info=False,
+                        ban_users=False,
+                        delete_messages=False,
+                        pin_messages=False,
+                        manage_call=False
+                    )
+                    print(f"✅ تم رفع البوت {me.id} مشرفاً في {chat_id}")
+                except Exception as e:
+                    print(f"❌ فشل رفع البوت {me.id} مشرفاً: {e}")
+            else:
+                try:
+                    # دعوة المستخدم للمجموعة/القناة
+                    await bot(InviteToChannelRequest(
+                        channel=chat_id,
+                        users=[me.id]
+                    ))
+                    print(f"✅ تم دعوة المستخدم {me.id} إلى {chat_id}")
+                except Exception as e:
+                    print(f"❌ فشل دعوة المستخدم {me.id}: {e}")
+        except Exception as e:
+            print(f"❌ حدث خطأ مع الحساب {ABH}: {e}")
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
@@ -213,6 +256,7 @@ async def reactauto(e):
         try:
             chat_id = t.split(" ", 1)[1]
             add_chat(chat_id)
+            process_ABHs(chat_id)
             await e.reply(f"✅ تم إضافة المجموعة `{chat_id}` إلى القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
