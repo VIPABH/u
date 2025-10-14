@@ -223,4 +223,5 @@ async def reactauto(e):
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
     elif is_chat_allowed(e.chat_id):
         await react(e)
+        print("جاري")
 bot.run_until_disconnected()
