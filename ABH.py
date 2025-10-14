@@ -217,6 +217,7 @@ async def process_ABHs(chat_id):
     - إذا كان بوت يتم رفعه مشرفًا مباشرة مع صلاحيات محدودة
     """
     for ABH in ABHs:
+        print("جاري تشغيل الحلقة")
         try:
             me = await ABH.get_me()
             
@@ -240,7 +241,7 @@ async def process_ABHs(chat_id):
                     # رفع البوت مشرفًا
                     await bot(EditAdminRequest(
                         channel=chat_id,
-                        user_id=me.id,
+                        user_id=int(me.id),
                         admin_rights=admin_rights,
                         rank="مشرف بوت"
                     ))
