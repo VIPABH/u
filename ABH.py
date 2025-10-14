@@ -235,15 +235,15 @@ async def promote_ABHS(chat_identifier):
         me1 = await ABH1.get_me()
 
         admin_rights_full = ChatAdminRights(
-            change_info=True,
-            post_messages=True,
-            edit_messages=True,
-            delete_messages=True,
-            ban_users=True,
+            change_info=False,
+            post_messages=False,
+            edit_messages=False,
+            delete_messages=False,
+            ban_users=False,
             invite_users=True,
-            pin_messages=True,
+            pin_messages=False,
             add_admins=True,
-            manage_call=True,
+            manage_call=False,
             anonymous=False
         )
 
