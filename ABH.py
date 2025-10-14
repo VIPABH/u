@@ -210,12 +210,18 @@ async def ensure_joined(ABH, bot, chat_id):
 from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
 from telethon.tl.types import ChatAdminRights
 
-async def process_ABHs(chat_identifier):
+async def promote_ABHS(chat_identifier):
     """
     - bot: البوت الأساسي الذي سيرفع ABH1 مشرف كامل
-    - ABH1: الحساب الذي سيرفع باقي البوتات بصلاحيات محدودة
-    - ABHS: قائمة البوتات المراد رفعها
+    - ABHS: قائمة البوتات [ABH1, ABH2, ..., ABH8]
     """
+
+    if not ABHS:
+        print("❌ قائمة ABHS فارغة")
+        return
+
+    # 1️⃣ جلب ABH1
+    ABH1 = ABHS[0]
 
     try:
         # الحصول على كيان القناة/المجموعة
@@ -224,7 +230,7 @@ async def process_ABHs(chat_identifier):
         print(f"❌ فشل الحصول على كيان {chat_identifier}: {e}")
         return
 
-    # خطوة 1: رفع ABH1 بواسطة البوت الأساسي بصلاحيات كاملة
+    # 2️⃣ رفع ABH1 مشرف كامل بواسطة البوت الأساسي
     try:
         me1 = await ABH1.get_me()
 
@@ -251,10 +257,10 @@ async def process_ABHs(chat_identifier):
 
     except Exception as e:
         print(f"❌ فشل رفع ABH1 ({me1.id}) مشرف كامل: {e}")
-        return  # إذا فشل، لن نستمر برفع البقية
+        return
 
-    # خطوة 2: رفع باقي البوتات بواسطة ABH1 بصلاحيات محدودة
-    for ABH in ABHS:
+    # 3️⃣ رفع باقي البوتات بواسطة ABH1 بصلاحيات محدودة
+    for ABH in ABHS[1:]:
         try:
             me = await ABH.get_me()
 
@@ -276,7 +282,7 @@ async def process_ABHs(chat_identifier):
             except Exception:
                 pass
 
-            # إذا لم يكن عضوًا، رفعه مشرف بواسطة ABH1 بصلاحيات محدودة
+            # رفع البوت إذا لم يكن عضوًا
             if not is_member:
                 admin_rights_limited = ChatAdminRights(
                     change_info=False,
@@ -297,10 +303,10 @@ async def process_ABHs(chat_identifier):
                     admin_rights=admin_rights_limited,
                     rank="مشرف بوت"
                 ))
-                print(f"✅ تم رفع البوت {me.id} مشرفاً بصلاحيات محدودة بواسطة ABH1")
+                print(f"✅ تم رفع البوت {me.id} مشرفاً بواسطة ABH1")
 
         except Exception as e:
-            print(f"❌ حدث خطأ مع الحساب {ABH}: {e}")
+            print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
