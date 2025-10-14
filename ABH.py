@@ -13,6 +13,9 @@ wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
+bot_token6 = os.getenv("bot_token6")
+bot_token7 = os.getenv("bot_token7")
+bot_token8 = os.getenv("bot_token8")
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 # ABH = TelegramClient("ABH", api_id, api_hash).start()
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
@@ -31,7 +34,10 @@ ABH4 = TelegramClient("code4", api_id4, api_hash4).start()
 api_id5 = int(os.getenv("API_ID5"))
 api_hash5 = os.getenv("API_HASH5")
 ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
+ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
+ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
+ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 target_user_id = 1421907917
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
