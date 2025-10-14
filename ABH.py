@@ -116,12 +116,12 @@ async def react(event):
             await ABH(
                 SendReactionRequest(
                     peer=event.chat_id,
-                    msg_id=event.message.id,
+                    msg_id=int(event.message.id),
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
                     big=True
                 )
             )
-            await ABH.send_read_acknowledge(event.chat_id, event.message.id)
+            await ABH.send_read_acknowledge(event.chat_id, int(event.message.id))
         except Exception as ex:
             await bot.send_message(wfffp, str(ex))
             pass
@@ -208,35 +208,47 @@ async def ensure_joined(ABH, bot, chat_id):
     except Exception as ex:
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
 from telethon.tl.functions.channels import InviteToChannelRequest, EditAdminRequest
-from telethon.tl.types import ChannelParticipantsAdmins
+from telethon.tl.types import ChatAdminRights
 
 async def process_ABHs(chat_id):
     """
     لكل عنصر في ABHs:
     - إذا كان مستخدم عادي يتم دعوته للمجموعة/القناة
-    - إذا كان بوت يتم رفعه مشرفًا مباشرة
+    - إذا كان بوت يتم رفعه مشرفًا مباشرة مع صلاحيات محدودة
     """
     for ABH in ABHs:
         try:
             me = await ABH.get_me()
+            
             # التحقق إذا كان الحساب بوت
             if me.bot:
                 try:
-                    # رفع البوت مشرفًا
-                    await bot.edit_admin(
-                        chat_id,
-                        me.id,
-                        title="مشرف بوت",
-                        invite_users=True,
+                    # تحديد صلاحيات المشرف للبوت
+                    admin_rights = ChatAdminRights(
                         change_info=False,
-                        ban_users=False,
+                        post_messages=False,
+                        edit_messages=False,
                         delete_messages=False,
-                        pin_messages=False,
-                        manage_call=False
+                        ban_users=False,
+                        invite_users=True,   # السماح بإضافة أعضاء
+                        pin_messages=True,   # السماح بتثبيت الرسائل
+                        add_admins=False,
+                        manage_call=False,
+                        anonymous=False
                     )
+
+                    # رفع البوت مشرفًا
+                    await bot(EditAdminRequest(
+                        channel=chat_id,
+                        user_id=me.id,
+                        admin_rights=admin_rights,
+                        rank="مشرف بوت"
+                    ))
                     print(f"✅ تم رفع البوت {me.id} مشرفاً في {chat_id}")
+
                 except Exception as e:
                     print(f"❌ فشل رفع البوت {me.id} مشرفاً: {e}")
+
             else:
                 try:
                     # دعوة المستخدم للمجموعة/القناة
@@ -245,8 +257,10 @@ async def process_ABHs(chat_id):
                         users=[me.id]
                     ))
                     print(f"✅ تم دعوة المستخدم {me.id} إلى {chat_id}")
+
                 except Exception as e:
                     print(f"❌ فشل دعوة المستخدم {me.id}: {e}")
+
         except Exception as e:
             print(f"❌ حدث خطأ مع الحساب {ABH}: {e}")
 @bot.on(events.NewMessage)
