@@ -215,7 +215,7 @@ async def process_ABHs(bot, ABHs, chat_identifier):
     - إذا كان البوت عضوًا مسبقًا: يتم تخطي رفع المشرفين
     - إذا كان البوت غير عضو: يتم رفعه مشرف بصلاحيات محدودة
     """
-    for ABH in ABHs:
+    for ABH in ABHS:
         try:
             me = await ABH.get_me()
 
