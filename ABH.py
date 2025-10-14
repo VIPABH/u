@@ -210,21 +210,38 @@ async def ensure_joined(ABH, bot, chat_id):
 from telethon.tl.functions.channels import InviteToChannelRequest, EditAdminRequest
 from telethon.tl.types import ChatAdminRights
 
+from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
+from telethon.tl.types import ChatAdminRights
+
 async def process_ABHs(chat_id):
     """
     لكل عنصر في ABHs:
-    - إذا كان مستخدم عادي يتم دعوته للمجموعة/القناة
+    - إذا كان مستخدم عادي يتم دعوته عبر رابط الدعوة
     - إذا كان بوت يتم رفعه مشرفًا مباشرة مع صلاحيات محدودة
+    - إذا كان الحساب موجود بالفعل في المجموعة/القناة، يتم تخطيه
     """
-    for ABH in ABHS:
+    for ABH in ABHs:
         print("جاري تشغيل الحلقة")
         try:
             me = await ABH.get_me()
-            
+
+            # التحقق إذا كان الحساب موجود بالفعل في المجموعة/القناة
+            try:
+                participant = await bot(GetParticipantRequest(
+                    channel=int(chat_id),
+                    user_id=int(me.id)
+                ))
+                if participant:
+                    print(f"⚠️ الحساب {me.id} موجود بالفعل في {chat_id}, تخطي...")
+                    continue
+            except Exception:
+                # إذا لم يكن موجودًا، تابع العملية
+                pass
+
             # التحقق إذا كان الحساب بوت
             if me.bot:
                 try:
-                    # تحديد صلاحيات المشرف للبوت
                     admin_rights = ChatAdminRights(
                         change_info=False,
                         post_messages=False,
@@ -238,7 +255,6 @@ async def process_ABHs(chat_id):
                         anonymous=False
                     )
 
-                    # رفع البوت مشرفًا
                     await bot(EditAdminRequest(
                         channel=int(chat_id),
                         user_id=int(me.id),
@@ -252,15 +268,16 @@ async def process_ABHs(chat_id):
 
             else:
                 try:
-                    # دعوة المستخدم للمجموعة/القناة
-                    await bot(InviteToChannelRequest(
-                        channel=int(chat_id),
-                        users=[int(me.id)]
-                    ))
-                    print(f"✅ تم دعوة المستخدم {me.id} إلى {chat_id}")
+                    invite_link = await get_invite_link(bot, chat_id)
+                    if invite_link:
+                        invite_hash = invite_link.split("/")[-1].replace("+", "")
+                        await ABH(ImportChatInviteRequest(invite_hash))
+                        print(f"✅ انضم المستخدم {me.id} إلى {chat_id} عبر رابط الدعوة")
+                    else:
+                        print(f"❌ لا يوجد رابط دعوة متاح لـ {chat_id}")
 
                 except Exception as e:
-                    print(f"❌ فشل دعوة المستخدم {me.id}: {e}")
+                    print(f"❌ فشل دعوة المستخدم {me.id} عبر رابط الدعوة: {e}")
 
         except Exception as e:
             print(f"❌ حدث خطأ مع الحساب {ABH}: {e}")
