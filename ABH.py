@@ -1,9 +1,12 @@
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.tl.functions.messages import ExportChatInviteRequest
 from telethon.tl.functions.messages import SendReactionRequest
-from telethon.tl.functions.messages import GetFullChatRequest
-from telethon.tl.types import ChatParticipantCreator
+from telethon.errors import UserAlreadyParticipantError
+from telethon.errors import ChatAdminRequiredError
 from telethon.tl.types import ReactionEmoji
+from telethon import events, TelegramClient
+from telethon.tl.types import PeerChannel
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel
 from telethon.tl.types import ReactionEmoji
