@@ -308,7 +308,7 @@ async def reactauto(e):
         try:
             chat_id = t.split(" ", 1)[1]
             add_chat(chat_id)
-            #await promote_ABHS(chat_id)
+            await promote_ABHS(chat_id)
             await e.reply(f"✅ تم إضافة المجموعة `{chat_id}` إلى القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
