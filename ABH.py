@@ -201,18 +201,19 @@ async def ensure_joined(event):
 
     except Exception as ex:
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
-import asyncio
-from telethon import TelegramClient
-from telethon.tl.functions.channels import EditAdminRequest
-from telethon.tl.types import ChatAdminRights, Channel, Chat, InputUser
 
-async def promote_ABHS(chat_identifier):
+client = ABH
+
+    import asyncio
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights, Channel, Chat
+
+async def promote_ABHS(client, chat_identifier, ABHS, permission='add_admins'):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
 
     ABH1 = ABHS[0]
-    client = bot
 
     try:
         chat_entity = await client.get_input_entity(int(chat_identifier))
@@ -227,25 +228,25 @@ async def promote_ABHS(chat_identifier):
 
     print(f"🔹 نوع الشات: {'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
 
-    if is_supergroup:
-        rights = ChatAdminRights(
-            change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
-            ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
-            manage_call=False, anonymous=False
-        )
-    elif is_channel:
-        rights = ChatAdminRights(
-            change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
-            ban_users=False, invite_users=True, pin_messages=True, add_admins=False,
-            manage_call=False, anonymous=False
-        )
-    else:
-        rights = ChatAdminRights(
-            change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
-            ban_users=False, invite_users=True, pin_messages=True, add_admins=False,
-            manage_call=False, anonymous=False
-        )
+    # دالة لإنشاء حقوق مشرف بصلاحية واحدة محددة فقط
+    def get_rights(permission_name):
+        # جميع الحقوق False بشكل افتراضي
+        rights = ChatAdminRights()
+        # تحقق من نوع الشات قبل تطبيق الحقوق
+        if permission_name == 'add_admins' and not is_channel:
+            setattr(rights, 'add_admins', True)
+        elif permission_name == 'invite_users' and (is_channel or is_basic_group):
+            setattr(rights, 'invite_users', True)
+        elif permission_name == 'pin_messages' and (is_channel or is_basic_group):
+            setattr(rights, 'pin_messages', True)
+        elif permission_name == 'ban_users' and is_supergroup:
+            setattr(rights, 'ban_users', True)
+        # يمكن إضافة أي صلاحية أخرى حسب حاجتك
+        return rights
 
+    rights = get_rights(permission)
+
+    # رفع ABH1
     try:
         me1 = await ABH1.get_me()
         await client(EditAdminRequest(
@@ -254,11 +255,12 @@ async def promote_ABHS(chat_identifier):
             admin_rights=rights,
             rank="مشرف رئيسي"
         ))
-        print(f"✅ تم رفع ABH1 ({me1.id}) في { 'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
+        print(f"✅ تم رفع ABH1 ({me1.id}) في { 'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'} بصلاحية {permission}")
     except Exception as e:
         print(f"❌ فشل رفع ABH1 ({me1.id}): {e}")
         return
 
+    # رفع باقي البوتات
     for ABH in ABHS[1:]:
         try:
             me = await ABH.get_me()
@@ -267,29 +269,19 @@ async def promote_ABHS(chat_identifier):
                 continue
 
             try:
-                participant_abh1 = await ABH1.get_participant(
-                    chat_entity,
-                    me.id
-                )
-                rights_check = getattr(participant_abh1.participant, 'admin_rights', None)
-                if not rights_check or (is_supergroup and not getattr(rights_check, 'add_admins', False)):
-                    print(f"❌ ABH1 ({me1.id}) لا يملك صلاحية add_admins، تخطي رفع {me.id}")
-                    continue
+                await ABH1(EditAdminRequest(
+                    channel=chat_entity,
+                    user_id=me.id,
+                    admin_rights=rights,
+                    rank="مشرف رئيسي"
+                ))
+                print(f"✅ تم رفع البوت {me.id} في { 'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'} بصلاحية {permission}")
             except Exception as e:
-                print(f"❌ فشل التحقق من صلاحيات ABH1: {e}")
-                continue
-
-            await ABH1(EditAdminRequest(
-                channel=chat_entity,
-                user_id=me.id,
-                admin_rights=rights,
-                rank="مشرف رئيسي"
-            ))
-            print(f"✅ تم رفع البوت {me.id} في { 'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
+                print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
         except Exception as e:
             print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
 
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
 @bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
     t = e.text.strip()
