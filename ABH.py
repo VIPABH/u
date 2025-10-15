@@ -17,29 +17,7 @@ from telethon.errors import ChatAdminRequiredError
 from telethon import TelegramClient
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights
-client = ABH1
-@ABH.on(events.NewMessage(from_users=[wfffp]))
-async def promote_bot_to_admin(event):
-    channel = -1003123855597
-    bot_username = 6907915843
-    rights = ChatAdminRights(
-        change_info=True,
-        post_messages=True,
-        edit_messages=True,
-        delete_messages=True,
-        ban_users=True,
-        invite_users=True,
-        pin_messages=True,
-        add_admins=False,   # لا يمكن للبوت إضافة مشرفين
-        anonymous=False
-    )
 
-    await client(EditAdminRequest(
-        channel=channel,
-        user_id=bot_username,
-        admin_rights=rights,
-        rank='بوت'  # لقب المشرف الظاهر
-    ))
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
@@ -70,6 +48,29 @@ ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
 ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
+client = ABH1
+@ABH.on(events.NewMessage(from_users=[wfffp]))
+async def promote_bot_to_admin(event):
+    channel = -1003123855597
+    bot_username = 6907915843
+    rights = ChatAdminRights(
+        change_info=True,
+        post_messages=True,
+        edit_messages=True,
+        delete_messages=True,
+        ban_users=True,
+        invite_users=True,
+        pin_messages=True,
+        add_admins=False,   # لا يمكن للبوت إضافة مشرفين
+        anonymous=False
+    )
+
+    await client(EditAdminRequest(
+        channel=channel,
+        user_id=bot_username,
+        admin_rights=rights,
+        rank='بوت'  # لقب المشرف الظاهر
+    ))
 target_user_id = 1421907917
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
