@@ -49,7 +49,7 @@ ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 client = ABH1
-@ABH.on(events.NewMessage(from_users=[wfffp]))
+@ABH1.on(events.NewMessage(from_users=[wfffp]))
 async def promote_bot_to_admin(event):
     channel = -1003123855597
     bot_username = 6907915843
