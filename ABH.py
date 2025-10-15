@@ -206,7 +206,7 @@ from telethon import TelegramClient
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel, Chat, InputUser
 
-async def promote_ABHS(client, chat_identifier, ABHS):
+async def promote_ABHS(chat_identifier):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
