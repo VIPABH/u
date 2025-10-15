@@ -111,8 +111,6 @@ async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
-            
-            print(type(event.chat_id))
             #await ensure_joined(event)
             await ABH(
                 SendReactionRequest(
@@ -122,7 +120,7 @@ async def react(event):
                     big=True
                 )
             )
-            await ABH.send_read_acknowledge(event.chat_id, event.message.id)
+            await ABH.send_read_acknowledge(event.chat_id, int(event.message.id))
         except Exception as ex:
             await bot.send_message(wfffp, str(ex))
             pass
