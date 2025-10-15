@@ -116,7 +116,7 @@ async def react(event):
             #await ensure_joined(event)
             await ABH(
                 SendReactionRequest(
-                    Peer=event.chat_id,
+                    peer=event.chat_id,
                     msg_id=int(event.message.id),
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
                     big=True
