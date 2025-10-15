@@ -206,6 +206,13 @@ import asyncio
 from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
 from telethon.tl.types import ChatAdminRights, Channel, Chat
 
+# مثال: تخصيص الحقوق لكل بوت (يمكنك تعديلها حسب حاجتك)
+# الصيغة: bot_id : ChatAdminRights(...)
+custom_rights = {
+    # في Basic Group أو Channel يمكنك تحديد الحقوق المناسبة لكل بوت
+    # مثال: 123456789: ChatAdminRights(invite_users=True, pin_messages=True, add_admins=False, ...)
+}
+
 async def promote_ABHS(chat_identifier):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
@@ -213,7 +220,7 @@ async def promote_ABHS(chat_identifier):
 
     ABH1 = ABHS[0]
 
-    # جلب كيان الشات
+    # جلب كيان الشات والتأكد من صحته
     try:
         chat_entity = await bot.get_input_entity(int(chat_identifier))
         entity_full = await bot.get_entity(int(chat_identifier))
@@ -228,27 +235,26 @@ async def promote_ABHS(chat_identifier):
 
     print(f"🔹 نوع الشات: {'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
 
-    # إعداد الصلاحيات حسب نوع الشات
-    if is_supergroup:
-        rights = ChatAdminRights(
-            change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
-            ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
-            manage_call=False, anonymous=False
-        )
-    elif is_channel:
-        rights = ChatAdminRights(
-            change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
-            ban_users=False, invite_users=True, pin_messages=True, add_admins=False,
-            manage_call=False, anonymous=False
-        )
-    else:  # Basic Group
-        rights = ChatAdminRights(
-            change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
-            ban_users=False, invite_users=True, pin_messages=True, add_admins=False,
-            manage_call=False, anonymous=False
-        )
+    # إعداد الحقوق الافتراضية حسب نوع الشات
+    def get_rights(bot_id=None):
+        # إذا تم تخصيص الحقوق لهذا البوت، استخدمها
+        if bot_id in custom_rights:
+            return custom_rights[bot_id]
 
-    # التحقق من أن البوت الأساسي يملك الحق قبل رفع ABH1
+        if is_supergroup:
+            return ChatAdminRights(
+                change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
+                ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
+                manage_call=False, anonymous=False
+            )
+        else:  # Channel أو Basic Group
+            return ChatAdminRights(
+                change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
+                ban_users=False, invite_users=True, pin_messages=True, add_admins=False,
+                manage_call=False, anonymous=False
+            )
+
+    # تحقق صلاحيات البوت الأساسي قبل رفع ABH1
     try:
         participant_bot = await bot(GetParticipantRequest(channel=chat_entity, user_id=(await bot.get_me()).id))
         bot_rights = getattr(participant_bot.participant, 'admin_rights', None)
@@ -262,6 +268,13 @@ async def promote_ABHS(chat_identifier):
     # رفع ABH1
     try:
         me1 = await ABH1.get_me()
+        try:
+            await bot.get_input_entity(me1.id)
+        except Exception:
+            print(f"❌ Peer غير صالح لـ ABH1 ({me1.id})، تخطي")
+            return
+
+        rights = get_rights(me1.id)
         await bot(EditAdminRequest(
             channel=chat_entity,
             user_id=me1.id,
@@ -282,6 +295,13 @@ async def promote_ABHS(chat_identifier):
                 continue
 
             try:
+                await ABH1.get_input_entity(me.id)
+            except Exception:
+                print(f"❌ Peer غير صالح للبوت {me.id}, تخطي")
+                continue
+
+            # التحقق من صلاحية ABH1 قبل رفع البوت
+            try:
                 participant_abh1 = await ABH1(GetParticipantRequest(channel=chat_entity, user_id=me1.id))
                 rights_check = getattr(participant_abh1.participant, 'admin_rights', None)
                 if not rights_check or (is_supergroup and not getattr(rights_check, 'add_admins', False)):
@@ -291,6 +311,8 @@ async def promote_ABHS(chat_identifier):
                 print(f"❌ فشل التحقق من صلاحيات ABH1: {e}")
                 continue
 
+            # رفع البوت بالحقوق المناسبة
+            rights = get_rights(me.id)
             try:
                 await ABH1(EditAdminRequest(
                     channel=chat_entity,
