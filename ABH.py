@@ -254,16 +254,7 @@ async def promote_ABHS(chat_identifier):
                 manage_call=False, anonymous=False
             )
 
-    # تحقق صلاحيات البوت الأساسي قبل رفع ABH1
-    try:
-        participant_bot = await bot(GetParticipantRequest(channel=chat_entity, user_id=(await bot.get_me()).id))
-        bot_rights = getattr(participant_bot.participant, 'admin_rights', None)
-        if not bot_rights or (is_supergroup and not getattr(bot_rights, 'add_admins', False)):
-            print("❌ البوت الأساسي لا يملك صلاحية add_admins في هذا الشات")
-            return
-    except Exception as e:
-        print(f"❌ فشل التحقق من صلاحيات البوت الأساسي: {e}")
-        return
+
 
     # رفع ABH1
     try:
