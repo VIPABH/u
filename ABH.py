@@ -293,8 +293,6 @@ async def reactauto(e):
             await e.reply(f"✅ تم إضافة المجموعة `{chat_id}` إلى القائمة البيضاء.")
         except IndexError:
             await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
-
-    # أمر الحذف
     elif t.startswith("حذف") and e.sender_id == wfffp:
         try:
             chat_id = t.split(" ", 1)[1]
