@@ -19,6 +19,10 @@ OWNER_ID = 1910015590
 target_user_id = 1421907917
 wfffp = 1910015590
 # تحميل المتغيرات
+from telethon import TelegramClient
+import os
+
+# القيم من المتغيرات البيئية
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
@@ -26,16 +30,37 @@ bot_token6 = os.getenv("bot_token6")
 bot_token7 = os.getenv("bot_token7")
 bot_token8 = os.getenv("bot_token8")
 
-# إنشاء العملاء
-bot = TelegramClient("bot", api_id, api_hash).start(bot_token=bot_token)
-ABH1 = TelegramClient("ABH1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
-ABH2 = TelegramClient("ABH2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
-ABH3 = TelegramClient("ABH3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
-ABH4 = TelegramClient("ABH4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
-ABH5 = TelegramClient("ABH5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
-ABH6 = TelegramClient("ABH6", api_id, api_hash).start(bot_token=bot_token6)
-ABH7 = TelegramClient("ABH7", api_id, api_hash).start(bot_token=bot_token7)
-ABH8 = TelegramClient("ABH8", api_id, api_hash).start(bot_token=bot_token8)
+# عملاء المستخدم (حسابات عادية)
+api_id1 = int(os.getenv("API_ID1"))
+api_hash1 = os.getenv("API_HASH1")
+ABH1 = TelegramClient("code1", api_id1, api_hash1).start()
+
+api_id2 = int(os.getenv("API_ID2"))
+api_hash2 = os.getenv("API_HASH2")
+ABH2 = TelegramClient("code2", api_id2, api_hash2).start()
+
+api_id3 = int(os.getenv("API_ID3"))
+api_hash3 = os.getenv("API_HASH3")
+ABH3 = TelegramClient("code3", api_id3, api_hash3).start()
+
+api_id4 = int(os.getenv("API_ID4"))
+api_hash4 = os.getenv("API_HASH4")
+ABH4 = TelegramClient("code4", api_id4, api_hash4).start()
+
+api_id5 = int(os.getenv("API_ID5"))
+api_hash5 = os.getenv("API_HASH5")
+ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
+
+# عملاء البوتات
+bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
+ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
+ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
+ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
+
+# تجميع كل العملاء في قائمة واحدة
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
+
+print("✅ تم تشغيل جميع العملاء بنجاح")
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 
 # دوال القائمة البيضاء
