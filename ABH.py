@@ -111,12 +111,12 @@ async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
-            peer = await ABH.get_input_entity(event.chat_id)
-            print(peer.channel_id)  # إذا كانت قناة أو مجموعة
+            
+            print(type(event.chat_id))
             #await ensure_joined(event)
             await ABH(
                 SendReactionRequest(
-                    peer.channel_id,
+                    Peer=event.chat_id,
                     msg_id=int(event.message.id),
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
                     big=True
