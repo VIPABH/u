@@ -108,14 +108,13 @@ def remove_chat(chat_id):
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
 async def react(event):
-    
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
             await ensure_joined(ABH, bot, event.chat_id)
             await ABH(
                 SendReactionRequest(
-                    peer=event.chat_id,
+                    peer=int(event.chat_id),
                     msg_id=int(event.message.id),
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
                     big=True
