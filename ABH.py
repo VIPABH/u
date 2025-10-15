@@ -1,16 +1,14 @@
-from telethon.tl.functions.channels import JoinChannelRequest
-from telethon.tl.functions.messages import ImportChatInviteRequest
-from telethon.tl.functions.messages import SendReactionRequest
-from telethon.tl.types import ReactionEmoji
-from telethon.tl.functions.channels import EditAdminRequest
-from telethon.tl.types import ChatAdminRights, Channel
-from telethon.tl.types import ReactionEmoji
-from telethon.errors import UserAlreadyParticipantError
-from telethon.errors import ChatAdminRequiredError
-from telethon.tl.types import ReactionEmoji
-from telethon import events, TelegramClient
-from telethon.tl.types import PeerChannel
-import os, random, redis, re, asyncio
+import os
+import random
+import redis
+import re
+import asyncio
+
+from telethon import TelegramClient, events
+from telethon.errors import UserAlreadyParticipantError, ChatAdminRequiredError
+from telethon.tl.functions.channels import JoinChannelRequest, EditAdminRequest
+from telethon.tl.functions.messages import ImportChatInviteRequest, SendReactionRequest
+from telethon.tl.types import ChatAdminRights, Channel, ReactionEmoji, PeerChannel
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
