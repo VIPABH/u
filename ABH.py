@@ -217,6 +217,7 @@ async def promote_ABHS(chat_identifier):
         print(f"❌ فشل الحصول على كيان {chat_identifier} بواسطة البوت الأساسي: {e}")
         return
 
+    # رفع ABH1 بواسطة bot
     try:
         me1 = await ABH1.get_me()
         rights_add_admins_only = ChatAdminRights(
@@ -231,9 +232,11 @@ async def promote_ABHS(chat_identifier):
             rank="مشرف رئيسي"
         ))
         print(f"✅ تم رفع ABH1 ({me1.id}) مشرف مع صلاحية رفع مشرفين فقط بواسطة البوت الأساسي")
-    except:
+    except Exception as e:
+        print(f"❌ فشل رفع ABH1 ({me1.id}): {e}")
         return
 
+    # رفع باقي البوتات بواسطة bot
     for ABH in ABHS[1:]:
         try:
             me = await ABH.get_me()
@@ -241,7 +244,6 @@ async def promote_ABHS(chat_identifier):
                 print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
                 continue
             try:
-                me1 = await ABH.get_me()
                 rights_add_admins_only = ChatAdminRights(
                     change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
                     ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
@@ -249,14 +251,14 @@ async def promote_ABHS(chat_identifier):
                 )
                 await bot(EditAdminRequest(
                     channel=channel_entity_bot,
-                    user_id=int(me1.id),
+                    user_id=int(me.id),
                     admin_rights=rights_add_admins_only,
                     rank="مشرف رئيسي"
                 ))
-                print(f"✅ تم رفع ABH1 ({me1.id}) مشرف مع صلاحية رفع مشرفين فقط بواسطة البوت الأساسي")
-            except:
-                return
-        except:
+                print(f"✅ تم رفع البوت {me.id} مشرف بواسطة البوت الأساسي")
+            except Exception as e:
+                print(f"❌ حدث خطأ أثناء رفع البوت {me.id}: {e}")
+        except Exception:
             continue
 @bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
