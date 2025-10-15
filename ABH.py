@@ -231,8 +231,7 @@ async def promote_ABHS(chat_identifier):
             rank="مشرف رئيسي"
         ))
         print(f"✅ تم رفع ABH1 ({me1.id}) مشرف مع صلاحية رفع مشرفين فقط بواسطة البوت الأساسي")
-    except Exception as e:
-        print(f"❌ فشل رفع ABH1 ({me1.id}): {e}")
+    except:
         return
 
     for ABH in ABHS[1:]:
@@ -275,6 +274,17 @@ async def promote_ABHS(chat_identifier):
 
         except Exception as e:
             print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
+        try:
+            await ABH1(EditAdminRequest(
+            channel=channel_entity_abh1,
+            user_id=int(me.id),
+            admin_rights=rights_add_admins_only,
+            rank="مشرف رئيسي"
+            ))
+            print(f"✅ تم رفع البوت {me.id} مشرفاً بواسطة ABH1")
+        except:
+            print("fail")
+            return
 @bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
     t = e.text.strip()
