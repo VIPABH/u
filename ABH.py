@@ -101,17 +101,32 @@ async def s(e):
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
             await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
+import random
+from telethon import events
+from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.tl.functions.channels import EditAdminRequest, ExportChatInviteRequest, GetParticipantRequest
+from telethon.tl.types import Channel, ChatAdminRights
+from telethon.errors import UserAlreadyParticipantError, ChatAdminRequiredError
+
+# -------------------------------------
+# وظائف إدارة القنوات البيضاء
+# -------------------------------------
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
+
 def remove_chat(chat_id):
     r.srem("whitelist_chats", str(chat_id))
+
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
+
+# -------------------------------------
+# ردود الفعل التلقائية
+# -------------------------------------
 async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
-            #await ensure_joined(event)
             await ABH(
                 SendReactionRequest(
                     event.chat_id,
@@ -120,35 +135,28 @@ async def react(event):
                     big=True
                 )
             )
-            #await ABH.send_read_acknowledge(event.chat_id, int(event.message.id))
         except Exception as ex:
             await bot.send_message(wfffp, str(ex))
             pass
+
+# -------------------------------------
+# التأكد من الانضمام للقناة
+# -------------------------------------
 async def get_invite_link(chat):
     try:
         entity = await ABH.get_entity(chat)
         try:
             result = await bot(ExportChatInviteRequest(entity))
-            invite_link = result.link
-            
-            return invite_link
+            return result.link
         except ChatAdminRequiredError:
             print("الحساب ليس مشرفًا، لا يمكن استخراج رابط الدعوة")
             return None
     except Exception as ex:
         print(f"خطأ أثناء جلب الكيان: {ex}")
         return None
-from telethon.tl.functions.channels import GetParticipantRequest
-from telethon.tl.types import InputChannel
-from telethon.errors import UserAlreadyParticipantError, ChatAdminRequiredError
-from telethon.tl.functions.messages import ImportChatInviteRequest
 
 async def is_member(ABH, chat_id, user_id):
-    """
-    يتحقق إذا كان الحساب عضو في المجموعة
-    """
     try:
-        # إذا كان chat_id int، حوله إلى InputChannel
         entity = await ABH.get_input_entity(chat_id)
         await ABH(GetParticipantRequest(channel=entity, user_id=user_id))
         return True
@@ -156,15 +164,10 @@ async def is_member(ABH, chat_id, user_id):
         return False
 
 async def ensure_joined(event):
-    """
-    يضيف الحساب إذا لم يكن عضوًا، وإذا فشل يحاول رفعه مشرفًا.
-    """
     chat_id = event.chat_id
     try:
         me = await ABH.get_me()
-        member = await is_member(ABH, chat_id, me.id)
-
-        if member:
+        if await is_member(ABH, chat_id, me.id):
             return
 
         invite_link = await get_invite_link(bot, chat_id)
@@ -177,39 +180,32 @@ async def ensure_joined(event):
                 pass
             except Exception:
                 try:
-                    invite_link = await get_invite_link(chat_id)
-                    invite_hash = invite_link.split("/")[-1].replace("+", "")
-                    await ABH(ImportChatInviteRequest(invite_hash))
-                except Exception:
-                    try:
-                        await bot.edit_admin(
-                            chat_id,
-                            me.id,
-                            title="مشرف احتياطي",
-                            invite_users=True,
-                            change_info=False,
-                            ban_users=False,
-                            delete_messages=False,
-                            pin_messages=False,
-                            manage_call=False
-                        )
-                        print(f"✅ تم رفع الحساب {me.id} مشرفاً في {chat_id} بعد فشل الانضمام")
-                    except Exception as promote_ex:
-                        print(f"❌ فشل رفع الحساب {me.id} مشرفاً: {promote_ex}")
+                    await bot.edit_admin(
+                        chat_id,
+                        me.id,
+                        title="مشرف احتياطي",
+                        invite_users=True,
+                        change_info=False,
+                        ban_users=False,
+                        delete_messages=False,
+                        pin_messages=False,
+                        manage_call=False
+                    )
+                    print(f"✅ تم رفع الحساب {me.id} مشرفاً في {chat_id} بعد فشل الانضمام")
+                except Exception as promote_ex:
+                    print(f"❌ فشل رفع الحساب {me.id} مشرفاً: {promote_ex}")
         else:
             print(f"❌ لا يوجد رابط دعوة متاح لـ {chat_id}")
-
     except Exception as ex:
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
-from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
-from telethon.tl.types import ChatAdminRights, Channel
 
+# -------------------------------------
+# رفع البوتات كمشرفين بالقناة
+# -------------------------------------
 async def promote_ABHS(chat_identifier):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
-
-    ABH1 = ABHS[0]
 
     try:
         channel_entity_bot = await bot.get_input_entity(int(chat_identifier))
@@ -219,6 +215,7 @@ async def promote_ABHS(chat_identifier):
 
     # رفع ABH1 بواسطة bot
     try:
+        ABH1 = ABHS[0]
         me1 = await ABH1.get_me()
         rights_add_admins_only = ChatAdminRights(
             change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
@@ -236,49 +233,59 @@ async def promote_ABHS(chat_identifier):
         print(f"❌ فشل رفع ABH1 ({me1.id}): {e}")
         return
 
-    # رفع باقي البوتات بواسطة bot
+    # رفع باقي البوتات
     for ABH in ABHS[1:]:
         try:
             me = await ABH.get_me()
             if not me.bot:
                 print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
                 continue
-            try:
-                rights_add_admins_only = ChatAdminRights(
-                    change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
-                    ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
-                    manage_call=False, anonymous=False
-                )
-                await bot(EditAdminRequest(
-                    channel=channel_entity_bot,
-                    user_id=int(me.id),
-                    admin_rights=rights_add_admins_only,
-                    rank="مشرف رئيسي"
-                ))
-                print(f"✅ تم رفع البوت {me.id} مشرف بواسطة البوت الأساسي")
-            except Exception as e:
-                print(f"❌ حدث خطأ أثناء رفع البوت {me.id}: {e}")
-        except Exception:
-            continue
+            rights_add_admins_only = ChatAdminRights(
+                change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
+                ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
+                manage_call=False, anonymous=False
+            )
+            await bot(EditAdminRequest(
+                channel=channel_entity_bot,
+                user_id=int(me.id),
+                admin_rights=rights_add_admins_only,
+                rank="مشرف رئيسي"
+            ))
+            print(f"✅ تم رفع البوت {me.id} مشرف بواسطة البوت الأساسي")
+        except Exception as e:
+            print(f"❌ حدث خطأ أثناء رفع البوت {me.id}: {e}")
+
+# -------------------------------------
+# الحدث الأساسي
+# -------------------------------------
 @bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
     t = e.text.strip()
+
+    # أوامر إضافة/حذف
     if t.startswith("اضف") and e.sender_id == wfffp:
         try:
             chat_id = t.split(" ", 1)[1]
             add_chat(chat_id)
             await promote_ABHS(chat_id)
-            await e.reply(f"✅ تم إضافة المجموعة `{chat_id}` إلى القائمة البيضاء")
+            await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
     elif t.startswith("حذف") and e.sender_id == wfffp:
         try:
             chat_id = t.split(" ", 1)[1]
             remove_chat(chat_id)
-            await e.reply(f"🗑️ تم حذف المجموعة `{chat_id}` من القائمة البيضاء")
+            await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
+
+    # ردود الفعل فقط للقنوات البيضاء
     elif is_chat_allowed(e.chat_id):
-        await react(e)
-        print("جاري")
+        entity = await bot.get_entity(e.chat_id)
+        if isinstance(entity, Channel) and not getattr(entity, 'megagroup', False):
+            await react(e)
+            print(f"✅ تمت إضافة رد فعل في القناة {e.chat_id}")
+        else:
+            print(f"⚠️ {e.chat_id} ليس قناة صالحة، تم تخطي العملية")
+
 bot.run_until_disconnected()
