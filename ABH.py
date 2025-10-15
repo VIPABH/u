@@ -212,7 +212,7 @@ async def promote_ABHS(chat_identifier):
         return
 
     ABH1 = ABHS[0]
-    client = ABH
+    client = bot
 
     try:
         chat_entity = await client.get_input_entity(int(chat_identifier))
