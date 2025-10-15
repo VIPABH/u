@@ -127,50 +127,87 @@ async def ensure_joined(client, chat_id):
 
 
 # 🔹 دالة رفع الحسابات
+import asyncio
+from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
+from telethon.tl.functions.messages import EditChatAdminRequest
+from telethon.tl.types import ChatAdminRights, Channel, Chat
+
 async def promote_ABHS(chat_identifier):
+    """
+    هذه الدالة ترفع حساب ABH1 مشرف، وبعدها ترفع باقي حسابات ABHS (البوتات)
+    مع دعم كل أنواع الدردشات (قناة، سوبر كروب، كروب عادي).
+    """
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
 
     ABH1 = ABHS[0]
+
     try:
         entity = await bot.get_entity(int(chat_identifier))
     except Exception as e:
         print(f"❌ فشل الحصول على الكيان: {e}")
         return
 
+    # تحديد نوع الدردشة
     is_supergroup = isinstance(entity, Channel) and getattr(entity, 'megagroup', False)
     is_channel = isinstance(entity, Channel) and not getattr(entity, 'megagroup', False)
     is_basic_group = isinstance(entity, Chat)
 
-    print(f"🔹 نوع الشات: {'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
+    chat_type = "Supergroup" if is_supergroup else "Channel" if is_channel else "Basic Group"
+    print(f"🔹 نوع الشات: {chat_type}")
 
     try:
         me1 = await ABH1.get_me()
         rights = ChatAdminRights(add_admins=True)
+
         if is_basic_group:
             await bot(EditChatAdminRequest(chat_id=chat_identifier, user_id=me1.id, is_admin=True))
         else:
-            await bot(EditAdminRequest(channel=entity, user_id=me1.id, admin_rights=rights, rank="مشرف رئيسي"))
-        print(f"✅ تم رفع ABH1 ({me1.id}) في الشات بنجاح")
+            # اجلب الكيان من جلسة ABH1 نفسه وليس من bot
+            client_entity = await ABH1.get_input_entity(int(chat_identifier))
+            await bot(EditAdminRequest(channel=client_entity, user_id=me1.id, admin_rights=rights, rank="مشرف رئيسي"))
+
+        print(f"✅ تم رفع ABH1 ({me1.id}) في {chat_type}")
     except Exception as e:
-        print(f"❌ فشل رفع ABH1: {e}")
+        print(f"❌ فشل رفع ABH1 ({me1.id}): {e}")
         return
 
+    # رفع باقي الحسابات
     for ABH in ABHS[1:]:
         try:
             me = await ABH.get_me()
             if not me.bot:
                 print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
                 continue
-            await ensure_joined(ABH, chat_identifier)
+
+            # جلب الكيان من نفس الجلسة
+            try:
+                client_entity = await ABH1.get_input_entity(int(chat_identifier))
+            except Exception as ex:
+                print(f"⚠️ فشل جلب الكيان من جلسة ABH1: {ex}")
+                continue
+
+            # التحقق من صلاحيات ABH1
+            try:
+                participant = await ABH1(GetParticipantRequest(channel=client_entity, participant=me1.id))
+                admin_rights = getattr(participant.participant, 'admin_rights', None)
+                if not admin_rights or not getattr(admin_rights, 'add_admins', False):
+                    print(f"❌ ABH1 ({me1.id}) لا يملك صلاحية add_admins، تخطي رفع {me.id}")
+                    continue
+            except Exception:
+                pass
+
+            # تنفيذ الرفع
             if is_basic_group:
                 await ABH1(EditChatAdminRequest(chat_id=chat_identifier, user_id=me.id, is_admin=True))
             else:
-                await ABH1(EditAdminRequest(channel=entity, user_id=me.id, admin_rights=rights, rank="مشرف"))
+                target_entity = await ABH1.get_input_entity(int(chat_identifier))
+                await ABH1(EditAdminRequest(channel=target_entity, user_id=me.id, admin_rights=rights, rank="مشرف"))
             print(f"✅ تم رفع البوت {me.id} بنجاح")
+
         except Exception as e:
-            print(f"❌ خطأ مع الحساب {me.id}: {e}")
+            print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
 
     await asyncio.sleep(2)
 
