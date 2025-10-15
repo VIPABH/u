@@ -49,20 +49,12 @@ ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 client = ABH1
-@ABH1.on(events.NewMessage(from_users=[wfffp]))
+@ABH.on(events.NewMessage(from_users=[wfffp]))
 async def promote_bot_to_admin(event):
     channel = -1003123855597
     bot_username = 6907915843
     rights = ChatAdminRights(
-        change_info=True,
-        post_messages=True,
-        edit_messages=True,
-        delete_messages=True,
-        ban_users=True,
-        invite_users=True,
-        pin_messages=True,
-        add_admins=False,   # لا يمكن للبوت إضافة مشرفين
-        anonymous=False
+        change_info=True
     )
 
     await client(EditAdminRequest(
