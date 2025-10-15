@@ -139,54 +139,48 @@ async def get_invite_link(ABH, chat):
         print(f"خطأ أثناء جلب الكيان: {ex}")
         return None
 from telethon.tl.functions.channels import GetParticipantRequest
+from telethon.tl.types import InputChannel
+from telethon.errors import UserAlreadyParticipantError, ChatAdminRequiredError
+from telethon.tl.functions.messages import ImportChatInviteRequest
+
 async def is_member(ABH, chat_id, user_id):
     """
     يتحقق إذا كان الحساب عضو في المجموعة
     """
     try:
-        participant = await ABH(GetParticipantRequest(chat_id, user_id))
+        # إذا كان chat_id int، حوله إلى InputChannel
+        entity = await ABH.get_input_entity(chat_id)
+        await ABH(GetParticipantRequest(channel=entity, user_id=user_id))
         return True
-    except:
+    except Exception:
         return False
 
 async def ensure_joined(ABH, bot, chat_id):
     """
     يضيف الحساب إذا لم يكن عضوًا، وإذا فشل يحاول رفعه مشرفًا.
     """
-    
     try:
         me = await ABH.get_me()
         member = await is_member(ABH, chat_id, me.id)
 
-        # إذا كان الحساب عضوًا مسبقًا لا حاجة لأي إجراء
         if member:
             return
 
-        # محاولة الحصول على رابط الدعوة
         invite_link = await get_invite_link(bot, chat_id)
         if invite_link:
             invite_hash = invite_link.split("/")[-1].replace("+", "")
-
             try:
-                # محاولة الانضمام للمجموعة أو القناة عبر الرابط
                 await ABH(ImportChatInviteRequest(invite_hash))
                 print(f"✅ الحساب {me.id} انضم إلى {chat_id} عبر الرابط")
-
             except UserAlreadyParticipantError:
-                # المستخدم موجود مسبقاً
                 pass
-
             except Exception:
                 try:
-                    # إعادة توليد رابط جديد والمحاولة مرة ثانية
                     invite_link = await get_invite_link(bot, chat_id)
                     invite_hash = invite_link.split("/")[-1].replace("+", "")
                     await ABH(ImportChatInviteRequest(invite_hash))
-
                 except Exception:
-                    
                     try:
-                        # محاولة رفع الحساب مشرفاً سواء كانت قناة أو مجموعة
                         await bot.edit_admin(
                             chat_id,
                             me.id,
