@@ -247,7 +247,18 @@ async def promote_ABHS(chat_identifier):
             manage_call=False, anonymous=False
         )
 
-    # رفع ABH1 حسب نوع الشات
+    # التحقق من أن البوت الأساسي يملك الحق قبل رفع ABH1
+    try:
+        participant_bot = await bot(GetParticipantRequest(channel=chat_entity, user_id=(await bot.get_me()).id))
+        bot_rights = getattr(participant_bot.participant, 'admin_rights', None)
+        if not bot_rights or (is_supergroup and not getattr(bot_rights, 'add_admins', False)):
+            print("❌ البوت الأساسي لا يملك صلاحية add_admins في هذا الشات")
+            return
+    except Exception as e:
+        print(f"❌ فشل التحقق من صلاحيات البوت الأساسي: {e}")
+        return
+
+    # رفع ABH1
     try:
         me1 = await ABH1.get_me()
         await bot(EditAdminRequest(
@@ -256,7 +267,7 @@ async def promote_ABHS(chat_identifier):
             admin_rights=rights,
             rank="مشرف رئيسي"
         ))
-        print(f"✅ تم رفع ABH1 ({me1.id}) في { 'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
+        print(f"✅ تم رفع ABH1 ({me1.id}) في {'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
     except Exception as e:
         print(f"❌ فشل رفع ABH1 ({me1.id}): {e}")
         return
@@ -269,12 +280,8 @@ async def promote_ABHS(chat_identifier):
                 print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
                 continue
 
-            # تحقق صلاحيات ABH1 قبل أي محاولة
             try:
-                participant_abh1 = await ABH1(GetParticipantRequest(
-                    channel=chat_entity,
-                    user_id=me1.id
-                ))
+                participant_abh1 = await ABH1(GetParticipantRequest(channel=chat_entity, user_id=me1.id))
                 rights_check = getattr(participant_abh1.participant, 'admin_rights', None)
                 if not rights_check or (is_supergroup and not getattr(rights_check, 'add_admins', False)):
                     print(f"❌ ABH1 ({me1.id}) لا يملك صلاحية add_admins، تخطي رفع {me.id}")
@@ -283,7 +290,6 @@ async def promote_ABHS(chat_identifier):
                 print(f"❌ فشل التحقق من صلاحيات ABH1: {e}")
                 continue
 
-            # رفع البوت حسب نوع الشات
             try:
                 await ABH1(EditAdminRequest(
                     channel=chat_entity,
@@ -291,14 +297,14 @@ async def promote_ABHS(chat_identifier):
                     admin_rights=rights,
                     rank="مشرف رئيسي"
                 ))
-                print(f"✅ تم رفع البوت {me.id} في { 'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
+                print(f"✅ تم رفع البوت {me.id} في {'Supergroup' if is_supergroup else 'Channel' if is_channel else 'Basic Group'}")
             except Exception as e:
                 print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
 
         except Exception as e:
             print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
 
-    await asyncio.sleep(3)  # تأخير بسيط لتجنب مشاكل تحديث الحقوق
+    await asyncio.sleep(3)
 @bot.on(events.NewMessage)
 async def reactauto(e):
     t = e.text.strip()
