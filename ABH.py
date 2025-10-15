@@ -204,7 +204,7 @@ async def ensure_joined(event):
 
 client = ABH
 
-    import asyncio
+import asyncio
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel, Chat
 
