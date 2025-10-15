@@ -111,10 +111,11 @@ async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
+            peer = await ABH.get_input_entity(event.chat_id)
             #await ensure_joined(event)
             await ABH(
                 SendReactionRequest(
-                    peer=event.chat_id,
+                    peer,
                     msg_id=int(event.message.id),
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
                     big=True
