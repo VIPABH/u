@@ -241,7 +241,7 @@ async def promote_ABHS(chat_identifier):
                 print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
                 continue
             try:
-                me1 = await ABH1.get_me()
+                me1 = await ABH.get_me()
                 rights_add_admins_only = ChatAdminRights(
                     change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
                     ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
