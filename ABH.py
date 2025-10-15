@@ -291,17 +291,7 @@ async def promote_ABHS(chat_identifier):
                 print(f"❌ Peer غير صالح للبوت {me.id}, تخطي")
                 continue
 
-            # التحقق من صلاحية ABH1 قبل رفع البوت
-            try:
-                participant_abh1 = await ABH1(GetParticipantRequest(channel=chat_entity, user_id=me1.id))
-                rights_check = getattr(participant_abh1.participant, 'admin_rights', None)
-                if not rights_check or (is_supergroup and not getattr(rights_check, 'add_admins', False)):
-                    print(f"❌ ABH1 ({me1.id}) لا يملك صلاحية add_admins، تخطي رفع {me.id}")
-                    continue
-            except Exception as e:
-                print(f"❌ فشل التحقق من صلاحيات ABH1: {e}")
-                continue
-
+            # التحقق من صلاحية ABH1 قبل رفع 
             # رفع البوت بالحقوق المناسبة
             rights = get_rights(me.id)
             try:
