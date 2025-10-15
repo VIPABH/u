@@ -299,7 +299,8 @@ async def reactauto(e):
             remove_chat(chat_id)
             await e.reply(f"🗑️ تم حذف المجموعة `{chat_id}` من القائمة البيضاء.")
         except IndexError:
-            await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")    elif is_chat_allowed(e.chat_id):
+            await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")    
+    elif is_chat_allowed(e.chat_id):
         await react(e)
         print("جاري")
 bot.run_until_disconnected()
