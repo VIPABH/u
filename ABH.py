@@ -319,7 +319,7 @@ async def promote_ABHS(chat_identifier):
             print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
 
     await asyncio.sleep(3)
-@bot.on(events.NewMessage)
+@bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
     t = e.text.strip()
     if t.startswith("اضف") and e.sender_id == wfffp:
