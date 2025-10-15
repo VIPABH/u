@@ -111,7 +111,7 @@ async def react(event):
     for ABH in ABHS:
         try:
             x = random.choice(['👍', '🕊', '❤️'])
-            await ensure_joined(ABH, bot, event.chat_id)
+            await ensure_joined(event)
             await ABH(
                 SendReactionRequest(
                     peer=int(event.chat_id),
@@ -124,7 +124,7 @@ async def react(event):
         except Exception as ex:
             await bot.send_message(wfffp, str(ex))
             pass
-async def get_invite_link(ABH, chat):
+async def get_invite_link(chat):
     try:
         entity = await ABH.get_entity(chat)
         try:
@@ -155,10 +155,11 @@ async def is_member(ABH, chat_id, user_id):
     except Exception:
         return False
 
-async def ensure_joined(ABH, bot, chat_id):
+async def ensure_joined(event):
     """
     يضيف الحساب إذا لم يكن عضوًا، وإذا فشل يحاول رفعه مشرفًا.
     """
+    chat_id = event.chat_id
     try:
         me = await ABH.get_me()
         member = await is_member(ABH, chat_id, me.id)
@@ -176,7 +177,7 @@ async def ensure_joined(ABH, bot, chat_id):
                 pass
             except Exception:
                 try:
-                    invite_link = await get_invite_link(bot, chat_id)
+                    invite_link = await get_invite_link(chat_id)
                     invite_hash = invite_link.split("/")[-1].replace("+", "")
                     await ABH(ImportChatInviteRequest(invite_hash))
                 except Exception:
