@@ -202,54 +202,39 @@ async def ensure_joined(event):
     except Exception as ex:
         print(f"❌ حدث خطأ أثناء تنفيذ العملية للحساب {me.id}: {ex}")
 from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
-from telethon.tl.types import ChatAdminRights, Channel, Chat
+from telethon.tl.types import ChatAdminRights, Channel
 
 async def promote_ABHS(chat_identifier):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
 
-    # 1️⃣ جلب ABH1
     ABH1 = ABHS[0]
 
-    # الحصول على كيان القناة/المجموعة بواسطة البوت الأساسي
     try:
         channel_entity_bot = await bot.get_input_entity(int(chat_identifier))
-        is_channel = isinstance(channel_entity_bot, Channel)
     except Exception as e:
         print(f"❌ فشل الحصول على كيان {chat_identifier} بواسطة البوت الأساسي: {e}")
         return
 
-    # 2️⃣ رفع ABH1 بصلاحية رفع مشرفين فقط بواسطة البوت الأساسي
     try:
         me1 = await ABH1.get_me()
-
-        admin_rights_add_admins_only = ChatAdminRights(
-            change_info=False,
-            post_messages=False,
-            edit_messages=False,
-            delete_messages=False,
-            ban_users=False,
-            invite_users=False,
-            pin_messages=False,
-            add_admins=True,  # السماح برفع مشرفين فقط
-            manage_call=False,
-            anonymous=False
+        rights_add_admins_only = ChatAdminRights(
+            change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
+            ban_users=False, invite_users=False, pin_messages=False, add_admins=True,
+            manage_call=False, anonymous=False
         )
-
         await bot(EditAdminRequest(
             channel=channel_entity_bot,
             user_id=int(me1.id),
-            admin_rights=admin_rights_add_admins_only,
+            admin_rights=rights_add_admins_only,
             rank="مشرف رئيسي"
         ))
         print(f"✅ تم رفع ABH1 ({me1.id}) مشرف مع صلاحية رفع مشرفين فقط بواسطة البوت الأساسي")
-
     except Exception as e:
         print(f"❌ فشل رفع ABH1 ({me1.id}): {e}")
         return
 
-    # 3️⃣ رفع باقي البوتات بواسطة ABH1
     for ABH in ABHS[1:]:
         try:
             me = await ABH.get_me()
@@ -257,48 +242,36 @@ async def promote_ABHS(chat_identifier):
                 print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
                 continue
 
-            # الحصول على كيان بواسطة ABH1
             try:
                 channel_entity_abh1 = await ABH1.get_input_entity(int(chat_identifier))
             except Exception as e:
                 print(f"❌ فشل الحصول على كيان بواسطة ABH1: {e}")
                 continue
 
-            # التحقق إذا كان البوت عضوًا بالفعل
-            is_member = False
             try:
                 participant = await ABH1(GetParticipantRequest(
                     channel=channel_entity_abh1,
                     user_id=int(me.id)
                 ))
                 if participant:
-                    is_member = True
                     print(f"⚠️ البوت {me.id} عضو بالفعل, تخطي رفع المشرفين")
+                    continue
             except Exception:
                 pass
 
-            # رفع البوت إذا لم يكن عضوًا
-            if not is_member:
-                admin_rights_limited = ChatAdminRights(
-                    change_info=False,
-                    post_messages=False,
-                    edit_messages=False,
-                    delete_messages=False,
-                    ban_users=False,
-                    invite_users=True,
-                    pin_messages=True,
-                    add_admins=False,
-                    manage_call=False,
-                    anonymous=False
-                )
-                me = await ABH.get_me()
-                await ABH1(EditAdminRequest(
-                    channel=channel_entity_bot,
-                    user_id=int(me.id),
-                    admin_rights=admin_rights_add_admins_only,
-                    rank="مشرف رئيسي"
-        ))
-                print(f"✅ تم رفع البوت {me.id} مشرفاً بواسطة ABH1")
+            rights_limited = ChatAdminRights(
+                change_info=False, post_messages=False, edit_messages=False, delete_messages=False,
+                ban_users=False, invite_users=True, pin_messages=True, add_admins=False,
+                manage_call=False, anonymous=False
+            )
+
+            await ABH1(EditAdminRequest(
+                channel=channel_entity_abh1,
+                user_id=int(me.id),
+                admin_rights=rights_add_admins_only,
+                rank="مشرف رئيسي"
+            ))
+            print(f"✅ تم رفع البوت {me.id} مشرفاً بواسطة ABH1")
 
         except Exception as e:
             print(f"❌ حدث خطأ مع الحساب {me.id}: {e}")
