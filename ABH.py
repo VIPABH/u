@@ -14,7 +14,32 @@ from telethon.tl.types import ChatAdminRights, Channel
 from telethon import TelegramClient, events
 from telethon.tl.types import Channel, ChatAdminRights
 from telethon.errors import ChatAdminRequiredError
+from telethon import TelegramClient
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights
+client = ABH1
+@ABH.on(events.NewMessage(from_users=[wfffp]))
+async def promote_bot_to_admin(event):
+    channel = -1003123855597
+    bot_username = 6907915843
+    rights = ChatAdminRights(
+        change_info=True,
+        post_messages=True,
+        edit_messages=True,
+        delete_messages=True,
+        ban_users=True,
+        invite_users=True,
+        pin_messages=True,
+        add_admins=False,   # لا يمكن للبوت إضافة مشرفين
+        anonymous=False
+    )
 
+    await client(EditAdminRequest(
+        channel=channel,
+        user_id=bot_username,
+        admin_rights=rights,
+        rank='بوت'  # لقب المشرف الظاهر
+    ))
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
