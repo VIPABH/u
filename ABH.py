@@ -8,6 +8,13 @@ from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 from telethon.tl.types import PeerChannel
 import os, random, redis, re, asyncio
+import random
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights, Channel
+from telethon import TelegramClient, events
+from telethon.tl.types import Channel, ChatAdminRights
+from telethon.errors import ChatAdminRequiredError
+
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
@@ -101,10 +108,6 @@ async def s(e):
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
             await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
-import random
-from telethon import TelegramClient, events
-from telethon.tl.types import Channel, ChatAdminRights
-from telethon.errors import ChatAdminRequiredError
 
 # إعداد البوتات والحسابات
 # bot و ABHS (قائمة الحسابات) مفروض تكون معرفة قبل هذا الجزء
