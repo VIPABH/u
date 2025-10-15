@@ -220,10 +220,6 @@ async def reactauto(e):
             await react(e)
             print(f"✅ تمت إضافة رد فعل في القناة {e.chat_id}")
         else:
-            print(f"⚠️ {e.chat_id} ليس قناة، تم تخطي العملية")
-
-# تشغيل البوت
-bot.run_until_disconnected()        else:
             print(f"⚠️ {e.chat_id} ليس قناة صالحة، تم تخطي العملية")
 
 bot.run_until_disconnected()
