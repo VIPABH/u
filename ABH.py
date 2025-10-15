@@ -120,7 +120,7 @@ async def react(event):
                     big=True
                 )
             )
-            await ABH.send_read_acknowledge(int(event.chat_id), int(event.id))
+            await ABH.send_read_acknowledge(peer, event.message.id)
         except Exception as ex:
             await bot.send_message(wfffp, str(ex))
             pass
