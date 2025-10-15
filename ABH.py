@@ -110,7 +110,7 @@ def is_chat_allowed(chat_id):
 async def react(event):
     for ABH in ABHS:
         try:
-            await event.reply("تم")
+            await ABH.send_message(event.chat_id, "...", reply_to=event.id)
             x = random.choice(['👍', '🕊', '❤️'])
             #await ensure_joined(event)
             await ABH(
