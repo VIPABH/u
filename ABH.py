@@ -208,7 +208,7 @@ import asyncio
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel, Chat
 
-async def promote_ABHS(client, chat_identifier, ABHS, permission='add_admins'):
+async def promote_ABHS(chat_identifier, permission='add_admins'):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
