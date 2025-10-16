@@ -21,9 +21,6 @@ from telethon import events
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import ChatAdminRequiredError
-
-
-
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
@@ -54,17 +51,15 @@ ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
 ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
 ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9]
 idd = [ABH6, ABH7, ABH8]
 client = ABH1
 from telethon import events
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import ChatAdminRequiredError
-
 async def promote_ABHS(event, chat_id=None):
     xxx = int(chat_id)
-    
     for AB in idd:
         id = await AB.get_me()
         rights = ChatAdminRights(
@@ -74,7 +69,6 @@ async def promote_ABHS(event, chat_id=None):
             edit_messages=True,
             delete_messages=True
             )
-        
         await ABH1(EditAdminRequest(
             channel=xxx,
             user_id=id.id,  # معرف البوت
