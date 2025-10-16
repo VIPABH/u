@@ -324,16 +324,15 @@ async def react(event):
     - إذا ماكو مخزون، يستخدم عشوائيًا: ❤️ و 🕊 و 🌚
     """
     # جلب التفاعلات المخزنة للقناة
-    stored = get_reactions(event.chat_id)
-
-    if stored:
-        emoji = random.choice(stored)
-    else:
-        # الإيموجيات الافتراضية إذا ماكو مخزون
-        emoji = random.choice(['❤️', '🕊', '🌚'])
-
+    
     for ABH in ABHS:
         try:
+            stored = get_reactions(event.chat_id)
+            if stored:
+                emoji = random.choice(stored)
+            else:
+        # الإيموجيات الافتراضية إذا ماكو مخزون
+                emoji = random.choice(['❤️', '🕊', '🌚'])
             await ABH(
                 SendReactionRequest(
                     peer=int(event.chat_id),
