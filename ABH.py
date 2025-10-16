@@ -190,7 +190,7 @@ async def react(event):
 # -------------------------------------
 # رفع البوتات كمشرفين بالقناة
 # -------------------------------------
-async def promote_ABHS(chat_id):
+async def promote__ABHS(chat_id):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
