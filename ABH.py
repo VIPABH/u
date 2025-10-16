@@ -276,6 +276,21 @@ async def promote__ABHS(chat_id):
 # -------------------------------------
 # الحدث الأساسي
 # -------------------------------------
+def add_chat(chat_id):
+    r.sadd("whitelist_chats", str(chat_id))
+
+def remove_chat(chat_id):
+    r.srem("whitelist_chats", str(chat_id))
+
+def clear_chats():  # دالة لحذف جميع القنوات
+    r.delete("whitelist_chats")
+
+def is_chat_allowed(chat_id):
+    return str(chat_id) in r.smembers("whitelist_chats")
+
+def list_chats():
+    return list(r.smembers("whitelist_chats"))
+
 @bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
     text = e.text.strip()
@@ -287,11 +302,10 @@ async def reactauto(e):
             add_chat(chat_id)
             await promote_ABHS(e, chat_id)
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
-            #await promote_bot_to_admin(e)
-        except Excption as E:
-            await e.reply(f"{x.id}    {E}")
-    
-    # حذف قناة
+        except Exception as E:
+            await e.reply(f"⚠️ حدث خطأ: {E}")
+
+    # حذف قناة واحدة
     elif text.startswith("حذف") and e.sender_id == wfffp:
         try:
             chat_id = text.split(" ", 1)[1]
@@ -299,6 +313,11 @@ async def reactauto(e):
             await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
+
+    # حذف جميع القنوات
+    elif text.startswith("حذف الكل") and e.sender_id == wfffp:
+        clear_chats()
+        await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
 
     # عرض القنوات
     elif text.startswith("قنوات") and e.sender_id == wfffp:
@@ -308,7 +327,6 @@ async def reactauto(e):
         else:
             await e.reply("⚠️ لا توجد قنوات مضافة حالياً")
 
-    # ردود الفعل للقنوات فقط
+    # ردود الفعل للقنوات المسموح بها فقط
     elif is_chat_allowed(e.chat_id):
-        await react(e)
-bot.run_until_disconnected()
+        await react(e)bot.run_until_disconnected()
