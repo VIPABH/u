@@ -63,8 +63,8 @@ from telethon.errors import ChatAdminRequiredError
 @ABH1.on(events.NewMessage)
 async def promote_ABHS(event, chat_id=None):
     try:
-        chat = await ABH1.get_entity(event.chat_id)
-        
+        chat = await ABH1.get_entity(chat_id)
+        print(chat.id, chat_id)
         # التحقق أن الحدث للقناة فقط
         if not isinstance(chat, Channel):
             return print("no")
@@ -76,7 +76,7 @@ async def promote_ABHS(event, chat_id=None):
             delete_messages=True
             )
         await ABH1(EditAdminRequest(
-            channel=chat.id,
+            channel=chat_id,
             user_id=6938881479,  # معرف البوت
             admin_rights=rights,
             rank="bot"
