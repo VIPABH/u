@@ -51,36 +51,49 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 bot_id = [6938881479, 7308514832, 6907915843]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
-from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.functions.channels import EditAdminRequest, GetParticipantsRequest
 from telethon.tl.types import ChatAdminRights, Channel
-from telethon.errors import RightForbiddenError, ChatAdminRequiredError
+from telethon.tl.types import ChannelParticipantsSearch
+from telethon.errors import RightForbiddenError, ChatAdminRequiredError, UserNotParticipantError
 
 async def promote_bot_to_admin(channel):
     print("تم تشغيل الدالة")
 
     try:
-        entity = await client.get_entity(channel)
+        entity = await ABH1.get_entity(channel)
 
         if not isinstance(entity, Channel):
             print("❌ هذا الكيان ليس قناة.")
             return
 
-        # كل الحقوق False لجعل البوت مشرف فقط بدون صلاحيات
-    rights = ChatAdminRights(
-        pin_messages=True
-)
-        m = await ABH1.get_me()
+        # حقوق المشرف الآمنة للبوت في قناة بثية
+        rights = ChatAdminRights(
+            post_messages=True,  # الحد الأدنى المقبول للقناة
+            edit_messages=False,
+            delete_messages=False,
+            add_admins=False,
+            manage_call=False
+        )
 
-        for id in bot_id:
-            await client(EditAdminRequest(
+        for bot in bot_id:
+            # التأكد من أن البوت عضو في القناة
+            try:
+                await ABH1.get_participant(entity, bot)
+            except UserNotParticipantError:
+                print(f"⚠️ البوت {bot} ليس عضوًا بالقناة، يرجى إضافته يدويًا أو عبر رابط دعوة.")
+                continue
+
+            # ترقية البوت إلى مشرف
+            await ABH1(EditAdminRequest(
                 channel=entity,
-                user_id=id,
+                user_id=bot,
                 admin_rights=rights,
                 rank='بوت'
             ))
-            print(f"✅ تم رفع البوت {id} كمشرف في القناة بدون صلاحيات.")
+            print(f"✅ تم رفع البوت {bot} كمشرف بالقناة.")
+
     except ChatAdminRequiredError:
-        print("❌ الحساب الحالي ليس مشرفًا بصلاحية add_admins في القناة.")
+        print("❌ الحساب ABH1 ليس مشرفًا بصلاحية add_admins في القناة.")
     except RightForbiddenError:
         print("❌ لا يمكن منح هذا المشرف الحقوق المطلوبة في القناة.")
     except Exception as e:
