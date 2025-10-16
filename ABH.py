@@ -63,7 +63,7 @@ from telethon.errors import ChatAdminRequiredError
 @ABH1.on(events.NewMessage(from_users=[wfffp]))
 async def promote_ABHS(event, chat_id=None):
     try:
-        chat = await ABH1.get_entity(chat_id)
+        #chat = await ABH1.get_entity(chat_id)
         print(chat.id, chat_id)
         # التحقق أن الحدث للقناة فقط
         if not isinstance(chat, Channel):
