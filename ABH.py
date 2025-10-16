@@ -77,6 +77,7 @@ async def promote_ABHS(event, chat_id=None):
         admin_rights=rights,
         rank="main bot"
             ))
+    print(aid.id)
     for AB in idd:
         #chat = await ABH1.get_entity(chat_id)
         #print(chat.id, chat_id)
@@ -91,7 +92,7 @@ async def promote_ABHS(event, chat_id=None):
             edit_messages=True,
             delete_messages=True
             )
-        print(id.id)
+        
         await bot(EditAdminRequest(
             channel=xxx,
             user_id=id.id,  # معرف البوت
