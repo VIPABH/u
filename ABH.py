@@ -291,7 +291,7 @@ def is_chat_allowed(chat_id):
 def list_chats():
     return list(r.smembers("whitelist_chats"))
 
-@bot.on(events.NewMessage(from_users=[wfffp]))
+@bot.on(events.NewMessage)
 async def reactauto(e):
     text = e.text.strip()
 
