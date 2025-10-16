@@ -368,19 +368,6 @@ async def reactauto(e):
         except Exception as E:
             await e.reply(f"⚠️ حدث خطأ: {E}")
 
-    # حذف الكل
-    elif text.startswith("حذف الكل") and sender == wfffp:
-        clear_chats()
-        await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
-
-    # حذف قناة واحدة
-    elif text.startswith("حذف ") and sender == wfffp:
-        try:
-            chat_id = text.split(" ", 1)[1]
-            remove_chat(chat_id)
-            await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
-        except IndexError:
-            await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 
     # عرض القنوات
     elif text.startswith("قنوات") and sender == wfffp:
@@ -431,16 +418,19 @@ async def reactauto(e):
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء حذف التفاعل: {ex}")
 
-    # حذف جميع التفاعلات
-    elif text.startswith("حذف تفاعلات") and sender == wfffp:
+    #     # حذف الكل
+    elif text.startswith("حذف الكل") and sender == wfffp:
+        clear_chats()
+        await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
+
+    # حذف قناة واحدة
+    elif text.startswith("حذف ") and sender == wfffp:
         try:
-            chat_id = text.split(" ")[1]
-            clear_reactions(chat_id)
-            await e.reply(f"🗑️ تم حذف جميع التفاعلات للقناة `{chat_id}`")
+            chat_id = text.split(" ", 1)[1]
+            remove_chat(chat_id)
+            await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
         except IndexError:
-            await e.reply("⚠️ استخدم: `حذف_تفاعلات -100xxxx`")
-        except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء حذف التفاعلات: {ex}")
+            await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 
     # ردود الفعل للقنوات المسموح بها فقط
     elif is_chat_allowed(e.chat_id):
