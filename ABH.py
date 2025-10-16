@@ -181,6 +181,8 @@ async def promote_ABHS(chat_id):
                 continue
             rights = ChatAdminRights(
                 add_admins=True,
+                change_info=True
+                
             )
             await bot(EditAdminRequest(
                 channel=channel_entity,
