@@ -55,8 +55,8 @@ ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 client = ABH1
-@ABH1.on(events.NewMessage)
-async def promote_ABHS(event):
+#@ABH1.on(events.NewMessage)
+async def promote_ABHS(event, chat_id=None):
     try:
         chat = await ABH1.get_entity(event.chat_id)
         
@@ -235,7 +235,7 @@ async def reactauto(e):
         try:
             chat_id = text.split(" ", 1)[1]
             add_chat(chat_id)
-            await promote_ABHS(chat_id)
+            await promote_ABHS(e, chat_id)
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
             await promote_bot_to_admin(e)
         except IndexError:
