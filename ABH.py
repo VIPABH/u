@@ -52,7 +52,7 @@ ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
 ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9]
-idd = [ABH6, ABH7, ABH8]
+idd = [ABH6, ABH7, ABH8, ABH9]
 client = ABH1
 from telethon import events
 from telethon.tl.functions.channels import EditAdminRequest
