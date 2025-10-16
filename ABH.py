@@ -71,13 +71,14 @@ async def promote_ABHS(event, chat_id=None):
         edit_messages=True,
         delete_messages=True
         )
-    #await bot(EditAdminRequest(
-        #channel=xxx,
-        #user_id=aid.id,  # معرف البوت
-        #admin_rights=rights,
-        #rank="main bot"
-            #))
     
+    await bot(EditAdminRequest(
+        channel=xxx,
+        user_id=aid.id,
+        admin_rights=rights,
+        rank="main bot"
+            ))
+    await asyncio.sleep(2)
     for AB in idd:
         #chat = await ABH1.get_entity(chat_id)
         #print(chat.id, chat_id)
