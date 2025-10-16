@@ -174,7 +174,7 @@ async def promote_ABHS(chat_id):
     print("جاري الرفع")
     me = await ABH1.get_me()
     rights = ChatAdminRights(
-        add_admins=True,
+        change_info=True
             )
     await bot(EditAdminRequest(
         channel=channel_entity,
