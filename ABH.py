@@ -347,7 +347,7 @@ async def react(event):
                 increment=True            # True يزيد عدد المشاهدات
             ))
         except Exception as ex:
-            await bot.send_message(wfffp, f"⚠️ خطأ في التفاعل: {ex}")
+            pass
 # ======== الحدث الرئيسي ========
 @bot.on(events.NewMessage)
 async def reactauto(e):
