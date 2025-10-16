@@ -141,8 +141,12 @@ async def promote_bot_to_admin(event):
 target_user_id = 1421907917
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
-    for ABH in ABHS:
-        await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
+    try:
+        for ABH in ABHS:
+            await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
+    except Exception as E:
+        x await ABH.get_me()
+        await e.reply(f"{x.id}    {e}")
 @bot.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$", from_users=[1910015590, 201728276]))
 async def words(event):
     num = int(event.pattern_match.group(1)) or 1
