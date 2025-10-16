@@ -51,19 +51,48 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 bot_id = [6938881479, 7308514832, 6907915843]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights, Channel
+from telethon.errors import RightForbiddenError, ChatAdminRequiredError
+
 async def promote_bot_to_admin(channel):
-    print("تم تشغبل الداله")
-    rights = ChatAdminRights(
-        manage_call=True
-    )
-    m = await ABH1.get_me()
-    for id in bot_id:
-        await client(EditAdminRequest(
-            channel=channel,
-            user_id=id,
-            admin_rights=rights,
-            rank='بوت'  # لقب المشرف الظاهر
-    ))
+    print("تم تشغيل الدالة")
+
+    try:
+        # جلب الكيان من الـ channel ID أو username
+        entity = await client.get_entity(channel)
+
+        # التأكد أن الكيان قناة
+        if not isinstance(entity, Channel):
+            print("❌ هذا الكيان ليس قناة، لا يمكن رفع مشرف.")
+            return
+
+        # إعداد الحقوق المناسبة للقناة (بدون صلاحيات إضافية لتجنب الخطأ)
+        rights = ChatAdminRights(
+            post_messages=False,
+            edit_messages=False,
+            delete_messages=False,
+            add_admins=False,
+            manage_call=True  # حسب طلبك
+        )
+
+        m = await ABH1.get_me()  # إذا تحتاج استخدامه لاحقًا
+
+        for id in bot_id:
+            await client(EditAdminRequest(
+                channel=entity,
+                user_id=id,
+                admin_rights=rights,
+                rank='بوت'  # لقب المشرف الظاهر
+            ))
+            print(f"✅ تم رفع البوت {id} كمشرف في القناة.")
+
+    except ChatAdminRequiredError:
+        print("❌ الحساب الحالي ليس مشرفًا بصلاحية add_admins في القناة.")
+    except RightForbiddenError:
+        print("❌ لا يمكن منح هذا المشرف الحقوق المطلوبة في القناة.")
+    except Exception as e:
+        print(f"❌ حدث خطأ غير متوقع: {e}")
 target_user_id = 1421907917
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
