@@ -368,7 +368,6 @@ async def reactauto(e):
         except Exception as E:
             await e.reply(f"⚠️ حدث خطأ: {E}")
 
-
     # عرض القنوات
     elif text.startswith("قنوات") and sender == wfffp:
         chats = list_chats()
@@ -376,6 +375,8 @@ async def reactauto(e):
             await e.reply("📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats))
         else:
             await e.reply("⚠️ لا توجد قنوات مضافة حالياً")
+
+    # عرض التفاعلات المخزنة
     elif text.startswith("تفاعلات") and sender == wfffp:
         try:
             chat_id = text.split(" ")[1]
@@ -403,8 +404,6 @@ async def reactauto(e):
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء حفظ التفاعلات: {ex}")
 
-    # عرض التفاعلات المخزنة
-
     # حذف تفاعل واحد
     elif text.startswith("حذف تفاعل") and sender == wfffp:
         try:
@@ -418,7 +417,19 @@ async def reactauto(e):
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء حذف التفاعل: {ex}")
 
-    #     # حذف الكل
+    # حذف كل التفاعلات لجميع القنوات
+    elif text.startswith("حذف التفاعلات") and sender == wfffp:
+        try:
+            keys = r.keys("chat_reactions:*")
+            if keys:
+                r.delete(*keys)
+                await e.reply("🗑️ تم حذف جميع التفاعلات المخزنة لكل القنوات")
+            else:
+                await e.reply("⚠️ لا توجد تفاعلات مخزنة لحذفها")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء حذف جميع التفاعلات: {ex}")
+
+    # حذف جميع القنوات
     elif text.startswith("حذف الكل") and sender == wfffp:
         clear_chats()
         await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
@@ -438,7 +449,6 @@ async def reactauto(e):
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
-
 # تشغيل البوت
 bot.run_until_disconnected()
 
