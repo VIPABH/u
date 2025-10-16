@@ -66,8 +66,8 @@ async def promote_ABHS(event, chat_id=None):
         #chat = await ABH1.get_entity(chat_id)
         #print(chat.id, chat_id)
         # التحقق أن الحدث للقناة فقط
-        if not isinstance(chat, Channel):
-            return print("no")
+        #if not isinstance(chat, Channel):
+            #return print("no")
         rights = ChatAdminRights(
             add_admins=True,
             change_info=True,
