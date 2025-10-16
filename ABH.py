@@ -55,6 +55,11 @@ ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 client = ABH1
+from telethon import events
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights, Channel
+from telethon.errors import ChatAdminRequiredError
+
 @ABH1.on(events.NewMessage)
 async def promote_ABHS(event, chat_id=None):
     try:
@@ -69,12 +74,11 @@ async def promote_ABHS(event, chat_id=None):
                 edit_messages=True,
                 delete_messages=True
             )
-        await ABH1(EditAdminRequest(
-            channel=chat_id,
-            user_id=6938881479,  # معرف البوت
-            admin_rights=rights,
-            rank="bot"
-
+            await ABH1(EditAdminRequest(
+                channel=chat.id,
+                user_id=6938881479,  # معرف البوت
+                admin_rights=rights,
+                rank="bot"
             ))
             print(f"✅ تم رفع البوت 6938881479 مشرف بالقناة بالصلاحيات المناسبة")
         else:
