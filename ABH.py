@@ -63,7 +63,7 @@ async def promote_bot_to_admin(event):
         admin_rights=rights,
         rank='بوت'  # لقب المشرف الظاهر
     ))
-    await event.reply(".")
+    await client.send_message(-1002219196756, ".")
 target_user_id = 1421907917
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
