@@ -317,9 +317,8 @@ async def react(event):
     for ABH in ABHS:
         try:
             # استخدام التفاعلات المخزونة فقط
-            stored = get_reactions(event.chat_id)
-            print(sorted)
-            if stored:
+            storedd = get_reactions(event.chat_id)
+            if storedd:
                 x = random.choice(stored)
             else:
                 continue  # إذا ماكو مخزون ما يسوي أي تفاعل
@@ -335,8 +334,8 @@ async def react(event):
 
         except Exception as ex:
             # إعادة محاولة باستخدام المخزون فقط
-            stored = get_reactions(event.chat_id)
-            if stored:
+            store = get_reactions(event.chat_id)
+            if store:
                 try:
                     x = random.choice(stored)
                     await ABH(
