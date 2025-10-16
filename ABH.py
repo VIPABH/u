@@ -229,6 +229,7 @@ def list_chats():
 # -------------------------------------
 async def react(event):
     for ABH in ABHS:
+        print("react")
         try:
             emoji = random.choice(['👍', '🕊', '❤️'])
             await ABH.send_reaction(event.chat_id, event.message.id, emoji)
