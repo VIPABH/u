@@ -63,7 +63,7 @@ from telethon.errors import ChatAdminRequiredError
 
 async def promote_ABHS(event, chat_id=None):
     xxx = int(chat_id)
-    aid = await ABH1.get_me()
+    aid = await bot.get_me()
     rights = ChatAdminRights(
         add_admins=True,
         change_info=True,
@@ -72,7 +72,7 @@ async def promote_ABHS(event, chat_id=None):
         delete_messages=True
         )
     
-    await bot(EditAdminRequest(
+    await ABH1(EditAdminRequest(
         channel=xxx,
         user_id=aid.id,
         admin_rights=rights,
