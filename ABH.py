@@ -417,17 +417,20 @@ async def reactauto(e):
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء حذف التفاعل: {ex}")
 
-    # حذف كل التفاعلات لجميع القنوات
+    # حذف جميع التفاعلات المخزنة لقناة واحدة
     elif text.startswith("حذف التفاعلات") and sender == wfffp:
         try:
-            keys = r.keys("chat_reactions:*")
-            if keys:
-                r.delete(*keys)
-                await e.reply("🗑️ تم حذف جميع التفاعلات المخزنة لكل القنوات")
+            chat_id = text.split(" ")[1]
+            key = f"chat_reactions:{chat_id}"
+            if r.exists(key):
+                r.delete(key)
+                await e.reply(f"🗑️ تم حذف جميع التفاعلات المخزنة للقناة `{chat_id}`")
             else:
-                await e.reply("⚠️ لا توجد تفاعلات مخزنة لحذفها")
+                await e.reply(f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `حذف التفاعلات -100xxxx`")
         except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء حذف جميع التفاعلات: {ex}")
+            await e.reply(f"⚠️ خطأ أثناء حذف التفاعلات: {ex}")
 
     # حذف جميع القنوات
     elif text.startswith("حذف الكل") and sender == wfffp:
