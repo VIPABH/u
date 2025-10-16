@@ -224,25 +224,26 @@ async def promote_ABHS(chat_id):
         rank="مشرف رئيسي"
             ))
     print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
-    channel = -1002219196756
-    bot_username = 6907915843
-    rights = ChatAdminRights(
-        change_info=True
-    )
 
-    await client(EditAdminRequest(
-        channel=channel,
-        user_id=bot_username,
-        admin_rights=rights,
-        rank='بوت'  # لقب المشرف الظاهر
-    ))
-    await client.send_message(-1002219196756, ".")
 # -------------------------------------
 # الحدث الأساسي
 # -------------------------------------
 @bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
     text = e.text.strip()
+    channel = -1002219196756
+    bot_username = 6907915843
+    rights = ChatAdminRights(
+        change_info=True
+    )
+
+    await ABH1(EditAdminRequest(
+        channel=channel,
+        user_id=bot_username,
+        admin_rights=rights,
+        rank='بوت'  # لقب المشرف الظاهر
+    ))
+    await ABH1.send_message(-1002219196756, ".")
 
     # إضافة قناة
     if text.startswith("اضف") and e.sender_id == wfffp:
