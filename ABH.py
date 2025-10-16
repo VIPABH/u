@@ -64,7 +64,7 @@ from telethon.errors import ChatAdminRequiredError
 async def promote_ABHS(event, chat_id=None):
     try:
         #chat = await ABH1.get_entity(chat_id)
-        print(chat.id, chat_id)
+        #print(chat.id, chat_id)
         # التحقق أن الحدث للقناة فقط
         if not isinstance(chat, Channel):
             return print("no")
