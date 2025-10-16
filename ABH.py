@@ -70,10 +70,10 @@ async def promote_ABHS(event):
                 delete_messages=True
             )
             await ABH1(EditAdminRequest(
-                channel=event.chat_id,
+                channel=chat_id,
                 user_id=6938881479,  # معرف البوت
                 admin_rights=rights,
-                rank="مشرف رئيسي"
+
             ))
             print(f"✅ تم رفع البوت 6938881479 مشرف بالقناة بالصلاحيات المناسبة")
         else:
@@ -86,15 +86,11 @@ async def promote_ABHS(event):
 async def promote_bot_to_admin(event):
     channel = -1002219196756
     bot_username = 6907915843
-    rights = ChatAdminRights(
-        change_info=True
-    )
-
+    
     await client(EditAdminRequest(
         channel=channel,
         user_id=bot_username,
         admin_rights=rights,
-        rank='بوت'  # لقب المشرف الظاهر
     ))
     await client.send_message(-1002219196756, ".")
 target_user_id = 1421907917
@@ -226,7 +222,7 @@ async def promote_ABHS(chat_id):
             print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
         except Exception as e:
             print(f"❌ خطأ أثناء رفع البوت {me.id}: {e}")
-
+    print("done")
 # -------------------------------------
 # الحدث الأساسي
 # -------------------------------------
