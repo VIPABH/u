@@ -230,8 +230,13 @@ def list_chats():
 async def react(event):
     for ABH in ABHS:
         try:
-            x = random.choice(['👍', '🕊', '❤️'])
-            
+            # محاولة استخدام الإيموجيات المخزونة أولاً
+            stored = get_reactions(event.chat_id)
+            if stored:
+                x = random.choice(stored)
+            else:
+                x = random.choice(['👍', '🕊', '❤️'])
+
             await ABH(
                 SendReactionRequest(
                     peer=int(event.chat_id),
@@ -240,9 +245,21 @@ async def react(event):
                     big=True
                 )
             )
-            
+
         except Exception as ex:
-            await bot.send_message(wfffp, str(ex))
+            try:
+                # إذا فشل استخدام المخزون، جرب الافتراضيات
+                x = random.choice(['👍', '🕊', '❤️'])
+                await ABH(
+                    SendReactionRequest(
+                        peer=int(event.chat_id),
+                        msg_id=int(event.message.id),
+                        reaction=[ReactionEmoji(emoticon=f'{x}')],
+                        big=True
+                    )
+                )
+            except Exception as ex2:
+                await bot.send_message(wfffp, str(ex2))
             pass
 # -------------------------------------
 # رفع البوتات كمشرفين بالقناة
@@ -283,6 +300,8 @@ async def promote__ABHS(chat_id):
 # -------------------------------------
 # الحدث الأساسي
 # -------------------------------------
+import random
+
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 
@@ -298,6 +317,24 @@ def is_chat_allowed(chat_id):
 def list_chats():
     return list(r.smembers("whitelist_chats"))
 
+
+# ====== دوال تخزين التفاعلات في Redis ======
+def add_reactions(chat_id, emojis):
+    key = f"chat_reactions:{chat_id}"
+    for emoji in emojis:
+        r.sadd(key, emoji)
+
+def get_reactions(chat_id):
+    key = f"chat_reactions:{chat_id}"
+    return list(r.smembers(key))
+
+def get_random_reaction(chat_id):
+    reactions = get_reactions(chat_id)
+    if reactions:
+        return random.choice(reactions)
+    return None
+
+
 @bot.on(events.NewMessage)
 async def reactauto(e):
     text = e.text.strip()
@@ -311,11 +348,12 @@ async def reactauto(e):
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         except Exception as E:
             await e.reply(f"⚠️ حدث خطأ: {E}")
+
+    # حذف الكل
     elif text.startswith("حذف الكل") and e.sender_id == wfffp:
         clear_chats()
         await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
 
-    # عرض القنوات
     # حذف قناة واحدة
     elif text.startswith("حذف") and e.sender_id == wfffp:
         try:
@@ -325,8 +363,7 @@ async def reactauto(e):
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 
-    # حذف جميع القنوات
-    
+    # عرض القنوات
     elif text.startswith("قنوات") and e.sender_id == wfffp:
         chats = list_chats()
         if chats:
@@ -334,7 +371,24 @@ async def reactauto(e):
         else:
             await e.reply("⚠️ لا توجد قنوات مضافة حالياً")
 
+    # ====== الأمر الجديد: تفاعل ======
+    elif text.startswith("تفاعل") and e.sender_id == wfffp:
+        try:
+            parts = text.split(" ")
+            chat_id = parts[1]
+            emojis = parts[2:]
+            if not emojis:
+                await e.reply("⚠️ أرسل الإيموجيات بعد المعرف مثل:\n`تفاعل -100xxxx 😂 ❤️ 🔥`")
+                return
+            add_reactions(chat_id, emojis)
+            await e.reply(f"✅ تم حفظ {len(emojis)} إيموجي للقناة `{chat_id}`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء حفظ التفاعلات: {ex}")
+
     # ردود الفعل للقنوات المسموح بها فقط
     elif is_chat_allowed(e.chat_id):
-        await react(e)
+        try:
+            await react(e)
+        except Exception as ex:
+            print(f"خطأ في التفاعل: {ex}")
 bot.run_until_disconnected()
