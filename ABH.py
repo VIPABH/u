@@ -51,9 +51,8 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 bot_id = [6938881479, 7308514832, 6907915843]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
-from telethon.tl.functions.channels import EditAdminRequest, GetParticipantsRequest
+from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
 from telethon.tl.types import ChatAdminRights, Channel
-from telethon.tl.types import ChannelParticipantsSearch
 from telethon.errors import RightForbiddenError, ChatAdminRequiredError, UserNotParticipantError
 
 async def promote_bot_to_admin(channel):
@@ -78,7 +77,10 @@ async def promote_bot_to_admin(channel):
         for bot in bot_id:
             # التأكد من أن البوت عضو في القناة
             try:
-                await ABH1.get_participant(entity, bot)
+                await ABH1(GetParticipantRequest(
+                    channel=entity,
+                    participant=bot
+                ))
             except UserNotParticipantError:
                 print(f"⚠️ البوت {bot} ليس عضوًا بالقناة، يرجى إضافته يدويًا أو عبر رابط دعوة.")
                 continue
