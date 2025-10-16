@@ -304,7 +304,11 @@ async def reactauto(e):
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         except Exception as E:
             await e.reply(f"⚠️ حدث خطأ: {E}")
+    elif text.startswith("حذف الكل") and e.sender_id == wfffp:
+        clear_chats()
+        await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
 
+    # عرض القنوات
     # حذف قناة واحدة
     elif text.startswith("حذف") and e.sender_id == wfffp:
         try:
@@ -315,11 +319,7 @@ async def reactauto(e):
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 
     # حذف جميع القنوات
-    elif text.startswith("حذف الكل") and e.sender_id == wfffp:
-        clear_chats()
-        await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
-
-    # عرض القنوات
+    
     elif text.startswith("قنوات") and e.sender_id == wfffp:
         chats = list_chats()
         if chats:
