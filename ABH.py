@@ -180,16 +180,7 @@ async def promote_ABHS(chat_id):
                 print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
                 continue
             rights = ChatAdminRights(
-                change_info=False,
-                post_messages=False,
-                edit_messages=False,
-                delete_messages=False,
-                ban_users=False,
-                invite_users=False,
-                pin_messages=False,
                 add_admins=True,
-                manage_call=False,
-                anonymous=False
             )
             await bot(EditAdminRequest(
                 channel=channel_entity,
