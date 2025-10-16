@@ -145,7 +145,7 @@ async def test(e):
         for ABH in ABHS:
             await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
     except Exception as E:
-        x await ABH.get_me()
+        x = await ABH.get_me()
         await e.reply(f"{x.id}    {e}")
 @bot.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$", from_users=[1910015590, 201728276]))
 async def words(event):
