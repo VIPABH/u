@@ -171,28 +171,19 @@ async def promote_ABHS(chat_id):
     except Exception as e:
         print(f"❌ فشل الحصول على كيان {chat_id} بواسطة البوت الأساسي: {e}")
         return
-        print("جاري الرفع")
-        me = await ABH1.get_me()
-        rights = ChatAdminRights(
-            change_info=False,
-            post_messages=False,
-            edit_messages=False,
-            delete_messages=False,
-            ban_users=False,
-            invite_users=False,
-            pin_messages=False,
-            add_admins=True,
-            manage_call=False,
-            anonymous=False
+    print("جاري الرفع")
+    me = await ABH1.get_me()
+    rights = ChatAdminRights(
+        add_admins=True,
             )
-        await bot(EditAdminRequest(
-            channel=channel_entity,
-            user_id=me.id,
-            admin_rights=rights,
-            rank="مشرف رئيسي"
+    await bot(EditAdminRequest(
+        channel=channel_entity,
+        user_id=me.id,
+        admin_rights=rights,
+        rank="مشرف رئيسي"
             ))
-        print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
-        await promote_bot_to_admin(channel_entity)
+    print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
+    await promote_bot_to_admin(channel_entity)
 # -------------------------------------
 # الحدث الأساسي
 # -------------------------------------
