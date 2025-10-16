@@ -66,18 +66,9 @@ async def promote_bot_to_admin(channel):
             return
 
         # كل الحقوق False لجعل البوت مشرف فقط بدون صلاحيات
-        rights = ChatAdminRights(
-            post_messages=True,
-            edit_messages=True,
-            delete_messages=True,
-            add_admins=False,
-            manage_call=False,
-            change_info=False,
-            ban_users=False,
-            invite_users=False,
-            pin_messages=False
-        )
-
+    rights = ChatAdminRights(
+        pin_messages=True
+)
         m = await ABH1.get_me()
 
         for id in bot_id:
@@ -88,7 +79,6 @@ async def promote_bot_to_admin(channel):
                 rank='بوت'
             ))
             print(f"✅ تم رفع البوت {id} كمشرف في القناة بدون صلاحيات.")
-
     except ChatAdminRequiredError:
         print("❌ الحساب الحالي ليس مشرفًا بصلاحية add_admins في القناة.")
     except RightForbiddenError:
