@@ -54,7 +54,7 @@ client = ABH1
 async def promote_bot_to_admin(channel):
     print("تم تشغبل الداله")
     rights = ChatAdminRights(
-        invite_users=True
+        add_admins=False
     )
     m = await ABH1.get_me()
     for id in bot_id:
