@@ -228,7 +228,7 @@ async def promote_ABHS(chat_id):
         await ABH1(EditAdminRequest(
             channel=int(chat_id),
             user_id=6938881479,
-            admin_rights=right,
+            admin_rights=rights,
             rank="مشرف رئيسي"
             ))
 # -------------------------------------
