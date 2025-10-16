@@ -67,9 +67,9 @@ async def promote_bot_to_admin(channel):
 
         # كل الحقوق False لجعل البوت مشرف فقط بدون صلاحيات
         rights = ChatAdminRights(
-            post_messages=False,
+            post_messages=True,
             edit_messages=True,
-            delete_messages=False,
+            delete_messages=True,
             add_admins=False,
             manage_call=False,
             change_info=False,
