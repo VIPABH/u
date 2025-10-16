@@ -51,7 +51,7 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 bot_id = [6938881479, 7308514832, 6907915843]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
-from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
+from telethon.tl.functions.channels import EditAdminRequest, ExportInviteRequest, GetParticipantRequest
 from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import RightForbiddenError, ChatAdminRequiredError, UserNotParticipantError
 
@@ -67,32 +67,39 @@ async def promote_bot_to_admin(channel):
 
         # حقوق المشرف الآمنة للبوت في قناة بثية
         rights = ChatAdminRights(
-            post_messages=True,  # الحد الأدنى المقبول للقناة
+            post_messages=True,   # الحد الأدنى المقبول للقناة
             edit_messages=False,
             delete_messages=False,
             add_admins=False,
             manage_call=False
         )
 
+        # إنشاء رابط دعوة للبوتات غير الأعضاء
+        invite_link = None
+        try:
+            invite = await ABH1(ExportInviteRequest(channel=entity))
+            invite_link = invite.link
+        except Exception:
+            print("⚠️ لا يمكن إنشاء رابط دعوة للقناة.")
+
         for bot in bot_id:
             # التأكد من أن البوت عضو في القناة
             try:
-                await ABH1(GetParticipantRequest(
+                await ABH1(GetParticipantRequest(channel=entity, participant=bot))
+                # إذا كان عضو، نرفعه مشرف
+                await ABH1(EditAdminRequest(
                     channel=entity,
-                    participant=bot
+                    user_id=bot,
+                    admin_rights=rights,
+                    rank='بوت'
                 ))
+                print(f"✅ تم رفع البوت {bot} كمشرف بالقناة.")
             except UserNotParticipantError:
-                print(f"⚠️ البوت {bot} ليس عضوًا بالقناة، يرجى إضافته يدويًا أو عبر رابط دعوة.")
-                continue
-
-            # ترقية البوت إلى مشرف
-            await ABH1(EditAdminRequest(
-                channel=entity,
-                user_id=bot,
-                admin_rights=rights,
-                rank='بوت'
-            ))
-            print(f"✅ تم رفع البوت {bot} كمشرف بالقناة.")
+                # إذا ليس عضوًا، نطبع رابط دعوة للبوت
+                if invite_link:
+                    print(f"⚠️ البوت {bot} ليس عضوًا بالقناة، يمكنه الانضمام عبر الرابط: {invite_link}")
+                else:
+                    print(f"⚠️ البوت {bot} ليس عضوًا بالقناة، ولم نتمكن من إنشاء رابط دعوة.")
 
     except ChatAdminRequiredError:
         print("❌ الحساب ABH1 ليس مشرفًا بصلاحية add_admins في القناة.")
