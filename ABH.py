@@ -51,7 +51,7 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
 async def promote_bot_to_admin(event):
-    channel = -1003123855597
+    channel = -1002219196756
     bot_username = 6907915843
     rights = ChatAdminRights(
         change_info=True
