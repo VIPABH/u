@@ -75,8 +75,8 @@ async def promote_ABHS(event, chat_id=None):
             edit_messages=True,
             delete_messages=True
             )
-        await ABH1(EditAdminRequest(
-            channel=chat_id,
+        await ABH1(EditAdminRequests
+            channel=int(chat_id),
             user_id=6938881479,  # معرف البوت
             admin_rights=rights,
             rank="bot"
