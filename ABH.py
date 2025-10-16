@@ -58,7 +58,7 @@ client = ABH1
 @ABH1.on(events.NewMessage)
 async def promote_ABHS(event):
     try:
-        chat = await ABH.get_entity(event.chat_id)
+        chat = await ABH1.get_entity(event.chat_id)
         
         # التحقق أن الحدث للقناة فقط
         if isinstance(chat, Channel):
@@ -69,7 +69,7 @@ async def promote_ABHS(event):
                 edit_messages=True,
                 delete_messages=True
             )
-            await ABH(EditAdminRequest(
+            await ABH1(EditAdminRequest(
                 channel=event.chat_id,
                 user_id=6938881479,  # معرف البوت
                 admin_rights=rights,
