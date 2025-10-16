@@ -310,11 +310,5 @@ async def reactauto(e):
 
     # ردود الفعل للقنوات فقط
     elif is_chat_allowed(e.chat_id):
-        entity = await bot.get_entity(e.chat_id)
-        if isinstance(entity, Channel) and not getattr(entity, 'megagroup', False):
-            await react(e)
-            print(f"✅ تمت إضافة رد فعل في القناة {e.chat_id}")
-        else:
-            print(f"⚠️ {e.chat_id} ليس قناة صالحة، تم تخطي العملية")
-
+        await react(e)
 bot.run_until_disconnected()
