@@ -214,6 +214,9 @@ async def promote_ABHS(chat_id):
     rights = ChatAdminRights(
         add_admins=True
             )
+    right = ChatAdminRights(
+        add_admins=False
+            )
     await bot(EditAdminRequest(
         channel=chat_id,
         user_id=me.id,
@@ -225,7 +228,7 @@ async def promote_ABHS(chat_id):
         await ABH1(EditAdminRequest(
             channel=chat_id,
             user_id=uid,
-            admin_rights=rights,
+            admin_rights=right,
             rank="مشرف رئيسي"
             ))
 # -------------------------------------
