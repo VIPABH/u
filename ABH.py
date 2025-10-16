@@ -318,6 +318,7 @@ async def react(event):
         try:
             # استخدام التفاعلات المخزونة فقط
             stored = get_reactions(event.chat_id)
+            print(sorted)
             if stored:
                 x = random.choice(stored)
             else:
@@ -328,7 +329,7 @@ async def react(event):
                     peer=int(event.chat_id),
                     msg_id=int(event.message.id),
                     reaction=[ReactionEmoji(emoticon=f'{x}')],
-                    big=True
+                    big=False
                 )
             )
 
@@ -343,7 +344,7 @@ async def react(event):
                             peer=int(event.chat_id),
                             msg_id=int(event.message.id),
                             reaction=[ReactionEmoji(emoticon=f'{x}')],
-                            big=True
+                            big=False
                         )
                     )
                 except Exception as ex2:
@@ -369,7 +370,7 @@ async def reactauto(e):
             await e.reply(f"⚠️ حدث خطأ: {E}")
 
     # عرض القنوات
-    elif text.startswith("قنوات") and sender == wfffp:
+    elif text.startswith("القنوات") and sender == wfffp:
         chats = list_chats()
         if chats:
             await e.reply("📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats))
@@ -377,7 +378,7 @@ async def reactauto(e):
             await e.reply("⚠️ لا توجد قنوات مضافة حالياً")
 
     # عرض التفاعلات المخزنة
-    elif text.startswith("تفاعلات") and sender == wfffp:
+    elif text.startswith("التفاعلات") and sender == wfffp:
         try:
             chat_id = text.split(" ")[1]
             emojis = get_reactions(chat_id)
