@@ -8,7 +8,7 @@ from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 from telethon.tl.types import PeerChannel
 import os, random, redis, re, asyncio
-import random
+from telethon.tl.functions.messages import GetMessagesViewsRequest
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel
 from telethon import TelegramClient, events
@@ -341,6 +341,11 @@ async def react(event):
                     big=False
                 )
             )
+            await ABH(GetMessagesViewsRequest(
+                peer=event.chat_id,       # معرف القناة أو المجموعة
+                id=[event.message.id],    # قائمة معرفات الرسائل
+                increment=True            # True يزيد عدد المشاهدات
+            ))
         except Exception as ex:
             await bot.send_message(wfffp, f"⚠️ خطأ في التفاعل: {ex}")
 # ======== الحدث الرئيسي ========
