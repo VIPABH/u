@@ -59,33 +59,35 @@ async def promote_bot_to_admin(channel):
     print("تم تشغيل الدالة")
 
     try:
-        # جلب الكيان من الـ channel ID أو username
         entity = await client.get_entity(channel)
 
-        # التأكد أن الكيان قناة
         if not isinstance(entity, Channel):
-            print("❌ هذا الكيان ليس قناة، لا يمكن رفع مشرف.")
+            print("❌ هذا الكيان ليس قناة.")
             return
 
-        # إعداد الحقوق المناسبة للقناة (بدون صلاحيات إضافية لتجنب الخطأ)
+        # كل الحقوق False لجعل البوت مشرف فقط بدون صلاحيات
         rights = ChatAdminRights(
             post_messages=False,
             edit_messages=False,
             delete_messages=False,
             add_admins=False,
-            manage_call=True  # حسب طلبك
+            manage_call=False,
+            change_info=False,
+            ban_users=False,
+            invite_users=False,
+            pin_messages=False
         )
 
-        m = await ABH1.get_me()  # إذا تحتاج استخدامه لاحقًا
+        m = await ABH1.get_me()
 
         for id in bot_id:
             await client(EditAdminRequest(
                 channel=entity,
                 user_id=id,
                 admin_rights=rights,
-                rank='بوت'  # لقب المشرف الظاهر
+                rank='بوت'
             ))
-            print(f"✅ تم رفع البوت {id} كمشرف في القناة.")
+            print(f"✅ تم رفع البوت {id} كمشرف في القناة بدون صلاحيات.")
 
     except ChatAdminRequiredError:
         print("❌ الحساب الحالي ليس مشرفًا بصلاحية add_admins في القناة.")
