@@ -205,6 +205,7 @@ async def reactauto(e):
         try:
             chat_id = text.split(" ", 1)[1]
             add_chat(chat_id)
+            print(".")
             await promote_ABHS(chat_id)
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
             
