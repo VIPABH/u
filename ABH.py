@@ -54,20 +54,21 @@ ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
 ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
+idd = [ABH6, ABH7, ABH8]
 client = ABH1
 from telethon import events
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import ChatAdminRequiredError
 
-@ABH1.on(events.NewMessage(from_users=[wfffp]))
 async def promote_ABHS(event, chat_id=None):
-    try:
+    for AB in idd:
         #chat = await ABH1.get_entity(chat_id)
         #print(chat.id, chat_id)
         # التحقق أن الحدث للقناة فقط
         #if not isinstance(chat, Channel):
             #return print("no")
+        id = await AB.get_me().id
         rights = ChatAdminRights(
             add_admins=True,
             change_info=True,
@@ -76,9 +77,10 @@ async def promote_ABHS(event, chat_id=None):
             delete_messages=True
             )
         xxx = int(chat_id)
+        print(id)
         await ABH1(EditAdminRequest(
             channel=xxx,
-            user_id=6938881479,  # معرف البوت
+            user_id=id,  # معرف البوت
             admin_rights=rights,
             rank="bot"
             ))
