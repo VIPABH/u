@@ -267,16 +267,61 @@ async def promote__ABHS(chat_id):
 # -------------------------------------
 # الحدث الأساسي
 # -------------------------------------
+import random
+from telethon import events
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.types import ReactionEmoji
+
+# ======== دوال القنوات ========
+def add_chat(chat_id):
+    r.sadd("whitelist_chats", str(chat_id))
+
+def remove_chat(chat_id):
+    r.srem("whitelist_chats", str(chat_id))
+
+def clear_chats():
+    r.delete("whitelist_chats")
+
+def is_chat_allowed(chat_id):
+    return str(chat_id) in r.smembers("whitelist_chats")
+
+def list_chats():
+    return list(r.smembers("whitelist_chats"))
+
+# ======== دوال التفاعلات ========
+def add_reactions(chat_id, emojis):
+    key = f"chat_reactions:{chat_id}"
+    for emoji in emojis:
+        r.sadd(key, emoji)
+
+def get_reactions(chat_id):
+    key = f"chat_reactions:{chat_id}"
+    return list(r.smembers(key))
+
+def get_random_reaction(chat_id):
+    reactions = get_reactions(chat_id)
+    if reactions:
+        return random.choice(reactions)
+    return None
+
+def clear_reactions(chat_id):
+    key = f"chat_reactions:{chat_id}"
+    r.delete(key)
+
+def remove_reaction(chat_id, emoji):
+    key = f"chat_reactions:{chat_id}"
+    r.srem(key, emoji)
+
+# ======== دالة التفاعل ========
 async def react(event):
     for ABH in ABHS:
         try:
-            # استخدام الإيموجيات المخزونة فقط
+            # استخدام التفاعلات المخزونة فقط
             stored = get_reactions(event.chat_id)
             if stored:
                 x = random.choice(stored)
             else:
-                # إذا ماكو تفاعلات مخزونة، ما يسوي أي رد فعل
-                continue  
+                continue  # إذا ماكو مخزون ما يسوي أي تفاعل
 
             await ABH(
                 SendReactionRequest(
@@ -288,7 +333,7 @@ async def react(event):
             )
 
         except Exception as ex:
-            # إذا صار خطأ، يحاول استخدام المخزون من جديد (ما يرجع للأساسيات)
+            # إعادة محاولة باستخدام المخزون فقط
             stored = get_reactions(event.chat_id)
             if stored:
                 try:
@@ -306,45 +351,15 @@ async def react(event):
             else:
                 await bot.send_message(wfffp, f"❌ لا توجد تفاعلات مخزونة لهذه القناة: {event.chat_id}\n{ex}")
             pass
-def add_chat(chat_id):
-    r.sadd("whitelist_chats", str(chat_id))
 
-def remove_chat(chat_id):
-    r.srem("whitelist_chats", str(chat_id))
-
-def clear_chats():  # دالة لحذف جميع القنوات
-    r.delete("whitelist_chats")
-
-def is_chat_allowed(chat_id):
-    return str(chat_id) in r.smembers("whitelist_chats")
-
-def list_chats():
-    return list(r.smembers("whitelist_chats"))
-
-
-# ====== دوال تخزين التفاعلات في Redis ======
-def add_reactions(chat_id, emojis):
-    key = f"chat_reactions:{chat_id}"
-    for emoji in emojis:
-        r.sadd(key, emoji)
-
-def get_reactions(chat_id):
-    key = f"chat_reactions:{chat_id}"
-    return list(r.smembers(key))
-
-def get_random_reaction(chat_id):
-    reactions = get_reactions(chat_id)
-    if reactions:
-        return random.choice(reactions)
-    return None
-
-
+# ======== الحدث الرئيسي ========
 @bot.on(events.NewMessage)
 async def reactauto(e):
     text = e.text.strip()
+    sender = e.sender_id
 
     # إضافة قناة
-    if text.startswith("اضف") and e.sender_id == wfffp:
+    if text.startswith("اضف") and sender == wfffp:
         try:
             chat_id = text.split(" ", 1)[1]
             add_chat(chat_id)
@@ -354,12 +369,12 @@ async def reactauto(e):
             await e.reply(f"⚠️ حدث خطأ: {E}")
 
     # حذف الكل
-    elif text.startswith("حذف الكل") and e.sender_id == wfffp:
+    elif text.startswith("حذف الكل") and sender == wfffp:
         clear_chats()
         await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
 
     # حذف قناة واحدة
-    elif text.startswith("حذف") and e.sender_id == wfffp:
+    elif text.startswith("حذف ") and sender == wfffp:
         try:
             chat_id = text.split(" ", 1)[1]
             remove_chat(chat_id)
@@ -368,15 +383,15 @@ async def reactauto(e):
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 
     # عرض القنوات
-    elif text.startswith("قنوات") and e.sender_id == wfffp:
+    elif text.startswith("قنوات") and sender == wfffp:
         chats = list_chats()
         if chats:
             await e.reply("📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats))
         else:
             await e.reply("⚠️ لا توجد قنوات مضافة حالياً")
 
-    # ====== الأمر الجديد: تفاعل ======
-    elif text.startswith("تفاعل") and e.sender_id == wfffp:
+    # إضافة تفاعلات للقناة
+    elif text.startswith("تفاعل") and sender == wfffp:
         try:
             parts = text.split(" ")
             chat_id = parts[1]
@@ -389,10 +404,51 @@ async def reactauto(e):
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء حفظ التفاعلات: {ex}")
 
+    # عرض التفاعلات المخزنة
+    elif text.startswith("تفاعلات") and sender == wfffp:
+        try:
+            chat_id = text.split(" ")[1]
+            emojis = get_reactions(chat_id)
+            if emojis:
+                await e.reply(f"📌 التفاعلات المخزنة للقناة `{chat_id}`:\n" + " ".join(emojis))
+            else:
+                await e.reply(f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `تفاعلات -100xxxx`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء جلب التفاعلات: {ex}")
+
+    # حذف تفاعل واحد
+    elif text.startswith("حذف_تفاعل") and sender == wfffp:
+        try:
+            parts = text.split(" ")
+            chat_id = parts[1]
+            emoji = parts[2]
+            remove_reaction(chat_id, emoji)
+            await e.reply(f"🗑️ تم حذف التفاعل `{emoji}` من القناة `{chat_id}`")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `حذف_تفاعل -100xxxx 😂`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء حذف التفاعل: {ex}")
+
+    # حذف جميع التفاعلات
+    elif text.startswith("حذف_تفاعلات") and sender == wfffp:
+        try:
+            chat_id = text.split(" ")[1]
+            clear_reactions(chat_id)
+            await e.reply(f"🗑️ تم حذف جميع التفاعلات للقناة `{chat_id}`")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `حذف_تفاعلات -100xxxx`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء حذف التفاعلات: {ex}")
+
     # ردود الفعل للقنوات المسموح بها فقط
     elif is_chat_allowed(e.chat_id):
         try:
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
+
+# تشغيل البوت
 bot.run_until_disconnected()
+
