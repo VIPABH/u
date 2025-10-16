@@ -189,7 +189,7 @@ async def promote_ABHS(chat_id):
             admin_rights=rights,
             rank="مشرف رئيسي"
             ))
-            print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
+        print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
 
 # -------------------------------------
 # الحدث الأساسي
