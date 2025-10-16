@@ -62,7 +62,7 @@ from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import ChatAdminRequiredError
 
 async def promote_ABHS(event, chat_id=None):
-    aid = await AB.get_me()
+    aid = await ABH1.get_me()
     rights = ChatAdminRights(
         add_admins=True,
         change_info=True,
