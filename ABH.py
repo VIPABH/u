@@ -188,7 +188,7 @@ async def reactauto(e):
     # إضافة قناة
     if text.startswith("اضف") and e.sender_id == wfffp:
         try:
-            chat_id = text.split(" ", 1)[1]
+            chat_id = int(text.split(" ", 1)[1])
             add_chat(chat_id)
             print(".")
             await promote_ABHS(chat_id)
