@@ -49,6 +49,7 @@ api_hash4 = os.getenv("API_HASH4")
 ABH4 = TelegramClient("code4", api_id4, api_hash4).start()
 api_id5 = int(os.getenv("API_ID5"))
 api_hash5 = os.getenv("API_HASH5")
+ABH9 = bot
 ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
 ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
 ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
@@ -63,7 +64,6 @@ from telethon.errors import ChatAdminRequiredError
 
 async def promote_ABHS(event, chat_id=None):
     xxx = int(chat_id)
-    aid = await bot.get_me()
     rights = ChatAdminRights(
         add_admins=True,
         change_info=True,
@@ -71,20 +71,15 @@ async def promote_ABHS(event, chat_id=None):
         edit_messages=True,
         delete_messages=True
         )
-    
+    aid = await bot.get_me()
     await ABH1(EditAdminRequest(
         channel=xxx,
         user_id=aid.id,
         admin_rights=rights,
         rank="main bot"
-            ))
+        ))
     await asyncio.sleep(2)
     for AB in idd:
-        #chat = await ABH1.get_entity(chat_id)
-        #print(chat.id, chat_id)
-        # التحقق أن الحدث للقناة فقط
-        #if not isinstance(chat, Channel):
-            #return print("no")
         id = await AB.get_me()
         rights = ChatAdminRights(
             add_admins=True,
