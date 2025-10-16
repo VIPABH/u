@@ -48,66 +48,22 @@ ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
 ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
-bot_id = [6938881479, 7308514832, 6907915843]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
-from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
-from telethon.tl.functions.messages import ExportChatInviteRequest
-from telethon.tl.types import ChatAdminRights, Channel
-from telethon.errors import RightForbiddenError, ChatAdminRequiredError, UserNotParticipantError
+async def promote_bot_to_admin(event):
+    channel = -1002219196756
+    bot_username = 6907915843
+    rights = ChatAdminRights(
+        change_info=True
+    )
 
-async def promote_bot_to_admin(channel):
-    print("تم تشغيل الدالة")
-
-    try:
-        entity = await ABH1.get_entity(channel)
-
-        if not isinstance(entity, Channel):
-            print("❌ هذا الكيان ليس قناة.")
-            return
-
-        # حقوق المشرف الآمنة للبوت في قناة بثية
-        rights = ChatAdminRights(
-            post_messages=True,   # الحد الأدنى المقبول للقناة
-            edit_messages=False,
-            delete_messages=False,
-            add_admins=False,
-            manage_call=False
-        )
-
-        # إنشاء رابط دعوة للبوتات غير الأعضاء
-        invite_link = None
-        try:
-            invite = await ABH1(ExportChatInviteRequest(peer=entity))
-            invite_link = invite.link
-        except Exception:
-            print("⚠️ لا يمكن إنشاء رابط دعوة للقناة.")
-
-        for bot in bot_id:
-            # التأكد من أن البوت عضو في القناة
-            try:
-                await ABH1(GetParticipantRequest(channel=entity, participant=bot))
-                # إذا كان عضو، نرفعه مشرف
-                await ABH1(EditAdminRequest(
-                    channel=entity,
-                    user_id=bot,
-                    admin_rights=rights,
-                    rank='بوت'
-                ))
-                print(f"✅ تم رفع البوت {bot} كمشرف بالقناة.")
-            except UserNotParticipantError:
-                # إذا ليس عضوًا، نطبع رابط دعوة للبوت
-                if invite_link:
-                    print(f"⚠️ البوت {bot} ليس عضوًا بالقناة، يمكنه الانضمام عبر الرابط: {invite_link}")
-                else:
-                    print(f"⚠️ البوت {bot} ليس عضوًا بالقناة، ولم نتمكن من إنشاء رابط دعوة.")
-
-    except ChatAdminRequiredError:
-        print("❌ الحساب ABH1 ليس مشرفًا بصلاحية add_admins في القناة.")
-    except RightForbiddenError:
-        print("❌ لا يمكن منح هذا المشرف الحقوق المطلوبة في القناة.")
-    except Exception as e:
-        print(f"❌ حدث خطأ غير متوقع: {e}")
+    await client(EditAdminRequest(
+        channel=channel,
+        user_id=bot_username,
+        admin_rights=rights,
+        rank='بوت'  # لقب المشرف الظاهر
+    ))
+    await client.send_message(-1002219196756, ".")
 target_user_id = 1421907917
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
@@ -209,39 +165,41 @@ async def promote_ABHS(chat_id):
     if not ABHS:
         print("❌ قائمة ABHS فارغة")
         return
-    print("جاري الرفع")
-    me = await ABH1.get_me()
-    rights = ChatAdminRights(
-        add_admins=True
+
+    try:
+        channel_entity = await bot.get_input_entity(int(chat_id))
+    except Exception as e:
+        print(f"❌ فشل الحصول على كيان {chat_id} بواسطة البوت الأساسي: {e}")
+        return
+
+    # رفع كل البوتات
+    for ABH in ABHS:
+        try:
+            me = await ABH.get_me()
+            if not me.bot:
+                print(f"⚠️ تخطي الحساب {me.id} لأنه مستخدم عادي")
+                continue
+            rights = ChatAdminRights(
+                change_info=False,
+                post_messages=False,
+                edit_messages=False,
+                delete_messages=False,
+                ban_users=False,
+                invite_users=False,
+                pin_messages=False,
+                add_admins=True,
+                manage_call=False,
+                anonymous=False
             )
-    right = ChatAdminRights(
-        add_admins=False
-            )
-    await bot(EditAdminRequest(
-        channel=chat_id,
-        user_id=me.id,
-        admin_rights=rights,
-        rank="مشرف رئيسي"
+            await bot(EditAdminRequest(
+                channel=channel_entity,
+                user_id=me.id,
+                admin_rights=rights,
+                rank="مشرف رئيسي"
             ))
-    print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
-
-@bot.on(events.NewMessage(from_users=[wfffp]))
-async def reactauto(e):
-    text = e.text.strip()
-    channel = -1002219196756
-    bot_username = 6907915843
-    rights = ChatAdminRights(
-        change_info=True
-    )
-
-    await ABH1(EditAdminRequest(
-        channel=channel,
-        user_id=bot_username,
-        admin_rights=rights,
-        rank='بوت'  # لقب المشرف الظاهر
-    ))
-    await ABH1.send_message(-1002219196756, ".")
-
+            print(f"✅ تم رفع البوت {me.id} مشرف بالقناة")
+        except Exception as e:
+            print(f"❌ خطأ أثناء رفع البوت {me.id}: {e}")
 
 # -------------------------------------
 # الحدث الأساسي
@@ -253,12 +211,11 @@ async def reactauto(e):
     # إضافة قناة
     if text.startswith("اضف") and e.sender_id == wfffp:
         try:
-            chat_id = int(text.split(" ", 1)[1])
+            chat_id = text.split(" ", 1)[1]
             add_chat(chat_id)
-            print(".")
             await promote_ABHS(chat_id)
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
-            
+            await promote_bot_to_admin(e)
         except IndexError:
             await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
 
