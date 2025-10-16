@@ -227,40 +227,7 @@ def list_chats():
 # -------------------------------------
 # ردود الفعل التلقائية
 # -------------------------------------
-async def react(event):
-    for ABH in ABHS:
-        try:
-            # محاولة استخدام الإيموجيات المخزونة أولاً
-            stored = get_reactions(event.chat_id)
-            if stored:
-                x = random.choice(stored)
-            else:
-                x = random.choice(['👍', '🕊', '❤️'])
 
-            await ABH(
-                SendReactionRequest(
-                    peer=int(event.chat_id),
-                    msg_id=int(event.message.id),
-                    reaction=[ReactionEmoji(emoticon=f'{x}')],
-                    big=True
-                )
-            )
-
-        except Exception as ex:
-            try:
-                # إذا فشل استخدام المخزون، جرب الافتراضيات
-                x = random.choice(['👍', '🕊', '❤️'])
-                await ABH(
-                    SendReactionRequest(
-                        peer=int(event.chat_id),
-                        msg_id=int(event.message.id),
-                        reaction=[ReactionEmoji(emoticon=f'{x}')],
-                        big=True
-                    )
-                )
-            except Exception as ex2:
-                await bot.send_message(wfffp, str(ex2))
-            pass
 # -------------------------------------
 # رفع البوتات كمشرفين بالقناة
 # -------------------------------------
@@ -300,8 +267,45 @@ async def promote__ABHS(chat_id):
 # -------------------------------------
 # الحدث الأساسي
 # -------------------------------------
-import random
+async def react(event):
+    for ABH in ABHS:
+        try:
+            # استخدام الإيموجيات المخزونة فقط
+            stored = get_reactions(event.chat_id)
+            if stored:
+                x = random.choice(stored)
+            else:
+                # إذا ماكو تفاعلات مخزونة، ما يسوي أي رد فعل
+                continue  
 
+            await ABH(
+                SendReactionRequest(
+                    peer=int(event.chat_id),
+                    msg_id=int(event.message.id),
+                    reaction=[ReactionEmoji(emoticon=f'{x}')],
+                    big=True
+                )
+            )
+
+        except Exception as ex:
+            # إذا صار خطأ، يحاول استخدام المخزون من جديد (ما يرجع للأساسيات)
+            stored = get_reactions(event.chat_id)
+            if stored:
+                try:
+                    x = random.choice(stored)
+                    await ABH(
+                        SendReactionRequest(
+                            peer=int(event.chat_id),
+                            msg_id=int(event.message.id),
+                            reaction=[ReactionEmoji(emoticon=f'{x}')],
+                            big=True
+                        )
+                    )
+                except Exception as ex2:
+                    await bot.send_message(wfffp, str(ex2))
+            else:
+                await bot.send_message(wfffp, f"❌ لا توجد تفاعلات مخزونة لهذه القناة: {event.chat_id}\n{ex}")
+            pass
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 
