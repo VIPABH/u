@@ -330,4 +330,4 @@ async def reactauto(e):
     # ردود الفعل للقنوات المسموح بها فقط
     elif is_chat_allowed(e.chat_id):
         await react(e)
-    bot.run_until_disconnected()
+bot.run_until_disconnected()
