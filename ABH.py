@@ -26,33 +26,78 @@ wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
+import os
+import redis
+from telethon import TelegramClient
+
+# تحميل القيم من ملف البيئة (.env)
+api_id = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
+bot_token = os.getenv("bot_token")
+
 bot_token6 = os.getenv("bot_token6")
 bot_token7 = os.getenv("bot_token7")
 bot_token8 = os.getenv("bot_token8")
+bot_token9 = os.getenv("bot_token9")
+bot_token10 = os.getenv("bot_token10")
+bot_token11 = os.getenv("bot_token11")
+bot_token12 = os.getenv("bot_token12")
+bot_token13 = os.getenv("bot_token13")
+bot_token14 = os.getenv("bot_token14")
+bot_token15 = os.getenv("bot_token15")
+bot_token16 = os.getenv("bot_token16")
+
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
-# ABH = TelegramClient("ABH", api_id, api_hash).start()
+
+# إنشاء الكلاينت الرئيسي (البوت الأساسي)
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
+
+# حسابات إضافية (بدون بوت توكن)
 api_id1 = int(os.getenv("API_ID1"))
 api_hash1 = os.getenv("API_HASH1")
 ABH1 = TelegramClient("code1", api_id1, api_hash1).start()
+
 api_id2 = int(os.getenv("API_ID2"))
 api_hash2 = os.getenv("API_HASH2")
 ABH2 = TelegramClient("code2", api_id2, api_hash2).start()
+
 api_id3 = int(os.getenv("API_ID3"))
 api_hash3 = os.getenv("API_HASH3")
 ABH3 = TelegramClient("code3", api_id3, api_hash3).start()
+
 api_id4 = int(os.getenv("API_ID4"))
 api_hash4 = os.getenv("API_HASH4")
 ABH4 = TelegramClient("code4", api_id4, api_hash4).start()
+
 api_id5 = int(os.getenv("API_ID5"))
 api_hash5 = os.getenv("API_HASH5")
-ABH9 = bot
 ABH5 = TelegramClient("code5", api_id5, api_hash5).start()
+
+# البوتات (المستندة إلى توكنات)
 ABH6 = TelegramClient("code6", api_id, api_hash).start(bot_token=bot_token6)
 ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9]
-idd = [ABH6, ABH7, ABH8, ABH9]
+ABH9 = TelegramClient("code9", api_id, api_hash).start(bot_token=bot_token9)
+ABH10 = TelegramClient("code10", api_id, api_hash).start(bot_token=bot_token10)
+ABH11 = TelegramClient("code11", api_id, api_hash).start(bot_token=bot_token11)
+ABH12 = TelegramClient("code12", api_id, api_hash).start(bot_token=bot_token12)
+ABH13 = TelegramClient("code13", api_id, api_hash).start(bot_token=bot_token13)
+ABH14 = TelegramClient("code14", api_id, api_hash).start(bot_token=bot_token14)
+ABH15 = TelegramClient("code15", api_id, api_hash).start(bot_token=bot_token15)
+ABH16 = TelegramClient("code16", api_id, api_hash).start(bot_token=bot_token16)
+
+# تجميع جميع الكلاينتات
+ABHS = [
+    ABH1, ABH2, ABH3, ABH4, ABH5,
+    ABH6, ABH7, ABH8, ABH9, ABH10,
+    ABH11, ABH12, ABH13, ABH14, ABH15, ABH16
+]
+
+# قائمة البوتات فقط
+idd = [
+    ABH6, ABH7, ABH8, ABH9, ABH10,
+    ABH11, ABH12, ABH13, ABH14, ABH15, ABH16
+]
 client = ABH1
 from telethon import events
 from telethon.tl.functions.channels import EditAdminRequest
