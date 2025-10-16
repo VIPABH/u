@@ -52,6 +52,7 @@ bot_id = [6938881479, 7308514832, 6907915843]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
 async def promote_bot_to_admin(channel):
+    print("تم تشغبل الداله")
     rights = ChatAdminRights(
         change_info=True
     )
@@ -170,6 +171,7 @@ async def promote_ABHS(chat_id):
     except Exception as e:
         print(f"❌ فشل الحصول على كيان {chat_id} بواسطة البوت الأساسي: {e}")
         return
+        print("جاري الرفع")
         me = await ABH1.get_me()
         rights = ChatAdminRights(
             change_info=False,
