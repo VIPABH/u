@@ -229,14 +229,21 @@ def list_chats():
 # -------------------------------------
 async def react(event):
     for ABH in ABHS:
-        print("react")
         try:
-            emoji = random.choice(['👍', '🕊', '❤️'])
-            await ABH.send_reaction(event.chat_id, event.message.id, emoji)
+            x = random.choice(['👍', '🕊', '❤️'])
+            await ensure_joined(ABH, bot, event.chat_id)
+            await ABH(
+                SendReactionRequest(
+                    peer=int(event.chat_id),
+                    msg_id=int(event.message.id),
+                    reaction=[ReactionEmoji(emoticon=f'{x}')],
+                    big=True
+                )
+            )
+            await ABH.send_read_acknowledge(event.chat_id, int(event.message.id))
         except Exception as ex:
             await bot.send_message(wfffp, str(ex))
             pass
-
 # -------------------------------------
 # رفع البوتات كمشرفين بالقناة
 # -------------------------------------
