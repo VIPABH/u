@@ -76,12 +76,12 @@ async def promote_ABHS(event, chat_id=None):
             delete_messages=True
             )
         xxx = int(chat_id)
-        await ABH1(EditAdminRequests
+        await ABH1(EditAdminRequests(
             channel=xxx,
             user_id=6938881479,  # معرف البوت
             admin_rights=rights,
             rank="bot"
-            )
+            ))
         print(f"✅ تم رفع البوت 6938881479 مشرف بالقناة بالصلاحيات المناسبة")
         
     except ChatAdminRequiredError:
