@@ -313,47 +313,37 @@ def remove_reaction(chat_id, emoji):
     r.srem(key, emoji)
 
 # ======== دالة التفاعل ========
+import random
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.types import ReactionEmoji
+
 async def react(event):
+    """
+    تفاعل مع رسالة من القنوات المسموح بها.
+    - يستخدم الإيموجيات المخزنة إذا وجدت.
+    - إذا ماكو مخزون، يستخدم عشوائيًا: ❤️ و 🕊 و 🌚
+    """
+    # جلب التفاعلات المخزنة للقناة
+    stored = get_reactions(event.chat_id)
+
+    if stored:
+        emoji = random.choice(stored)
+    else:
+        # الإيموجيات الافتراضية إذا ماكو مخزون
+        emoji = random.choice(['❤️', '🕊', '🌚'])
+
     for ABH in ABHS:
         try:
-            # استخدام التفاعلات المخزونة فقط
-            storedd = get_reactions(event.chat_id)
-            print(sortedd)
-            if storedd:
-                x = random.choice(storedd)
-            else:
-                continue  # إذا ماكو مخزون ما يسوي أي تفاعل
-
             await ABH(
                 SendReactionRequest(
                     peer=int(event.chat_id),
                     msg_id=int(event.message.id),
-                    reaction=[ReactionEmoji(emoticon=f'{x}')],
+                    reaction=[ReactionEmoji(emoticon=emoji)],
                     big=False
                 )
             )
-
         except Exception as ex:
-            await bot.send_message(wfffp, str(ex))
-            store = get_reactions(event.chat_id)
-            if store:
-                try:
-                    x = random.choice(store)
-                    await ABH(
-                        SendReactionRequest(
-                            peer=int(event.chat_id),
-                            msg_id=int(event.message.id),
-                            reaction=[ReactionEmoji(emoticon=f'{x}')],
-                            big=False
-                        )
-                    )
-                    
-                except Exception as ex2:
-                    await bot.send_message(wfffp, str(ex2))
-            else:
-                await bot.send_message(wfffp, f"❌ لا توجد تفاعلات مخزونة لهذه القناة: {event.chat_id}\n{ex}")
-            pass
-
+            await bot.send_message(wfffp, f"⚠️ خطأ في التفاعل: {ex}")
 # ======== الحدث الرئيسي ========
 @bot.on(events.NewMessage)
 async def reactauto(e):
