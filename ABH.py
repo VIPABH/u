@@ -242,7 +242,7 @@ async def reactauto(e):
             add_chat(chat_id)
             await promote_ABHS(e, chat_id)
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
-            await promote_bot_to_admin(e)
+            #await promote_bot_to_admin(e)
         except IndexError:
             await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
 
