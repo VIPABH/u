@@ -287,9 +287,9 @@ async def reactauto(e):
             await promote_ABHS(e, chat_id)
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
             #await promote_bot_to_admin(e)
-        except IndexError:
-            await e.reply("⚠️ استخدم: `اضف -100xxxxxxxxxx`")
-
+        except Excption as E:
+            await e.reply(f"{x.id}    {E}")
+    
     # حذف قناة
     elif text.startswith("حذف") and e.sender_id == wfffp:
         try:
