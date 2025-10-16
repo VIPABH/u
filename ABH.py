@@ -51,7 +51,8 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 bot_id = [6938881479, 7308514832, 6907915843]
 client = ABH1
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
-from telethon.tl.functions.channels import EditAdminRequest, ExportInviteRequest, GetParticipantRequest
+from telethon.tl.functions.channels import EditAdminRequest, GetParticipantRequest
+from telethon.tl.functions.messages import ExportChatInviteRequest
 from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import RightForbiddenError, ChatAdminRequiredError, UserNotParticipantError
 
@@ -77,7 +78,7 @@ async def promote_bot_to_admin(channel):
         # إنشاء رابط دعوة للبوتات غير الأعضاء
         invite_link = None
         try:
-            invite = await ABH1(ExportInviteRequest(channel=entity))
+            invite = await ABH1(ExportChatInviteRequest(peer=entity))
             invite_link = invite.link
         except Exception:
             print("⚠️ لا يمكن إنشاء رابط دعوة للقناة.")
