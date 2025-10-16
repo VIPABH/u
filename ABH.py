@@ -318,8 +318,9 @@ async def react(event):
         try:
             # استخدام التفاعلات المخزونة فقط
             storedd = get_reactions(event.chat_id)
+            print(sortedd)
             if storedd:
-                x = random.choice(stored)
+                x = random.choice(storedd)
             else:
                 continue  # إذا ماكو مخزون ما يسوي أي تفاعل
 
@@ -333,11 +334,11 @@ async def react(event):
             )
 
         except Exception as ex:
-            # إعادة محاولة باستخدام المخزون فقط
+            await bot.send_message(wfffp, str(ex2))
             store = get_reactions(event.chat_id)
             if store:
                 try:
-                    x = random.choice(stored)
+                    x = random.choice(store)
                     await ABH(
                         SendReactionRequest(
                             peer=int(event.chat_id),
@@ -346,6 +347,7 @@ async def react(event):
                             big=False
                         )
                     )
+                    
                 except Exception as ex2:
                     await bot.send_message(wfffp, str(ex2))
             else:
