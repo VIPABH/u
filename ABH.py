@@ -334,7 +334,7 @@ async def react(event):
             )
 
         except Exception as ex:
-            await bot.send_message(wfffp, str(ex2))
+            await bot.send_message(wfffp, str(ex))
             store = get_reactions(event.chat_id)
             if store:
                 try:
