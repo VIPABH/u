@@ -86,11 +86,11 @@ async def promote_ABHS(event, chat_id=None):
             ))
         print(f"✅ تم رفع البوت 6938881479 مشرف بالقناة بالصلاحيات المناسبة")
         
-    except ChatAdminRequiredError:
-        return
+    #except ChatAdminRequiredError:
+        #return
         #print("❌ لا تملك صلاحية تعديل المسؤولين في هذه القناة")
-    except Exception as e:
-        print(f"❌ حدث خطأ: {e}")
+    #except Exception as e:
+       # print(f"❌ حدث خطأ: {e}")
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
 async def promote_bot_to_admin(event):
     channel = -1002219196756
