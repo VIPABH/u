@@ -23,33 +23,7 @@ from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import ChatAdminRequiredError
 
 
-@ABH1.on(events.NewMessage)
-async def promote_ABHS(event):
-    try:
-        chat = await ABH.get_entity(event.chat_id)
-        
-        # التحقق أن الحدث للقناة فقط
-        if isinstance(chat, Channel):
-            rights = ChatAdminRights(
-                add_admins=True,
-                change_info=True,
-                post_messages=True,
-                edit_messages=True,
-                delete_messages=True
-            )
-            await ABH(EditAdminRequest(
-                channel=event.chat_id,
-                user_id=6938881479,  # معرف البوت
-                admin_rights=rights,
-                rank="مشرف رئيسي"
-            ))
-            print(f"✅ تم رفع البوت 6938881479 مشرف بالقناة بالصلاحيات المناسبة")
-        else:
-            print("⚠️ هذا الحدث ليس قناة، لم يتم تنفيذ أي إجراء")
-    except ChatAdminRequiredError:
-        print("❌ لا تملك صلاحية تعديل المسؤولين في هذه القناة")
-    except Exception as e:
-        print(f"❌ حدث خطأ: {e}")
+
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
@@ -81,6 +55,33 @@ ABH7 = TelegramClient("code7", api_id, api_hash).start(bot_token=bot_token7)
 ABH8 = TelegramClient("code8", api_id, api_hash).start(bot_token=bot_token8)
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 client = ABH1
+@ABH1.on(events.NewMessage)
+async def promote_ABHS(event):
+    try:
+        chat = await ABH.get_entity(event.chat_id)
+        
+        # التحقق أن الحدث للقناة فقط
+        if isinstance(chat, Channel):
+            rights = ChatAdminRights(
+                add_admins=True,
+                change_info=True,
+                post_messages=True,
+                edit_messages=True,
+                delete_messages=True
+            )
+            await ABH(EditAdminRequest(
+                channel=event.chat_id,
+                user_id=6938881479,  # معرف البوت
+                admin_rights=rights,
+                rank="مشرف رئيسي"
+            ))
+            print(f"✅ تم رفع البوت 6938881479 مشرف بالقناة بالصلاحيات المناسبة")
+        else:
+            print("⚠️ هذا الحدث ليس قناة، لم يتم تنفيذ أي إجراء")
+    except ChatAdminRequiredError:
+        print("❌ لا تملك صلاحية تعديل المسؤولين في هذه القناة")
+    except Exception as e:
+        print(f"❌ حدث خطأ: {e}")
 #@ABH1.on(events.NewMessage(from_users=[wfffp]))
 async def promote_bot_to_admin(event):
     channel = -1002219196756
