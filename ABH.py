@@ -389,6 +389,18 @@ async def reactauto(e):
             await e.reply("📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats))
         else:
             await e.reply("⚠️ لا توجد قنوات مضافة حالياً")
+    elif text.startswith("تفاعلات") and sender == wfffp:
+        try:
+            chat_id = text.split(" ")[1]
+            emojis = get_reactions(chat_id)
+            if emojis:
+                await e.reply(f"📌 التفاعلات المخزنة للقناة `{chat_id}`:\n" + " ".join(emojis))
+            else:
+                await e.reply(f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `تفاعلات -100xxxx`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء جلب التفاعلات: {ex}")
 
     # إضافة تفاعلات للقناة
     elif text.startswith("تفاعل") and sender == wfffp:
@@ -405,21 +417,9 @@ async def reactauto(e):
             await e.reply(f"⚠️ خطأ أثناء حفظ التفاعلات: {ex}")
 
     # عرض التفاعلات المخزنة
-    elif text.startswith("تفاعلات") and sender == wfffp:
-        try:
-            chat_id = text.split(" ")[1]
-            emojis = get_reactions(chat_id)
-            if emojis:
-                await e.reply(f"📌 التفاعلات المخزنة للقناة `{chat_id}`:\n" + " ".join(emojis))
-            else:
-                await e.reply(f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`")
-        except IndexError:
-            await e.reply("⚠️ استخدم: `تفاعلات -100xxxx`")
-        except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء جلب التفاعلات: {ex}")
 
     # حذف تفاعل واحد
-    elif text.startswith("حذف_تفاعل") and sender == wfffp:
+    elif text.startswith("حذف تفاعل") and sender == wfffp:
         try:
             parts = text.split(" ")
             chat_id = parts[1]
@@ -432,7 +432,7 @@ async def reactauto(e):
             await e.reply(f"⚠️ خطأ أثناء حذف التفاعل: {ex}")
 
     # حذف جميع التفاعلات
-    elif text.startswith("حذف_تفاعلات") and sender == wfffp:
+    elif text.startswith("حذف تفاعلات") and sender == wfffp:
         try:
             chat_id = text.split(" ")[1]
             clear_reactions(chat_id)
