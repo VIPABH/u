@@ -68,7 +68,7 @@ async def promote_ABHS(event, chat_id=None):
         # التحقق أن الحدث للقناة فقط
         #if not isinstance(chat, Channel):
             #return print("no")
-        id = await AB.get_me().id
+        id = await AB.get_me()
         rights = ChatAdminRights(
             add_admins=True,
             change_info=True,
@@ -77,10 +77,10 @@ async def promote_ABHS(event, chat_id=None):
             delete_messages=True
             )
         xxx = int(chat_id)
-        print(id)
+        print(id.id)
         await ABH1(EditAdminRequest(
             channel=xxx,
-            user_id=id,  # معرف البوت
+            user_id=id.id,  # معرف البوت
             admin_rights=rights,
             rank="bot"
             ))
