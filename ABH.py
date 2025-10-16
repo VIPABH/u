@@ -62,6 +62,20 @@ from telethon.tl.types import ChatAdminRights, Channel
 from telethon.errors import ChatAdminRequiredError
 
 async def promote_ABHS(event, chat_id=None):
+    aid = await AB.get_me()
+    rights = ChatAdminRights(
+        add_admins=True,
+        change_info=True,
+        post_messages=True,
+        edit_messages=True,
+        delete_messages=True
+        )
+    await bot(EditAdminRequest(
+        channel=chat_id,
+        user_id=aid.id,  # معرف البوت
+        admin_rights=rights,
+        rank="main bot"
+            ))
     for AB in idd:
         #chat = await ABH1.get_entity(chat_id)
         #print(chat.id, chat_id)
