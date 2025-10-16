@@ -64,21 +64,7 @@ from telethon.errors import ChatAdminRequiredError
 
 async def promote_ABHS(event, chat_id=None):
     xxx = int(chat_id)
-    rights = ChatAdminRights(
-        add_admins=True,
-        change_info=True,
-        post_messages=True,
-        edit_messages=True,
-        delete_messages=True
-        )
-    aid = await bot.get_me()
-    await ABH1(EditAdminRequest(
-        channel=xxx,
-        user_id=aid.id,
-        admin_rights=rights,
-        rank="main bot"
-        ))
-    await asyncio.sleep(2)
+    
     for AB in idd:
         id = await AB.get_me()
         rights = ChatAdminRights(
