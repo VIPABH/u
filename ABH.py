@@ -142,22 +142,25 @@ def remove_reaction(chat_id, emoji):
 # ======================================
 # ❤️‍🔥 دالة التفاعل مع الرسائل
 # ======================================
-from telethon.tl.functions.messages import SendReactionRequest, ReadHistoryRequest
+from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
     """
-    🔁 وظيفة التفاعل التلقائي + رؤية الرسالة (seen)
-    - ترسل تفاعل بالإيموجي (مخزن أو عشوائي)
-    - تعمل seen فقط من الحسابات العادية (وليس البوتات)
+    تفاعل مع رسالة من القنوات المسموح بها.
+    - يستخدم الإيموجيات المخزنة إذا وجدت.
+    - إذا ماكو مخزون، يستخدم عشوائيًا: ❤️ و 🕊 و 🌚
     """
+    # جلب التفاعلات المخزنة للقناة
+    
     for ABH in ABHS:
         try:
-            me = await ABH.get_me()
             stored = get_reactions(event.chat_id)
-            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
-
-            # --- إرسال التفاعل ---
+            if stored:
+                emoji = random.choice(stored)
+            else:
+        # الإيموجيات الافتراضية إذا ماكو مخزون
+                emoji = random.choice(['❤️', '🕊', '🌚'])
             await ABH(
                 SendReactionRequest(
                     peer=int(event.chat_id),
@@ -166,18 +169,13 @@ async def react(event):
                     big=False
                 )
             )
-
-            # --- تنفيذ seen فقط من الحسابات البشرية ---
-            if not me.bot:
-                await ABH(
-                    ReadHistoryRequest(
-                        peer=int(event.chat_id),
-                        max_id=int(event.message.id)
-                    )
-                )
-
+            await ABH(GetMessagesViewsRequest(
+                peer=event.chat_id,       # معرف القناة أو المجموعة
+                id=[event.message.id],    # قائمة معرفات الرسائل
+                increment=True            # True يزيد عدد المشاهدات
+            ))
         except Exception as ex:
-            await bot.send_message(wfffp, f"⚠️ خطأ في التفاعل أو الرؤية: {ex}")
+            pass
 # ======================================
 # 🚀 الأحداث الرئيسية
 # ======================================
