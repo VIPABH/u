@@ -89,25 +89,6 @@ async def promote_ABHS(event, chat_id=None):
         ))
         print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
 
-
-async def promote_bot_to_admin(event):
-    channel = -1002219196756
-    bot_username = 6907915843
-    rights = ChatAdminRights(
-        add_admins=True,
-        change_info=True,
-        post_messages=True,
-        edit_messages=True,
-        delete_messages=True
-    )
-    await client(EditAdminRequest(
-        channel=channel,
-        user_id=bot_username,
-        admin_rights=rights,
-    ))
-    await client.send_message(channel, ".")
-
-
 # ======================================
 # 🔧 دوال إدارة القنوات البيضاء
 # ======================================
@@ -161,11 +142,22 @@ def remove_reaction(chat_id, emoji):
 # ======================================
 # ❤️‍🔥 دالة التفاعل مع الرسائل
 # ======================================
+from telethon.tl.functions.messages import SendReactionRequest, ReadHistoryRequest
+from telethon.tl.types import ReactionEmoji
+
 async def react(event):
+    """
+    🔁 وظيفة التفاعل التلقائي + رؤية الرسالة (seen)
+    - ترسل إيموجي تفاعل عشوائي أو مخزون.
+    - تجعل الرسالة مقروءة (seen) في كل الحسابات ضمن ABHS.
+    """
     for ABH in ABHS:
         try:
+            # --- اختيار الإيموجي ---
             stored = get_reactions(event.chat_id)
             emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+
+            # --- إرسال التفاعل ---
             await ABH(
                 SendReactionRequest(
                     peer=int(event.chat_id),
@@ -174,9 +166,17 @@ async def react(event):
                     big=False
                 )
             )
-        except Exception as ex:
-            await bot.send_message(wfffp, f"⚠️ خطأ في التفاعل: {ex}")
 
+            # --- عمل seen للرسالة ---
+            await ABH(
+                ReadHistoryRequest(
+                    peer=int(event.chat_id),
+                    max_id=int(event.message.id)
+                )
+            )
+
+        except Exception as ex:
+            await bot.send_message(wfffp, f"⚠️ خطأ في التفاعل أو الرؤية: {ex}")
 
 # ======================================
 # 🚀 الأحداث الرئيسية
