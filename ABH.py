@@ -148,12 +148,12 @@ from telethon.tl.types import ReactionEmoji
 async def react(event):
     """
     🔁 وظيفة التفاعل التلقائي + رؤية الرسالة (seen)
-    - ترسل إيموجي تفاعل عشوائي أو مخزون.
-    - تجعل الرسالة مقروءة (seen) في كل الحسابات ضمن ABHS.
+    - ترسل تفاعل بالإيموجي (مخزن أو عشوائي)
+    - تعمل seen فقط من الحسابات العادية (وليس البوتات)
     """
     for ABH in ABHS:
         try:
-            # --- اختيار الإيموجي ---
+            me = await ABH.get_me()
             stored = get_reactions(event.chat_id)
             emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
 
@@ -167,17 +167,17 @@ async def react(event):
                 )
             )
 
-            # --- عمل seen للرسالة ---
-            await ABH(
-                ReadHistoryRequest(
-                    peer=int(event.chat_id),
-                    max_id=int(event.message.id)
+            # --- تنفيذ seen فقط من الحسابات البشرية ---
+            if not me.bot:
+                await ABH(
+                    ReadHistoryRequest(
+                        peer=int(event.chat_id),
+                        max_id=int(event.message.id)
+                    )
                 )
-            )
 
         except Exception as ex:
             await bot.send_message(wfffp, f"⚠️ خطأ في التفاعل أو الرؤية: {ex}")
-
 # ======================================
 # 🚀 الأحداث الرئيسية
 # ======================================
