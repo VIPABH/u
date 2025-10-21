@@ -287,7 +287,7 @@ async def reactauto(e):
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء جلب التفاعلات: {ex}")
 
-    # إضافة تفاعلات (يدعم تكرار الإيموجي)
+    # إضافة تفاعلات (يدعم التكرار)
     elif text.startswith("تفاعل") and sender == wfffp:
         try:
             parts = text.split()
@@ -297,7 +297,7 @@ async def reactauto(e):
                 await e.reply("⚠️ أرسل الإيموجيات بعد المعرف مثل:\n`تفاعل -100xxxx 😂 ❤️ 🔥`")
                 return
 
-            # نحفظها كما هي (حتى لو فيها تكرار)
+            # نضيف الإيموجيات كما هي (حتى لو مكررة)
             existing = get_reactions(chat_id) or []
             updated = existing + emojis
             add_reactions(chat_id, updated)
@@ -305,16 +305,16 @@ async def reactauto(e):
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء حفظ التفاعلات: {ex}")
 
-    # حذف تفاعل فردي (إصلاح القراءة)
+    # حذف تفاعل فردي (يحذف جميع التكرارات لنفس الإيموجي)
     elif text.startswith("حذف تفاعل") and sender == wfffp:
         try:
-            parts = text.split(" ")
-            if len(parts) < 3:
-                await e.reply("⚠️ استخدم: `حذف تفاعل -100xxxx 😂`")
+            parts = text.split()
+            if len(parts) < 4:
+                await e.reply("⚠️ استخدم الصيغة الصحيحة:\n`حذف تفاعل -100xxxx 😂`")
                 return
 
-            chat_id = parts[2] if parts[1] == "تفاعل" else parts[1]
-            emoji = parts[-1]
+            chat_id = parts[2]
+            emoji = parts[3]
 
             emojis = get_reactions(chat_id)
             if not emojis:
@@ -322,9 +322,10 @@ async def reactauto(e):
                 return
 
             if emoji in emojis:
-                emojis.remove(emoji)  # يحذف أول تكرار فقط
+                # حذف كل التكرارات
+                emojis = [em for em in emojis if em != emoji]
                 add_reactions(chat_id, emojis)
-                await e.reply(f"🗑️ تم حذف التفاعل `{emoji}` من القناة `{chat_id}`")
+                await e.reply(f"🗑️ تم حذف جميع التكرارات للتفاعل `{emoji}` من القناة `{chat_id}`")
             else:
                 await e.reply(f"⚠️ التفاعل `{emoji}` غير موجود في القناة `{chat_id}`")
         except Exception as ex:
@@ -333,15 +334,21 @@ async def reactauto(e):
     # حذف جميع التفاعلات لقناة
     elif text.startswith("حذف التفاعلات") and sender == wfffp:
         try:
-            chat_id = text.split(" ")[1]
+            parts = text.split()
+            if len(parts) < 3:
+                await e.reply("⚠️ استخدم الصيغة الصحيحة:\n`حذف التفاعلات -100xxxx`")
+                return
+
+            chat_id = parts[2]
             key = f"chat_reactions:{chat_id}"
+
             if r.exists(key):
                 r.delete(key)
-                await e.reply(f"🗑️ تم حذف جميع التفاعلات المخزنة للقناة `{chat_id}`")
+                await e.reply(f"🗑️ تم حذف جميع التفاعلات المخزنة للقناة `{chat_id}` بنجاح")
             else:
                 await e.reply(f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`")
         except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء حذف التفاعلات: {ex}")
+            await e.reply(f"⚠️ خطأ أثناء حذف جميع التفاعلات: {ex}")
 
     # حذف جميع القنوات
     elif text.startswith("حذف الكل") and sender == wfffp:
@@ -349,7 +356,7 @@ async def reactauto(e):
         await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
 
     # حذف قناة واحدة
-    elif text.startswith("حذف ") and sender == wfffp and not text.startswith("حذف تفاعل"):
+    elif text.startswith("حذف ") and sender == wfffp and not text.startswith("حذف تفاعل") and not text.startswith("حذف التفاعلات"):
         try:
             chat_id = text.split(" ", 1)[1]
             remove_chat(chat_id)
@@ -363,7 +370,6 @@ async def reactauto(e):
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
-
 
 # ======================================
 # 🔁 تشغيل البوت
