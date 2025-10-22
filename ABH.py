@@ -142,7 +142,8 @@ def remove_reaction(chat_id, emoji):
 # ======================================
 # ❤️‍🔥 دالة التفاعل مع الرسائل
 # ======================================
-from telethon.tl.functions.messages import SendReactionRequest
+import random
+from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
@@ -152,30 +153,40 @@ async def react(event):
     - إذا ماكو مخزون، يستخدم عشوائيًا: ❤️ و 🕊 و 🌚
     """
     # جلب التفاعلات المخزنة للقناة
-    
     for ABH in ABHS:
         try:
             stored = get_reactions(event.chat_id)
             if stored:
                 emoji = random.choice(stored)
             else:
-        # الإيموجيات الافتراضية إذا ماكو مخزون
+                # الإيموجيات الافتراضية إذا ماكو مخزون
                 emoji = random.choice(['❤️', '🕊', '🌚'])
+
+            # إرسال التفاعل
             await ABH(
                 SendReactionRequest(
-                    peer=int(event.chat_id),
-                    msg_id=int(event.message.id),
+                    peer=event.chat_id,
+                    msg_id=event.message.id,
                     reaction=[ReactionEmoji(emoticon=emoji)],
                     big=False
                 )
             )
-            await ABH(GetMessagesViewsRequest(
-                peer=event.chat_id,       # معرف القناة أو المجموعة
-                id=[event.message.id],    # قائمة معرفات الرسائل
-                increment=True            # True يزيد عدد المشاهدات
-            ))
+
+            # زيادة عداد المشاهدات بشكل صحيح
+            views = await ABH(
+                GetMessagesViewsRequest(
+                    peer=event.chat_id,        # القناة أو المجموعة
+                    id=[event.message.id],     # قائمة بالرسائل المطلوبة
+                    increment=True             # True = زيادة عدد المشاهدات
+                )
+            )
+
+            # (اختياري) طباعة عدد المشاهدات للتأكد
+            if views and views.views:
+                print(f"[{event.chat_id}] عدد المشاهدات الحالي: {views.views[0]}")
+
         except Exception as ex:
-            pass
+            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
 # ======================================
 # 🚀 الأحداث الرئيسية
 # ======================================
