@@ -162,7 +162,7 @@ async def react(event):
                 # الإيموجيات الافتراضية إذا ماكو مخزون
                 emoji = random.choice(['❤️', '🕊', '🌚'])
 
-            # إرسال التفاعل
+            await asyncio.sleep(3)
             await ABH(
                 SendReactionRequest(
                     peer=event.chat_id,
