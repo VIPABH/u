@@ -172,18 +172,13 @@ async def react(event):
                 )
             )
 
-            # زيادة عداد المشاهدات بشكل صحيح
-            views = await ABH(
+            await ABH(
                 GetMessagesViewsRequest(
                     peer=event.chat_id,        # القناة أو المجموعة
                     id=[event.message.id],     # قائمة بالرسائل المطلوبة
                     increment=True             # True = زيادة عدد المشاهدات
                 )
             )
-
-            # (اختياري) طباعة عدد المشاهدات للتأكد
-            if views and views.views:
-                print(f"[{event.chat_id}] عدد المشاهدات الحالي: {views.views[0]}")
 
         except Exception as ex:
             print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
@@ -198,8 +193,6 @@ async def test(e):
     except Exception as E:
         x = await ABH.get_me()
         await e.reply(f"{x.id}    {E}")
-
-
 @bot.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$", from_users=[1910015590, 201728276]))
 async def words(event):
     num = int(event.pattern_match.group(1)) or 1
@@ -221,7 +214,6 @@ async def words(event):
                         break
                 except asyncio.TimeoutError:
                     return
-
 
 @bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?$', from_users=wfffp))
 async def s(e):
