@@ -58,7 +58,8 @@ ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")
 # ======================================
 # 🤖 إنشاء البوتات المستندة إلى التوكنات
 # ======================================
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
+#ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
+ABHS = [ABH1, ABH3, ABH4, ABH5]
 for i, token in enumerate(bot_tokens, start=6):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
