@@ -75,7 +75,7 @@ async def promote_ABHS(event, chat_id=None):
     xxx = int(chat_id)
     for AB in idd:
 
-        chat = await AB.get_entity(xxx)  # ★ الحل الأساسي للمشكلة
+        chat = await ABH1.get_entity(xxx)  # ★ الحل الأساسي للمشكلة
         print(chat.id)
         id_info = await AB.get_me()
         rights = ChatAdminRights(
