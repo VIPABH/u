@@ -264,7 +264,7 @@ async def reactauto(e):
         try:
             chat_id = text.split(" ", 1)[1]
             add_chat(chat_id)
-            await promote_ABHS(e, chat_id)
+            await promote_ABHS(e, int(chat_id))
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         except Exception as E:
             await e.reply(f"⚠️ حدث خطأ: {E}")
