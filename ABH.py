@@ -85,7 +85,7 @@ async def promote_ABHS(event, chat_id=None):
             edit_messages=True,
             delete_messages=True
         )
-        await AB(EditAdminRequest(
+        await client(EditAdminRequest(
             channel=int(xxx),
             user_id=id_info.id,
             admin_rights=rights,
