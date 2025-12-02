@@ -76,6 +76,8 @@ async def promote_ABHS(event, chat_id=None):
     for AB in idd:
         print(1)
         id_info = await AB.get_me()
+        c = await client.get_entity(xxx)  
+        print(c)
         print(2)
         rights = ChatAdminRights(
             add_admins=True,
