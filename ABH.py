@@ -50,7 +50,7 @@ bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 # 🤖 إنشاء الحسابات الإضافية (بدون توكن)
 # ======================================
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
-#ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
+ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
@@ -58,8 +58,8 @@ ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")
 # ======================================
 # 🤖 إنشاء البوتات المستندة إلى التوكنات
 # ======================================
-#ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
-ABHS = [ABH1, ABH3, ABH4, ABH5]
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
+#ABHS = [ABH1, ABH3, ABH4, ABH5]
 for i, token in enumerate(bot_tokens, start=6):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
@@ -75,7 +75,6 @@ async def promote_ABHS(event, chat_id=None):
     xxx = int(chat_id)
     for AB in idd:
         id_info = await AB.get_me()
-        print(id_info.id)
         rights = ChatAdminRights(
             add_admins=True,
             change_info=True,
@@ -84,7 +83,7 @@ async def promote_ABHS(event, chat_id=None):
             delete_messages=True
         )
         await AB(EditAdminRequest(
-            channel=xxx,
+            channel=int(xxx),
             user_id=id_info.id,
             admin_rights=rights,
             rank="bot"
