@@ -81,7 +81,7 @@ async def promote_ABHS(event, chat_id=None):
             edit_messages=True,
             delete_messages=True
         )
-        await ABH1(EditAdminRequest(
+        await AB(EditAdminRequest(
             channel=xxx,
             user_id=id_info.id,
             admin_rights=rights,
@@ -89,7 +89,6 @@ async def promote_ABHS(event, chat_id=None):
         ))
         print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
 
-# ======================================
 # 🔧 دوال إدارة القنوات البيضاء
 # ======================================
 def add_chat(chat_id):
