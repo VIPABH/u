@@ -74,6 +74,9 @@ client = ABH1
 async def promote_ABHS(event, chat_id=None):
     xxx = int(chat_id)
     for AB in idd:
+
+        await AB.get_entity(xxx)  # ★ الحل الأساسي للمشكلة
+
         id_info = await AB.get_me()
         rights = ChatAdminRights(
             add_admins=True,
@@ -89,7 +92,6 @@ async def promote_ABHS(event, chat_id=None):
             rank="bot"
         ))
         print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
-
 # 🔧 دوال إدارة القنوات البيضاء
 # ======================================
 def add_chat(chat_id):
