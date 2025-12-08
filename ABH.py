@@ -218,13 +218,12 @@ async def words(event):
                 except asyncio.TimeoutError:
                     return
 
-@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?$', from_users=wfffp))
+@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?$', from_users=[wfffp]))
 async def s(e):
     reply = await e.get_reply_message()
     if not reply:
         return
     num = e.pattern_match.group(1) or str(wfffp)
-
     for ABH in ABHS:
         try:
             entity = None
@@ -245,7 +244,6 @@ async def s(e):
                     await ABH(JoinChannelRequest(entity))
                 except UserAlreadyParticipantError:
                     pass
-            print(entity)
             if reply.text and not reply.media:
                 await ABH.send_message(entity, reply.text)
             elif reply.media:
