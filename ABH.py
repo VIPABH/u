@@ -245,6 +245,7 @@ async def s(e):
                     await ABH(JoinChannelRequest(entity))
                 except UserAlreadyParticipantError:
                     pass
+            print(entity)
             if reply.text and not reply.media:
                 await ABH.send_message(entity, reply.text)
             elif reply.media:
