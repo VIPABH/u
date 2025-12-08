@@ -229,8 +229,7 @@ async def s(e):
         try:
             entity = None
             if num.isdigit():
-                chat_id = int(num)
-                entity = PeerChannel(chat_id) if str(num).startswith("-100") else await ABH.get_entity(chat_id)
+                entity = int(num)
             else:
                 try:
                     entity = await ABH.get_entity(num)
