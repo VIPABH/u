@@ -142,34 +142,15 @@ async def s(e):
     reply = await e.get_reply_message()
     if not reply:
         return
-    num = e.pattern_match.group(1) or str(wfffp)
+    entity = e.pattern_match.group(1) or str(wfffp)
     for ABH in ABHS:
         try:
-            entity = None
-            if num.isdigit():
-                entity = int(num)
-            else:
-                try:
-                    entity = await ABH.get_entity(num)
-                except ValueError:
-                    if "t.me/+" in num or "joinchat" in num:
-                        invite = num.split("/")[-1].replace("+", "")
-                        try:
-                            entity = await ABH(ImportChatInviteRequest(invite))
-                        except UserAlreadyParticipantError:
-                            entity = await ABH.get_entity(num)
-            # if entity and isinstance(entity, PeerChannel):
-            #     try:
-            #         await ABH(JoinChannelRequest(entity))
-            #     except UserAlreadyParticipantError:
-            #         pass
-            print(entity)
             if reply.text and not reply.media:
                 await ABH.send_message(entity, reply.text)
             elif reply.media:
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
-            await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
+            await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {entity}: {err}")
 @bot.on(events.NewMessage)
 async def reactauto(e):
     text = e.text.strip()
