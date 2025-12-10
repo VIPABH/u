@@ -96,11 +96,12 @@ async def react(event):
                     big=False
                 )
             )
+            peer = await ABH.get_input_entity(event.chat_id)
             await ABH(
                 GetMessagesViewsRequest(
-                    peer=event.chat_id,    
-                    id=[event.message.id], 
-                    increment=True         
+                    peer=peer,
+                    id=[event.message.id],
+                    increment=True
                 )
             )
         except Exception as ex:
