@@ -31,28 +31,30 @@ for i, token in enumerate(bot_tokens, start=6):
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 idd = ABHS[5:]
 client = ABH1
-async def promote_ABHS(event, chat_id=None):
+async def promote_ABHS(event, chat_id: int):
     rights = ChatAdminRights(
         add_admins=True,
         change_info=True,
         post_messages=True,
         edit_messages=True,
-        delete_messages=True
+        delete_messages=True,
+        ban_users=True,
+        invite_users=True
     )
-    try:
-        xxx = int(chat_id)
-        for AB in idd:
-            id_info = await AB.get_me()
-            print(type(xxx))
-            await client(EditAdminRequest(
-                channel=int(xxx),
-                user_id=id_info.id,
+    chat_id = int(chat_id)
+    for AB in idd:
+        try:
+            channel = await AB.get_entity(chat_id)
+            me = await AB.get_me()
+            await AB(EditAdminRequest(
+                channel=channel,
+                user_id=me.id,
                 admin_rights=rights,
                 rank="bot"
             ))
-            print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
-    except Exception as e:
-        print(e)
+            print(f"✅ [{AB.session.filename}] تم رفع البوت {me.id} مشرف بنجاح")
+        except Exception as e:
+            print(f"❌ [{AB.session.filename}] فشل الرفع: {e}")
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
