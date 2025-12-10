@@ -34,9 +34,6 @@ client = MAINABH
 user_clients = [MAINABH, ABH2, ABH3, ABH4, ABH5]
 bot_clients = ABHS[:5] 
 all_clients = user_clients + bot_clients
-print("حسابات المستخدمين:", [c.session.filename for c in user_clients])
-print("البوتات:", [c.session.filename for c in bot_clients])
-print("كل الجلسات:", [c.session.filename for c in all_clients])
 async def promote_ABHS(event, chat_id: int):
     rights = ChatAdminRights(
         add_admins=True,
@@ -85,9 +82,18 @@ def clear_reactions(chat_id):
     r.delete(f"chat_reactions:{chat_id}")
 def remove_reaction(chat_id, emoji):
     r.srem(f"chat_reactions:{chat_id}", emoji)
+import random
+import asyncio
+from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
+from telethon.tl.types import ReactionEmoji
 async def react(event):
     for ABH in ABHS:
         try:
+            try:
+                peer = await ABH.get_input_entity(event.chat_id)
+            except Exception:
+                print(f"[{ABH.session.filename}] لا يمكن الوصول للقناة {event.chat_id}")
+                continue 
             stored = get_reactions(event.chat_id)
             if stored:
                 emoji = random.choice(stored)
@@ -96,21 +102,22 @@ async def react(event):
             await asyncio.sleep(3)
             await ABH(
                 SendReactionRequest(
-                    peer=event.chat_id,
+                    peer=peer,
                     msg_id=event.message.id,
                     reaction=[ReactionEmoji(emoticon=emoji)],
                     big=False
                 )
             )
-            await ABH(
-                GetMessagesViewsRequest(
-                    peer=event.chat_id,    
-                    id=[event.message.id], 
-                    increment=True         
+            if not ABH.is_bot:
+                await ABH(
+                    GetMessagesViewsRequest(
+                        peer=peer,
+                        id=[event.message.id],
+                        increment=True
+                    )
                 )
-            )
         except Exception as ex:
-            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
+            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id} ({ABH.session.filename}): {ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
