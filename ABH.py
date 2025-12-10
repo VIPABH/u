@@ -239,11 +239,11 @@ async def s(e):
                             entity = await ABH(ImportChatInviteRequest(invite))
                         except UserAlreadyParticipantError:
                             entity = await ABH.get_entity(num)
-            if entity and isinstance(entity, PeerChannel):
-                try:
-                    await ABH(JoinChannelRequest(entity))
-                except UserAlreadyParticipantError:
-                    pass
+            # if entity and isinstance(entity, PeerChannel):
+            #     try:
+            #         await ABH(JoinChannelRequest(entity))
+            #     except UserAlreadyParticipantError:
+            #         pass
             if reply.text and not reply.media:
                 await ABH.send_message(entity, reply.text)
             elif reply.media:
