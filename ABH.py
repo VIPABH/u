@@ -44,7 +44,6 @@ async def promote_all_clients(chat_id: int):
         ban_users=True,
         invite_users=True
     )
-    chat_id = int(chat_id)
     all_sessions = all_clients     
     for client in all_sessions:
         try:
@@ -175,7 +174,7 @@ async def reactauto(e):
             chat_id = text.split(" ", 1)[1]
             print(chat_id)
             add_chat(chat_id)
-            await promote_ABHS(e, int(chat_id))
+            await promote_all_clients(int(chat_id))
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         except Exception as E:
             await e.reply(f"⚠️ حدث خطأ: {E}")
