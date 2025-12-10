@@ -20,17 +20,17 @@ api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(6, 17)]
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
-ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
+MAINABH = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
+ABHS = [MAINABH, ABH2, ABH3, ABH4, ABH5]
 for i, token in enumerate(bot_tokens, start=6):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 idd = ABHS[5:]
-client = ABH1
+client = MAINABH
 async def promote_ABHS(event, chat_id: int):
     rights = ChatAdminRights(
         add_admins=True,
@@ -96,12 +96,11 @@ async def react(event):
                     big=False
                 )
             )
-            peer = await ABH.get_input_entity(event.chat_id)
             await ABH(
                 GetMessagesViewsRequest(
-                    peer=peer,
-                    id=[event.message.id],
-                    increment=True
+                    peer=event.chat_id,    
+                    id=[event.message.id], 
+                    increment=True         
                 )
             )
         except Exception as ex:
@@ -143,6 +142,7 @@ async def s(e):
     entity = e.pattern_match.group(1) or str(wfffp)
     for ABH in ABHS:
         try:
+
             if reply.text and not reply.media:
                 await ABH.send_message(int(entity), reply.text)
             elif reply.media:
