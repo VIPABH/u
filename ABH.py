@@ -17,20 +17,25 @@ wfffp = 1910015590
 target_user_id = 1421907917
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
-bot_token_main = os.getenv("bot_token")
-bot_main = TelegramClient("bot_main", api_id, api_hash).start(bot_token=bot_token_main)
+bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(6, 17)]
-bot_clients = []
+bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
+MAINABH = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
+ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
+ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
+ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
+ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
+ABHS = [MAINABH, ABH2, ABH3, ABH4, ABH5]
 for i, token in enumerate(bot_tokens, start=6):
     if token:
-        bot_clients.append(TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token))
-user_clients = []
-for idx in range(1, 6):
-    client = TelegramClient(f"user{idx}", int(os.getenv(f"API_ID{idx}")), os.getenv(f"API_HASH{idx}")).start()
-    user_clients.append(client)
-all_clients = user_clients + [bot_main] + bot_clients
+        ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
+idd = ABHS[5:]
+client = MAINABH
+user_clients = [MAINABH, ABH2, ABH3, ABH4, ABH5]
+bot_clients = ABHS[:5] 
+all_clients = user_clients + bot_clients
 print("حسابات المستخدمين:", [c.session.filename for c in user_clients])
-print("البوتات:", [c.session.filename for c in bot_clients] + [bot_main.session.filename])
+print("البوتات:", [c.session.filename for c in bot_clients])
 print("كل الجلسات:", [c.session.filename for c in all_clients])
 async def promote_ABHS(event, chat_id: int):
     rights = ChatAdminRights(
