@@ -43,6 +43,7 @@ async def promote_ABHS(event, chat_id=None):
         xxx = int(chat_id)
         for AB in idd:
             id_info = await AB.get_me()
+            print(type(xxx))
             await client(EditAdminRequest(
                 channel=int(xxx),
                 user_id=id_info.id,
@@ -152,6 +153,7 @@ async def reactauto(e):
     if text.startswith("اضف") and sender == wfffp:
         try:
             chat_id = text.split(" ", 1)[1]
+            print(chat_id)
             add_chat(chat_id)
             await promote_ABHS(e, int(chat_id))
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
