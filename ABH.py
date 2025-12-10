@@ -34,7 +34,7 @@ client = MAINABH
 user_clients = [MAINABH, ABH2, ABH3, ABH4, ABH5]
 bot_clients = ABHS[:5] 
 all_clients = user_clients + bot_clients
-async def promote_ABHS(event, chat_id: int):
+async def promote_all_clients(chat_id: int):
     rights = ChatAdminRights(
         add_admins=True,
         change_info=True,
@@ -45,19 +45,24 @@ async def promote_ABHS(event, chat_id: int):
         invite_users=True
     )
     chat_id = int(chat_id)
-    for AB in idd:
+    all_sessions = all_clients     
+    for client in all_sessions:
         try:
-            channel = await AB.get_entity(chat_id)
-            me = await AB.get_me()
-            await AB(EditAdminRequest(
-                channel=channel,
+            try:
+                entity = await client.get_input_entity(chat_id)
+            except Exception as e:
+                print(f"❌ [{client.session.filename}] لا يمكن الوصول للقناة {chat_id}: {e}")
+                continue
+            me = await client.get_me()
+            await client(EditAdminRequest(
+                channel=entity,
                 user_id=me.id,
                 admin_rights=rights,
                 rank="bot"
             ))
-            print(f"✅ [{AB.session.filename}] تم رفع البوت {me.id} مشرف بنجاح")
+            print(f"✅ [{client.session.filename}] تم رفع {me.id} مشرف بالقناة بنجاح")        
         except Exception as e:
-            print(f"❌ [{AB.session.filename}] فشل الرفع: {e}")
+            print(f"❌ [{client.session.filename}] فشل الرفع: {e}")
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
