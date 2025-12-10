@@ -36,23 +36,26 @@ for i, token in enumerate(bot_tokens, start=6):
 idd = ABHS[5:]
 client = ABH1
 async def promote_ABHS(event, chat_id=None):
-    xxx = int(chat_id)
-    for AB in idd:
-        id_info = await AB.get_me()
-        rights = ChatAdminRights(
-            add_admins=True,
-            change_info=True,
-            post_messages=True,
-            edit_messages=True,
-            delete_messages=True
-        )
-        await client(EditAdminRequest(
-            channel=int(xxx),
-            user_id=id_info.id,
-            admin_rights=rights,
-            rank="bot"
-        ))
-        print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
+    rights = ChatAdminRights(
+        add_admins=True,
+        change_info=True,
+        post_messages=True,
+        edit_messages=True,
+        delete_messages=True
+    )
+    try:
+        xxx = int(chat_id)
+        for AB in idd:
+            id_info = await AB.get_me()
+            await client(EditAdminRequest(
+                channel=int(xxx),
+                user_id=id_info.id,
+                admin_rights=rights,
+                rank="bot"
+            ))
+            print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
+    except Exception as e:
+        print(e)
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
