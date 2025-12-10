@@ -244,5 +244,5 @@ async def reactauto(e):
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
-print('...')
 bot.run_until_disconnected()
+print('...')
