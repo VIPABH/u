@@ -145,10 +145,9 @@ async def s(e):
     reply = await e.get_reply_message()
     if not reply:
         return
-    entity = e.pattern_match.group(1) or str(wfffp)
+    entity = e.pattern_match.group(1) or int(wfffp)
     for ABH in ABHS:
         try:
-
             if reply.text and not reply.media:
                 await ABH.send_message(int(entity), reply.text)
             elif reply.media:
