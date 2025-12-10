@@ -5,14 +5,10 @@ from telethon.tl.types import (
     ReactionEmoji,
     ChatAdminRights,
 )
-from telethon.errors import (
-    UserAlreadyParticipantError,
-)
 from telethon.tl.functions.channels import (
     EditAdminRequest,
 )
 from telethon.tl.functions.messages import (
-    ImportChatInviteRequest,
     SendReactionRequest,
     GetMessagesViewsRequest
 )
@@ -80,7 +76,6 @@ def clear_reactions(chat_id):
     r.delete(f"chat_reactions:{chat_id}")
 def remove_reaction(chat_id, emoji):
     r.srem(f"chat_reactions:{chat_id}", emoji)
-
 async def react(event):
     for ABH in ABHS:
         try:
@@ -145,9 +140,9 @@ async def s(e):
     for ABH in ABHS:
         try:
             if reply.text and not reply.media:
-                await ABH.send_message(entity, reply.text)
+                await ABH.send_message(int(entity), reply.text)
             elif reply.media:
-                await ABH.send_file(entity, reply.media, caption=reply.text or "")
+                await ABH.send_file(int(entity), reply.media, caption=reply.text or "")
         except Exception as err:
             await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {entity}: {err}")
 @bot.on(events.NewMessage)
