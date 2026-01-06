@@ -42,15 +42,15 @@ async def promote_ABHS(event, chat_id=None):
         print(1)
         id_info = await AB.get_me()
         c = await client.get_entity(xxx)  
-        print(c)
-        print(2)
         rights = ChatAdminRights(
-            add_admins=True,
+            add_admins=False,      # لا ترفع مشرفين آخرين
             change_info=True,
             post_messages=True,
             edit_messages=True,
-            delete_messages=True
-        )
+            delete_messages=True,
+            ban_users=True,
+            invite_users=True
+)
         await client(EditAdminRequest(
             channel=int(xxx),
             user_id=id_info.id,
