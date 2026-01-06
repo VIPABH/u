@@ -99,14 +99,13 @@ async def react(event):
             big=False
         ))
         try:
-            views = await ABH(GetMessagesViewsRequest(
+            await ABH(GetMessagesViewsRequest(
                 peer=event.chat_id,
                 id=[event.message.id],
                 increment=True
             ))
-            print(f"✅ المشاهدات في {event.chat_id}: {views}")
         except Exception as view_ex:
-            print(f"⚠️ خطأ أثناء جمع المشاهدات في {event.chat_id}: {view_ex}")
+            pass
 # async def react(event):
 #     for ABH in ABHS:
 #         stored = get_reactions(event.chat_id)
