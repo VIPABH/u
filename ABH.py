@@ -193,22 +193,30 @@ async def reactauto(e):
             )
         except:
             return
-@bot.on(events.NewMessage(from_users=[wfffp]))
+@bot.on(events.NewMessage(from_users=wfffp))
 async def reactauto(e):
-    chat_id = None
-    text = e.text.strip()
+    text = e.text
+    if not text:
+        return
+    text = text.strip().lower()
     sender = e.sender_id
+    chat_id = None
     if text.startswith("اضف") and sender == wfffp:
-        chat_id = text.split(" ", 1)[1]
-        print(chat_id)
+        try:
+            chat_id = int(text.split(" ", 1)[1])
+        except (IndexError, ValueError):
+            await e.reply("❌ يرجى تحديد رقم القناة بعد 'اضف'")
+            return
         await promote_ABHS(chat_id)
         await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         add_chat(chat_id)
-    elif text.startswith("ضيف "):
-        chat_id = text.spilt(" ", 1)[1]
-        if not chat_id:
-            chat_id = e.chat_id
-            await promote_ABHS(chat_id)
+    elif text.startswith("ضيف") and sender == wfffp:
+        try:
+            chat_id = int(text.split(" ", 1)[1])
+        except (IndexError, ValueError):
+            chat_id = e.chat_id 
+        await promote_ABHS(chat_id)
+        await e.reply(f"✅ تم رفع البوتات في القناة `{chat_id}`")
     elif text.startswith("القنوات") and sender == wfffp:
         chats = list_chats()
         msg = "📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats) if chats else "⚠️ لا توجد قنوات مضافة حالياً"
