@@ -96,7 +96,7 @@ async def react(event):
                 emoji = random.choice(stored)
             else:
                 emoji = random.choice(['❤️', '🕊', '🌚'])
-            await asyncio.sleep(3)
+            # await asyncio.sleep(3)
             await ABH(
                 SendReactionRequest(
                     peer=event.chat_id,
@@ -107,7 +107,7 @@ async def react(event):
             )
         except Exception as ex:
             print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
-        except Exception as ex:
+        except Exception as ءءء:
             await ABH(
                 GetMessagesViewsRequest(
                     peer=event.chat_id,
@@ -115,7 +115,7 @@ async def react(event):
                     increment=True
                 )
             )
-        print(f"المشاهدات {ex}")
+        print(f"المشاهدات {ءءء}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
