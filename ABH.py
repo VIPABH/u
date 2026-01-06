@@ -105,9 +105,9 @@ async def react(event):
                     id=[event.message.id],
                     increment=True
                 ))
-                print(f"المشاهدات في {event.chat_id}: {views}")
+                print(f"✅ المشاهدات في {event.chat_id}: {views}")
             except Exception as view_ex:
-                print(f"⚠️ خطأ أثناء جمع المشاهدات: {view_ex}")
+                print(f"⚠️ خطأ أثناء جمع المشاهدات في {event.chat_id}: {view_ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
