@@ -99,13 +99,32 @@ async def react(event):
             big=False
         ))
         try:
-            await ABH(GetMessagesViewsRequest(
+            views = await ABH(GetMessagesViewsRequest(
                 peer=event.chat_id,
                 id=[event.message.id],
                 increment=True
             ))
-        except:
-            return
+            print(f"✅ المشاهدات في {event.chat_id}: {views}")
+        except Exception as view_ex:
+            print(f"⚠️ خطأ أثناء جمع المشاهدات في {event.chat_id}: {view_ex}")
+# async def react(event):
+#     for ABH in ABHS:
+#         stored = get_reactions(event.chat_id)
+#         emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+#         await ABH(SendReactionRequest(
+#             peer=event.chat_id,
+#             msg_id=event.message.id,
+#             reaction=[ReactionEmoji(emoticon=emoji)],
+#             big=False
+#         ))
+#         try:
+#             await ABH(GetMessagesViewsRequest(
+#                 peer=event.chat_id,
+#                 id=[event.message.id],
+#                 increment=True
+#             ))
+#         except:
+#             return
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
