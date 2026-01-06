@@ -88,6 +88,7 @@ def remove_non_private_chats():
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
 async def react(event):
+    print(91)
     for ABH in ABHS:
         try:
             stored = get_reactions(event.chat_id)
@@ -204,6 +205,7 @@ async def reactauto(e):
 async def reactauto(e):
     text = e.text
     if is_chat_allowed(e.chat_id):
+        print(208)
         try:
             await react(e)
         except Exception as ex:
