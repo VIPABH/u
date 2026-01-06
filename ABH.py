@@ -207,6 +207,8 @@ async def reactauto(e):
         except (IndexError, ValueError):
             await e.reply("❌ يرجى تحديد رقم القناة بعد 'اضف'")
             return
+        if not chat_id.startswith("-100"):
+            return
         await promote_ABHS(chat_id)
         await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         add_chat(chat_id)
