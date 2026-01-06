@@ -195,17 +195,19 @@ async def reactauto(e):
             return
 @bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
+    chat_id = None
     text = e.text.strip()
     sender = e.sender_id
     if text.startswith("اضف") and sender == wfffp:
-        try:
-            chat_id = text.split(" ", 1)[1]
-            print(chat_id)
-            await promote_ABHS(chat_id)
-            await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
-            add_chat(chat_id)
-        except Exception as E:
-            return
+        chat_id = text.split(" ", 1)[1]
+        print(chat_id)
+        await promote_ABHS(chat_id)
+        await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
+        add_chat(chat_id)
+    elif text.startswith("ضيف "):
+        chat_id = text.spilt(" ", 1)[1]
+        if not chat_id:
+            chat_id = e.chat_id
     elif text.startswith("القنوات") and sender == wfffp:
         chats = list_chats()
         msg = "📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats) if chats else "⚠️ لا توجد قنوات مضافة حالياً"
