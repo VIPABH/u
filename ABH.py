@@ -90,30 +90,24 @@ def remove_non_private_chats():
             print(f"✅ تم حذف {chat_id_str}")
 async def react(event):
     for ABH in ABHS:
-        try:
-            stored = get_reactions(event.chat_id)
-            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
-            await ABH(SendReactionRequest(
-                peer=event.chat_id,
-                msg_id=event.message.id,
-                reaction=[ReactionEmoji(emoticon=emoji)],
-                big=False
-            ))
-        except Exception as ex:
-            if "restricted" in str(ex).lower():
-                print(f"⚠️ البوت {ABH.session.filename} لا يمكنه تنفيذ هذه العملية في {event.chat_id}")
-            else:
-                print(f"⚠️ خطأ غير متوقع أثناء التفاعل في {event.chat_id}: {ex}")
-            if not getattr(ABH, "is_bot", False):
-                try:
-                    views = await ABH(GetMessagesViewsRequest(
-                        peer=event.chat_id,
-                        id=[event.message.id],
-                        increment=True
-                    ))
-                    print(f"المشاهدات في {event.chat_id}: {views}")
-                except Exception as view_ex:
-                    print(f"⚠️ خطأ أثناء جمع المشاهدات: {view_ex}")
+        stored = get_reactions(event.chat_id)
+        emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+        await ABH(SendReactionRequest(
+            peer=event.chat_id,
+            msg_id=event.message.id,
+            reaction=[ReactionEmoji(emoticon=emoji)],
+            big=False
+        ))
+        if not getattr(ABH, "is_bot", False):
+            try:
+                views = await ABH(GetMessagesViewsRequest(
+                    peer=event.chat_id,
+                    id=[event.message.id],
+                    increment=True
+                ))
+                print(f"المشاهدات في {event.chat_id}: {views}")
+            except Exception as view_ex:
+                print(f"⚠️ خطأ أثناء جمع المشاهدات: {view_ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
