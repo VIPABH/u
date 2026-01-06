@@ -210,7 +210,7 @@ async def reactauto(e):
 @bot.on(events.NewMessage(from_users=wfffp))
 async def reactauto(e):
     text = e.text
-    if is_chat_allowed(int(e.chat_id)):
+    if is_chat_allowed(e.chat_id):
         print(208)
         try:
             await react(e)
