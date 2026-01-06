@@ -89,7 +89,6 @@ def remove_non_private_chats():
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
 async def react(event):
-    print(91)
     for ABH in ABHS:
         try:
             stored = get_reactions(event.chat_id)
@@ -106,6 +105,9 @@ async def react(event):
                     big=False
                 )
             )
+        except Exception as ex:
+            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
+        except Exception as ex:
             await ABH(
                 GetMessagesViewsRequest(
                     peer=event.chat_id,
@@ -113,8 +115,7 @@ async def react(event):
                     increment=True
                 )
             )
-        except Exception as ex:
-            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
+        print(f"المشاهدات {ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
@@ -206,7 +207,6 @@ async def reactauto(e):
 async def nlits(e):
     text = e.text
     if str(e.chat_id) in chats:
-        print(208)
         try:
             await react(e)
         except Exception as ex:
