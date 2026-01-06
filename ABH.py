@@ -44,24 +44,31 @@ async def promote_all_clients_safe(chat_id: int):
         ban_users=True,
         invite_users=True
     )
+
     chat_id = int(chat_id)
-    for client in all_clients:  
+
+    for client in all_clients:
         try:
             try:
-                channel_entity = await client.get_input_entity(chat_id)
+                # الخطوة الصحيحة: resolve كامل للكيان
+                channel = await client.get_entity(PeerChannel(abs(chat_id)))
             except Exception as e:
-                print(f"❌ [{client.session.filename}] لا يمكن الوصول للقناة {chat_id}: {e}")
-                continue 
+                print(f"❌ [{client.session.filename}] فشل resolve القناة {chat_id}: {e}")
+                continue
+
             me = await client.get_me()
+
             await client(EditAdminRequest(
-                channel=channel_entity,
+                channel=channel,
                 user_id=me.id,
                 admin_rights=rights,
                 rank="bot"
             ))
-            print(f"✅ [{client.session.filename}] تم رفع {me.id} مشرف بالقناة بنجاح")
+
+            print(f"✅ [{client.session.filename}] تم رفع الحساب {me.id} مشرف بنجاح")
+
         except Exception as e:
-            print(f"❌ [{client.session.filename}] فشل الرفع: {e}")
+            print(f"❌ [{client.session.filename}] فشل التنفيذ: {e}")
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
