@@ -98,16 +98,15 @@ async def react(event):
             reaction=[ReactionEmoji(emoticon=emoji)],
             big=False
         ))
-        if not getattr(ABH, "is_bot", False):
-            try:
-                views = await ABH(GetMessagesViewsRequest(
-                    peer=event.chat_id,
-                    id=[event.message.id],
-                    increment=True
-                ))
-                print(f"✅ المشاهدات في {event.chat_id}: {views}")
-            except Exception as view_ex:
-                print(f"⚠️ خطأ أثناء جمع المشاهدات في {event.chat_id}: {view_ex}")
+        try:
+            views = await ABH(GetMessagesViewsRequest(
+                peer=event.chat_id,
+                id=[event.message.id],
+                increment=True
+            ))
+            print(f"✅ المشاهدات في {event.chat_id}: {views}")
+        except Exception as view_ex:
+            print(f"⚠️ خطأ أثناء جمع المشاهدات في {event.chat_id}: {view_ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
