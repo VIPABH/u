@@ -36,29 +36,41 @@ client = ABH1
 user_clients = [ABH1, ABH2, ABH3, ABH4, ABH5]
 bot_clients = ABHS[:5] 
 all_clients = user_clients + bot_clients
-async def promote_ABHS(event, chat_id=None):
-    xxx = int(chat_id)
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights
+
+async def promote_ABHS(event, chat_id: int):
+    channel_id = int(chat_id)
+
     for AB in idd:
-        print(1)
-        id_info = await AB.get_me()
-        c = await client.get_entity(xxx)  
-        rights = ChatAdminRights(
-            add_admins=False,      # لا ترفع مشرفين آخرين
-            change_info=True,
-            post_messages=True,
-            edit_messages=True,
-            delete_messages=True,
-            ban_users=True,
-            invite_users=True
-)
-        await client(EditAdminRequest(
-            channel=int(xxx),
-            user_id=id_info.id,
-            admin_rights=rights,
-            rank="bot"
-        ))
-        print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
-# 🔧 دوال إدارة القنوات البيضاء
+        try:
+            me = await AB.get_me()
+
+            # ✅ resolve القناة بنفس الجلسة
+            channel = await AB.get_entity(channel_id)
+
+            # ✅ صلاحيات مناسبة للقنوات
+            rights = ChatAdminRights(
+                add_admins=False,
+                change_info=True,
+                post_messages=True,
+                edit_messages=True,
+                delete_messages=True,
+                ban_users=True,
+                invite_users=True
+            )
+
+            await AB(EditAdminRequest(
+                channel=channel,     # ✅ Entity صحيح
+                user_id=me.id,
+                admin_rights=rights,
+                rank="bot"           # الرتبة شكلية فقط
+            ))
+
+            print(f"✅ [{AB.session.filename}] تم رفع {me.id} مشرف بالقناة")
+
+        except Exception as e:
+            print(f"❌ [{AB.session.filename}] فشل الرفع: {e}")
 # ======================================
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
