@@ -35,26 +35,24 @@ for i, token in enumerate(bot_tokens, start=6):
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 idd = ABHS[5:]
 client = ABH1
-async def promote_ABHS(chat_id: int):
-    for bot_client in idd:
-        bot = await bot_client.get_me()
+async def promote_ABHS(chat_id=None):
+    xxx = int(chat_id)
+    for AB in idd:
+        id_info = await AB.get_me()
         rights = ChatAdminRights(
+            # add_admins=True,
+            change_info=True,
             post_messages=True,
             edit_messages=True,
-            delete_messages=True,
-            ban_users=True,
-            invite_users=True,
-            pin_messages=True,
-            change_info=False,
-            add_admins=False
+            delete_messages=True
         )
         await ABH1(EditAdminRequest(
-            channel=chat_id,
-            user_id=bot.id,
+            channel=xxx,
+            user_id=id_info.id,
             admin_rights=rights,
-            rank="Bot"
+            rank="bot"
         ))
-        print(f"✅ تم رفع البوت {bot.username or bot.id} مشرفًا بنجاح")
+        print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
@@ -168,13 +166,38 @@ async def s(e):
                 await ABH.send_file(entity, reply.media, caption=reply.text or "")
         except Exception as err:
             await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
-@bot.on(events.NewMessage)
+x = ['هلا', 'عد عيناك', 'تفضل', 'يمك', 'كول يالزعيم', 'تفضل اخي', 'هلا حبيبي']
+names = {
+    'العميل الاول': ABH1,
+    'كرت الحظ': ABH2,
+    'ابو صالح': ABH3,
+    'هاشم محمد': ABH4,
+    'سالو': ABH5,
+    'salo': ABH5
+}
+@ABH1.on(events.NewMessage(from_users=wfffp))
+async def reactauto(e):
+    if not e.text:
+        return
+    text = e.text
+    if text in names:
+        reply_text = random.choice(x)
+        try:
+            await names[text].send_message(
+                e.chat_id,
+                reply_text,
+                reply_to=e.id
+            )
+        except:
+            return
+@bot.on(events.NewMessage(from_users=[wfffp]))
 async def reactauto(e):
     text = e.text.strip()
     sender = e.sender_id
     if text.startswith("اضف") and sender == wfffp:
         try:
             chat_id = text.split(" ", 1)[1]
+            print(chat_id)
             add_chat(chat_id)
             await promote_ABHS(chat_id)
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
