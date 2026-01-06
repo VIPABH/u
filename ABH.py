@@ -80,6 +80,13 @@ def clear_reactions(chat_id):
     r.delete(f"chat_reactions:{chat_id}")
 def remove_reaction(chat_id, emoji):
     r.srem(f"chat_reactions:{chat_id}", emoji)
+def remove_non_private_chats():
+    chats = r.smembers("whitelist_chats")
+    for chat_id in chats:
+        chat_id_str = chat_id.decode() if isinstance(chat_id, bytes) else str(chat_id)
+        if not chat_id_str.startswith("-100"):
+            r.srem("whitelist_chats", chat_id_str)
+            print(f"✅ تم حذف {chat_id_str}")
 async def react(event):
     for ABH in ABHS:
         try:
@@ -236,6 +243,9 @@ async def reactauto(e):
             await e.reply("⚠️ استخدم: `تفاعلات -100xxxx`")
         except Exception as ex:
             await e.reply(f"⚠️ خطأ أثناء جلب التفاعلات: {ex}")
+    elif text == 'تصفية':
+        remove_non_private_chats()
+        await e.reply('تم التصفية')
     elif text.startswith("تفاعل") and sender == wfffp:
         try:
             parts = text.split()
