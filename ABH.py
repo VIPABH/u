@@ -88,9 +88,14 @@ def remove_non_private_chats():
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
 async def react(event):
-    print(91)
+    orint(91)
     for ABH in ABHS:
         try:
+            try:
+                peer = await ABH.get_input_entity(event.chat_id)
+            except Exception:
+                print(f"[{ABH.session.filename}] لا يمكن الوصول للقناة {event.chat_id}")
+                continue 
             stored = get_reactions(event.chat_id)
             if stored:
                 emoji = random.choice(stored)
@@ -99,21 +104,22 @@ async def react(event):
             await asyncio.sleep(3)
             await ABH(
                 SendReactionRequest(
-                    peer=event.chat_id,
+                    peer=peer,
                     msg_id=event.message.id,
                     reaction=[ReactionEmoji(emoticon=emoji)],
                     big=False
                 )
             )
-            await ABH(
-                GetMessagesViewsRequest(
-                    peer=event.chat_id,
-                    id=[event.message.id],
-                    increment=True
+            if not ABH.is_bot:
+                await ABH(
+                    GetMessagesViewsRequest(
+                        peer=peer,
+                        id=[event.message.id],
+                        increment=True
+                    )
                 )
-            )
         except Exception as ex:
-            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
+            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id} ({ABH.session.filename}): {ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
