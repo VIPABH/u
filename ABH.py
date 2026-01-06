@@ -88,14 +88,9 @@ def remove_non_private_chats():
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
 async def react(event):
-    orint(91)
+    print(91)
     for ABH in ABHS:
         try:
-            try:
-                peer = await ABH.get_input_entity(event.chat_id)
-            except Exception:
-                print(f"[{ABH.session.filename}] لا يمكن الوصول للقناة {event.chat_id}")
-                continue 
             stored = get_reactions(event.chat_id)
             if stored:
                 emoji = random.choice(stored)
@@ -104,22 +99,21 @@ async def react(event):
             await asyncio.sleep(3)
             await ABH(
                 SendReactionRequest(
-                    peer=peer,
+                    peer=event.chat_id,
                     msg_id=event.message.id,
                     reaction=[ReactionEmoji(emoticon=emoji)],
                     big=False
                 )
             )
-            if not ABH.is_bot:
-                await ABH(
-                    GetMessagesViewsRequest(
-                        peer=peer,
-                        id=[event.message.id],
-                        increment=True
-                    )
+            await ABH(
+                GetMessagesViewsRequest(
+                    peer=event.chat_id,
+                    id=[event.message.id],
+                    increment=True
                 )
+            )
         except Exception as ex:
-            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id} ({ABH.session.filename}): {ex}")
+            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
@@ -210,7 +204,7 @@ async def reactauto(e):
 @bot.on(events.NewMessage(from_users=wfffp))
 async def reactauto(e):
     text = e.text
-    if is_chat_allowed(e.chat_id):
+    if is_chat_allowed(str(e.chat_id)):
         print(208)
         try:
             await react(e)
