@@ -202,10 +202,8 @@ async def reactauto(e):
             )
         except:
             return
-@bot.on(events.NewMessage(from_users=wfffp))
+@bot.on(events.NewMessage)
 async def nlits(e):
-    for id in chats:
-        print(type(id))
     text = e.text
     if str(e.chat_id) in chats:
         print(208)
