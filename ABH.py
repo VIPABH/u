@@ -32,7 +32,7 @@ for i, token in enumerate(bot_tokens, start=6):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 idd = ABHS[5:]
-client = MAINABH
+client = ABH1
 user_clients = [ABH1, ABH2, ABH3, ABH4, ABH5]
 bot_clients = ABHS[:5] 
 all_clients = user_clients + bot_clients
