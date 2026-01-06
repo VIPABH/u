@@ -27,13 +27,13 @@ ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
-ABHS = [MAINABH, ABH2, ABH3, ABH4, ABH5]
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
 for i, token in enumerate(bot_tokens, start=6):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 idd = ABHS[5:]
 client = MAINABH
-user_clients = [MAINABH, ABH2, ABH3, ABH4, ABH5]
+user_clients = [ABH1, ABH2, ABH3, ABH4, ABH5]
 bot_clients = ABHS[:5] 
 all_clients = user_clients + bot_clients
 async def promote_ABHS(event, chat_id=None):
