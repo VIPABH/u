@@ -35,24 +35,26 @@ for i, token in enumerate(bot_tokens, start=6):
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 idd = ABHS[5:]
 client = ABH1
-async def promote_ABHS(chat_id=None):
-    xxx = int(chat_id)
-    for AB in idd:
-        id_info = await AB.get_me()
+async def promote_ABHS(chat_id: int):
+    for bot_client in idd:
+        bot = await bot_client.get_me()
         rights = ChatAdminRights(
-            # add_admins=True,
-            change_info=True,
             post_messages=True,
             edit_messages=True,
-            delete_messages=True
+            delete_messages=True,
+            ban_users=True,
+            invite_users=True,
+            pin_messages=True,
+            change_info=False,
+            add_admins=False
         )
         await ABH1(EditAdminRequest(
-            channel=xxx,
-            user_id=id_info.id,
+            channel=chat_id,
+            user_id=bot.id,
             admin_rights=rights,
-            rank="bot"
+            rank="Bot"
         ))
-        print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
+        print(f"✅ تم رفع البوت {bot.username or bot.id} مشرفًا بنجاح")
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
