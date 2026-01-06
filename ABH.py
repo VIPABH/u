@@ -41,8 +41,6 @@ async def promote_ABHS(event, chat_id=None):
     for AB in idd:
         id_info = await AB.get_me()
         rights = ChatAdminRights(
-            add_admins=True,
-            change_info=True,
             post_messages=True,
             edit_messages=True,
             delete_messages=True
