@@ -36,41 +36,25 @@ client = MAINABH
 user_clients = [MAINABH, ABH2, ABH3, ABH4, ABH5]
 bot_clients = ABHS[:5] 
 all_clients = user_clients + bot_clients
-async def promote_all_clients_safe(chat_id: int):
-    rights = ChatAdminRights(
-        add_admins=True,
-        change_info=True,
-        post_messages=True,
-        edit_messages=True,
-        delete_messages=True,
-        ban_users=True,
-        invite_users=True
-    )
+async def promote_ABHS(event, chat_id=None):
+    xxx = int(chat_id)
+    for AB in idd:
+        id_info = await AB.get_me()
+        rights = ChatAdminRights(
+            add_admins=True,
+            change_info=True,
+            post_messages=True,
+            edit_messages=True,
+            delete_messages=True
+        )
+        await ABH1(EditAdminRequest(
+            channel=xxx,
+            user_id=id_info.id,
+            admin_rights=rights,
+            rank="bot"
+        ))
+        print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
 
-    chat_id = int(chat_id)
-
-    for client in all_clients:
-        try:
-            try:
-                # الخطوة الصحيحة: resolve كامل للكيان
-                channel = await client.get_entity(PeerChannel(abs(chat_id)))
-            except Exception as e:
-                print(f"❌ [{client.session.filename}] فشل resolve القناة {chat_id}: {e}")
-                continue
-
-            me = await client.get_me()
-
-            await client(EditAdminRequest(
-                channel=channel,
-                user_id=me.id,
-                admin_rights=rights,
-                rank="bot"
-            ))
-
-            print(f"✅ [{client.session.filename}] تم رفع الحساب {me.id} مشرف بنجاح")
-
-        except Exception as e:
-            print(f"❌ [{client.session.filename}] فشل التنفيذ: {e}")
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
@@ -183,7 +167,7 @@ async def reactauto(e):
             chat_id = text.split(" ", 1)[1]
             print(chat_id)
             add_chat(chat_id)
-            await promote_all_clients_safe(int(chat_id))
+            await promote_ABHS(e, int(chat_id))
             await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         except Exception as E:
             await e.reply(f"⚠️ حدث خطأ: {E}")
