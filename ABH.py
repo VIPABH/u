@@ -210,12 +210,13 @@ async def reactauto(e):
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
         try:
-            chat_id = int(text.split(" ", 1)[1])
+            chat_id = text.split(" ", 1)[1]
         except (IndexError, ValueError):
             await e.reply("❌ يرجى تحديد رقم القناة بعد 'اضف'")
             return
         if not chat_id.startswith("-100"):
             return
+        chat_id = int(chat_id)
         await promote_ABHS(chat_id)
         await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
         add_chat(chat_id)
