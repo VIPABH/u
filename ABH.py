@@ -203,9 +203,11 @@ async def reactauto(e):
 @bot.on(events.NewMessage(from_users=wfffp))
 async def reactauto(e):
     text = e.text
-    if not text:
-        return
-    text = text.strip().lower()
+    if is_chat_allowed(e.chat_id):
+        try:
+            await react(e)
+        except Exception as ex:
+            print(f"خطأ في التفاعل: {ex}")
     sender = e.sender_id
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
@@ -306,10 +308,5 @@ async def reactauto(e):
             await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
-    elif is_chat_allowed(e.chat_id):
-        try:
-            await react(e)
-        except Exception as ex:
-            print(f"خطأ في التفاعل: {ex}")
 print('running')
 bot.run_until_disconnected()
