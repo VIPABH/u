@@ -66,6 +66,7 @@ def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
 def list_chats():
     return list(r.smembers("whitelist_chats"))
+chats = list_chats()
 def add_reactions(chat_id, emojis):
     key = f"chat_reactions:{chat_id}"
     for emoji in emojis:
@@ -202,9 +203,11 @@ async def reactauto(e):
         except:
             return
 @bot.on(events.NewMessage(from_users=wfffp))
-async def reactauto(e):
+async def nlits(e):
+    for id in chats:
+        print(type(id))
     text = e.text
-    if is_chat_allowed(str(e.chat_id)):
+    if str(e.chat_id) in chats:
         print(208)
         try:
             await react(e)
