@@ -208,6 +208,7 @@ async def reactauto(e):
         chat_id = text.spilt(" ", 1)[1]
         if not chat_id:
             chat_id = e.chat_id
+            await promote_ABHS(chat_id)
     elif text.startswith("القنوات") and sender == wfffp:
         chats = list_chats()
         msg = "📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats) if chats else "⚠️ لا توجد قنوات مضافة حالياً"
