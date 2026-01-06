@@ -1,5 +1,5 @@
-import os, re, random, redis, asyncio
 from telethon import TelegramClient, events
+import os, re, random, redis, asyncio
 from telethon.tl.types import (
     PeerChannel,
     ReactionEmoji,
@@ -92,30 +92,28 @@ async def react(event):
     for ABH in ABHS:
         try:
             stored = get_reactions(event.chat_id)
-            if stored:
-                emoji = random.choice(stored)
-            else:
-                emoji = random.choice(['❤️', '🕊', '🌚'])
-            # await asyncio.sleep(3)
-            await ABH(
-                SendReactionRequest(
-                    peer=event.chat_id,
-                    msg_id=event.message.id,
-                    reaction=[ReactionEmoji(emoticon=emoji)],
-                    big=False
-                )
-            )
+            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+            await ABH(SendReactionRequest(
+                peer=event.chat_id,
+                msg_id=event.message.id,
+                reaction=[ReactionEmoji(emoticon=emoji)],
+                big=False
+            ))
         except Exception as ex:
-            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
-        except Exception as ءءء:
-            await ABH(
-                GetMessagesViewsRequest(
-                    peer=event.chat_id,
-                    id=[event.message.id],
-                    increment=True
-                )
-            )
-        print(f"المشاهدات {ءءء}")
+            if "restricted" in str(ex).lower():
+                print(f"⚠️ البوت {ABH.session.filename} لا يمكنه تنفيذ هذه العملية في {event.chat_id}")
+            else:
+                print(f"⚠️ خطأ غير متوقع أثناء التفاعل في {event.chat_id}: {ex}")
+            if not getattr(ABH, "is_bot", False):
+                try:
+                    views = await ABH(GetMessagesViewsRequest(
+                        peer=event.chat_id,
+                        id=[event.message.id],
+                        increment=True
+                    ))
+                    print(f"المشاهدات في {event.chat_id}: {views}")
+                except Exception as view_ex:
+                    print(f"⚠️ خطأ أثناء جمع المشاهدات: {view_ex}")
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
