@@ -1,5 +1,7 @@
 from telethon.tl.types import ReactionEmoji
 from telethon import TelegramClient, events
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights, PeerChannel
 import random, os,re, asyncio, redis
 from telethon.tl.types import (
     ReactionEmoji,
