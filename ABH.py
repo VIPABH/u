@@ -1,3 +1,4 @@
+
 from telethon import TelegramClient, events
 import os, re, random, redis, asyncio
 from telethon.tl.types import (
@@ -41,7 +42,6 @@ async def promote_ABHS(chat_id=None):
         for AB in idd:
             id_info = await AB.get_me()
             rights = ChatAdminRights(
-                # add_admins=True,
                 change_info=True,
                 post_messages=True,
                 edit_messages=True,
@@ -104,9 +104,8 @@ async def react(event):
                 id=[event.message.id],
                 increment=True
             ))
-            print(f"✅ المشاهدات في {event.chat_id}: {views}")
         except Exception as view_ex:
-            print(f"⚠️ خطأ أثناء جمع المشاهدات في {event.chat_id}: {view_ex}")
+            return
 # async def react(event):
 #     for ABH in ABHS:
 #         stored = get_reactions(event.chat_id)
