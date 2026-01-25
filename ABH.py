@@ -153,41 +153,59 @@ async def words(event):
                         break
                 except asyncio.TimeoutError:
                     return
+
 @bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?$', from_users=wfffp))
-async def s(e):
+async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
-        return
-    num = e.pattern_match.group(1) or str(wfffp)
+        return # لا يوجد رسالة للرد عليها
+
+    # جلب الوجهة: إما المدخلة أو القيمة الافتراضية
+    target = e.pattern_match.group(1) or str(wfffp)
 
     for ABH in ABHS:
         try:
             entity = None
-            if num.isdigit():
-                chat_id = int(num)
-                entity = PeerChannel(chat_id) if str(num).startswith("-100") else await ABH.get_entity(chat_id)
-            else:
+            
+            # 1. معالجة إذا كان المدخل رقم ID
+            if target.startswith("-100") or target.isdigit() or target.startswith("-"):
                 try:
-                    entity = await ABH.get_entity(num)
-                except ValueError:
-                    if "t.me/+" in num or "joinchat" in num:
-                        invite = num.split("/")[-1].replace("+", "")
-                        try:
-                            entity = await ABH(ImportChatInviteRequest(invite))
-                        except UserAlreadyParticipantError:
-                            entity = await ABH.get_entity(num)
-            if entity and isinstance(entity, PeerChannel):
+                    t_id = int(target)
+                    entity = await ABH.get_entity(t_id)
+                except Exception:
+                    # محاولة يدوية في حال فشل get_entity مع الأرقام
+                    entity = PeerChannel(int(target.replace("-100", ""))) if "-100" in target else target
+            
+            # 2. معالجة إذا كان رابط دعوة (Private Link)
+            elif "t.me/+" in target or "joinchat/" in target:
+                invite_hash = target.split("/")[-1].replace("+", "")
+                try:
+                    await ABH(ImportChatInviteRequest(invite_hash))
+                    entity = await ABH.get_entity(target)
+                except UserAlreadyParticipantError:
+                    entity = await ABH.get_entity(target)
+            
+            # 3. معالجة المعرفات (Usernames)
+            else:
+                entity = await ABH.get_entity(target)
+
+            # --- محاولة الانضمام إذا كانت قناة ---
+            if entity:
                 try:
                     await ABH(JoinChannelRequest(entity))
-                except UserAlreadyParticipantError:
-                    pass
-            if reply.text and not reply.media:
-                await ABH.send_message(entity, reply.text)
-            elif reply.media:
-                await ABH.send_file(entity, reply.media, caption=reply.text or "")
+                except Exception:
+                    pass # قد لا تكون قناة أو الحساب منضم بالفعل
+
+            # --- عملية الإرسال الذكي ---
+            # نستخدم send_message مع الـ entity مباشرة
+            # ميزة send_message في Telethon أنها تتعامل مع الملفات والنصوص تلقائياً
+            await ABH.send_message(entity, reply)
+
         except Exception as err:
-            await ABH.send_message(f"⚠️ فشل الإرسال من {ABH.session.filename} إلى {num}: {err}")
-x = ['هلا', 'عد عيناك', 'تفضل', 'يمك', 'كول يالزعيم', 'تفضل اخي', 'هلا حبيبي']
+            # إشعار الفشل للحساب الذي فشل فقط
+            print(f"Error in {ABH.session.filename}: {err}")
+            # يمكنك تفعيل السطر التالي إذا أردت استلام إشعارات الفشل في الخاص
+            # await e.respond(f"⚠️ فشل الإرسال [ {ABH.session.filename} ]\nالسبب: {err}")x = ['هلا', 'عد عيناك', 'تفضل', 'يمك', 'كول يالزعيم', 'تفضل اخي', 'هلا حبيبي']
 names = {
     'العميل الاول': ABH1,
     'كرت الحظ': ABH2,
