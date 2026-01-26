@@ -220,7 +220,7 @@ async def reactauto(e):
         return
     text = e.text
     if text in names:
-        reply_text = random.choice(x)
+        reply_text = random.choice("عيني")
         try:
             await names[text].send_message(
                 e.chat_id,
