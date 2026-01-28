@@ -141,36 +141,51 @@ async def words(e):
             await asyncio.sleep(2) 
     tasks = [run_task(g_id) for g_id in groups]
     await asyncio.gather(*tasks)
-@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?$', from_users=wfffp))
+import re
+
+# النمط يدعم: ارسل @user | ارسل @user reply_to=123 | ارسل @user https://t.me/c/123/456
+@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (?:reply_to=)?(\d+|https?://t\.me/(?:c/)?[\w+/]+/(\d+)))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
         return
+    
     target = e.pattern_match.group(1) or str(wfffp)
+    
+    # محاولة استخراج ID الرسالة سواء كان رقماً مجرداً أو داخل رابط
+    reply_to_id = None
+    match_group_2 = e.pattern_match.group(2) # الرابط أو الرقم
+    match_group_3 = e.pattern_match.group(3) # الأيدي المستخرج من الرابط (إن وجد)
+
+    if match_group_3: # إذا كان المدخل رابطاً
+        reply_to_id = int(match_group_3)
+    elif match_group_2 and match_group_2.isdigit(): # إذا كان رقماً فقط
+        reply_to_id = int(match_group_2)
+
     for ABH in ABHS:
         try:
             entity = None
+            # التحقق من نوع الهدف (Target)
             if target.startswith("-100") or target.isdigit() or target.startswith("-"):
                 try:
-                    t_id = int(target)
-                    entity = await ABH.get_entity(t_id)
-                except Exception:
-                    entity = PeerChannel(int(target.replace("-100", ""))) if "-100" in target else target            
+                    entity = await ABH.get_entity(int(target))
+                except:
+                    entity = int(target)
             elif "t.me/+" in target or "joinchat/" in target:
                 invite_hash = target.split("/")[-1].replace("+", "")
-                try:
-                    await ABH(ImportChatInviteRequest(invite_hash))
-                    entity = await ABH.get_entity(target)
-                except UserAlreadyParticipantError:
-                    entity = await ABH.get_entity(target)            
+                try: await ABH(ImportChatInviteRequest(invite_hash))
+                except: pass
+                entity = await ABH.get_entity(target)
             else:
                 entity = await ABH.get_entity(target)
+
             if entity:
-                try:
-                    await ABH(JoinChannelRequest(entity))
-                except Exception:
-                    pass 
-            await ABH.send_message(entity, reply)
+                try: await ABH(JoinChannelRequest(entity))
+                except: pass
+                
+                # إرسال الرسالة مع الرد المطلوب
+                await ABH.send_message(entity, reply, reply_to=reply_to_id)
+                
         except Exception as err:
             print(f"Error in {ABH.session.filename}: {err}")
 names = {
