@@ -3,18 +3,14 @@ import os, re, random, redis, asyncio
 from telethon.tl.types import (
     PeerChannel,
     ReactionEmoji,
-    ChatAdminRights,
-)
+    ChatAdminRights)
 from telethon.errors import (
-    UserAlreadyParticipantError,
-)
+    UserAlreadyParticipantError)
 from telethon.tl.functions.channels import (
     JoinChannelRequest,
-    EditAdminRequest,
-)
+    EditAdminRequest)
 from telethon.tl.functions.messages import (
-    ImportChatInviteRequest,
-)
+    ImportChatInviteRequest)
 from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
@@ -41,7 +37,6 @@ async def promote_ABHS(chat_id=None):
         for AB in idd:
             id_info = await AB.get_me()
             rights = ChatAdminRights(
-                # add_admins=True,
                 change_info=True,
                 post_messages=True,
                 edit_messages=True,
@@ -104,26 +99,8 @@ async def react(event):
                 id=[event.message.id],
                 increment=True
             ))
-        except Exception as view_ex:
+        except Exception:
             pass
-# async def react(event):
-#     for ABH in ABHS:
-#         stored = get_reactions(event.chat_id)
-#         emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
-#         await ABH(SendReactionRequest(
-#             peer=event.chat_id,
-#             msg_id=event.message.id,
-#             reaction=[ReactionEmoji(emoticon=emoji)],
-#             big=False
-#         ))
-#         try:
-#             await ABH(GetMessagesViewsRequest(
-#                 peer=event.chat_id,
-#                 id=[event.message.id],
-#                 increment=True
-#             ))
-#         except:
-#             return
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
@@ -132,15 +109,20 @@ async def test(e):
     except Exception as E:
         x = await ABH.get_me()
         await e.reply(f"{x.id}    {E}")
-@bot.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$", from_users=[1910015590, 201728276]))
-async def words(event):
-    num = int(event.pattern_match.group(1)) or 1
-    time = int(event.pattern_match.group(2)) or 1
-    for ABH in ABHS:
-        for _ in range(num):
-            async with ABH.conversation(event.chat_id, timeout=10) as conv:
-                await conv.send_message("كلمات")
-                try:
+import asyncio
+import random
+
+# قائمة المجموعات
+groups = [-1002541767486, -1002522016427, -1002069775937]
+
+@ABH1.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
+async def words(e):
+    async def run_task(group_id):
+        while True:
+            client = random.choice([ABH1, ABH2, ABH3, ABH4, ABH5])
+            try:
+                async with client.conversation(group_id, timeout=10) as conv:
+                    await conv.send_message("كلمات")
                     while True:
                         msg = await conv.get_response()
                         if msg.sender_id != target_user_id:
@@ -148,64 +130,48 @@ async def words(event):
                         text = msg.raw_text.strip()
                         match = re.search(r"\(\s*(.+?)\s*\)", text)
                         if match:
-                            await asyncio.sleep(time)
+                            await asyncio.sleep(10) 
                             await conv.send_message(match.group(1))
-                        break
-                except asyncio.TimeoutError:
-                    return
-
+                        break 
+            except asyncio.TimeoutError:
+                print(f"انتهى الوقت في المجموعة {group_id}، إعادة المحاولة...")
+            except Exception as ex:
+                print(f"خطأ في المجموعة {group_id}: {ex}")
+            await asyncio.sleep(2) 
+    tasks = [run_task(g_id) for g_id in groups]
+    await asyncio.gather(*tasks)
 @bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
-        return # لا يوجد رسالة للرد عليها
-
-    # جلب الوجهة: إما المدخلة أو القيمة الافتراضية
+        return
     target = e.pattern_match.group(1) or str(wfffp)
-
     for ABH in ABHS:
         try:
             entity = None
-            
-            # 1. معالجة إذا كان المدخل رقم ID
             if target.startswith("-100") or target.isdigit() or target.startswith("-"):
                 try:
                     t_id = int(target)
                     entity = await ABH.get_entity(t_id)
                 except Exception:
-                    # محاولة يدوية في حال فشل get_entity مع الأرقام
-                    entity = PeerChannel(int(target.replace("-100", ""))) if "-100" in target else target
-            
-            # 2. معالجة إذا كان رابط دعوة (Private Link)
+                    entity = PeerChannel(int(target.replace("-100", ""))) if "-100" in target else target            
             elif "t.me/+" in target or "joinchat/" in target:
                 invite_hash = target.split("/")[-1].replace("+", "")
                 try:
                     await ABH(ImportChatInviteRequest(invite_hash))
                     entity = await ABH.get_entity(target)
                 except UserAlreadyParticipantError:
-                    entity = await ABH.get_entity(target)
-            
-            # 3. معالجة المعرفات (Usernames)
+                    entity = await ABH.get_entity(target)            
             else:
                 entity = await ABH.get_entity(target)
-
-            # --- محاولة الانضمام إذا كانت قناة ---
             if entity:
                 try:
                     await ABH(JoinChannelRequest(entity))
                 except Exception:
-                    pass # قد لا تكون قناة أو الحساب منضم بالفعل
-
-            # --- عملية الإرسال الذكي ---
-            # نستخدم send_message مع الـ entity مباشرة
-            # ميزة send_message في Telethon أنها تتعامل مع الملفات والنصوص تلقائياً
+                    pass 
             await ABH.send_message(entity, reply)
-
         except Exception as err:
-            # إشعار الفشل للحساب الذي فشل فقط
             print(f"Error in {ABH.session.filename}: {err}")
-            # يمكنك تفعيل السطر التالي إذا أردت استلام إشعارات الفشل في الخاص
-            # await e.respond(f"⚠️ فشل الإرسال [ {ABH.session.filename} ]\nالسبب: {err}")x = ['هلا', 'عد عيناك', 'تفضل', 'يمك', 'كول يالزعيم', 'تفضل اخي', 'هلا حبيبي']
 names = {
     'العميل الاول': ABH1,
     'كرت الحظ': ABH2,
@@ -214,7 +180,7 @@ names = {
     'سالو': ABH5,
     'salo': ABH5
 }
-@ABH1.on(events.NewMessage(from_users=wfffp))
+@ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
         return
