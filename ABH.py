@@ -153,31 +153,47 @@ async def send_to_target(e):
     extra_arg = e.pattern_match.group(2)
     reply_to_id = None
 
-    # استخراج اليوزر والأيدي من الرابط (كما طلبتم سابقاً)
+    # --- منطق الاستخراج الذكي ---
+    # إذا كان الـ target نفسه عبارة عن رابط رسالة
     if target and "t.me/" in target:
+        # استخراج اليوزر وأيدي الرسالة من الرابط
+        # يدعم الروابط العامة والروابط الخاصة t.me/c/xxxx/yyyy
         link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', target)
         if link_parts:
             target = link_parts.group(1)
             reply_to_id = int(link_parts.group(2))
+            # إذا كان الرابط خاص (أرقام)، نحوله لصيغة -100
             if target.isdigit():
                 target = int(f"-100{target}")
 
+    # إذا كان هناك وسيط ثانٍ (extra_arg) وكان رابطاً
     if extra_arg and "t.me/" in extra_arg:
         link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', extra_arg)
         if link_parts:
             reply_to_id = int(link_parts.group(2))
     elif extra_arg and extra_arg.isdigit():
         reply_to_id = int(extra_arg)
+    elif extra_arg and "reply_to=" in extra_arg:
+        digits = re.findall(r'\d+', extra_arg)
+        if digits: reply_to_id = int(digits[0])
 
+    # إذا لم يتم تحديد target نهائياً
     if not target:
         target = str(wfffp)
 
+    # --- بد السيرفرات ---
     for ABH in ABHS:
         try:
             entity = None
+            # تحديد نوع الكيان
             if isinstance(target, int) or (isinstance(target, str) and (target.startswith("-100") or target.replace('-', '').isdigit())):
                 try: entity = await ABH.get_entity(int(target))
                 except: entity = int(target)
+            elif "t.me/+" in str(target) or "joinchat/" in str(target):
+                invite_hash = target.split("/")[-1].replace("+", "")
+                try: await ABH(ImportChatInviteRequest(invite_hash))
+                except: pass
+                entity = await ABH.get_entity(target)
             else:
                 entity = await ABH.get_entity(target)
 
@@ -185,10 +201,8 @@ async def send_to_target(e):
                 try: await ABH(JoinChannelRequest(entity))
                 except: pass
                 
-                # --- التعديل هنا لحل مشكلة SendMedia ---
-                # نستخدم forward_messages لضمان وصول الميديا والملفات بدون أخطاء
-                # ونستخدم الرد (reply_to) مع الرسالة الموجهة
-                await ABH.forward_messages(entity, reply.id, e.chat_id, top_msg_id=reply_to_id)
+                # الإرسال النهائي
+                await ABH.send_message(entity, reply, reply_to=reply_to_id)
                 
         except Exception as err:
             print(f"Error in {ABH.session.filename}: {err}")
