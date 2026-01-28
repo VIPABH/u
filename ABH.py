@@ -143,47 +143,67 @@ async def words(e):
     await asyncio.gather(*tasks)
 import re
 
-# النمط يدعم: ارسل @user | ارسل @user reply_to=123 | ارسل @user https://t.me/c/123/456
-@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (?:reply_to=)?(\d+|https?://t\.me/(?:c/)?[\w+/]+/(\d+)))?$', from_users=wfffp))
+import re
+
+# نمط محسّن جداً يفصل الهدف عن الرابط/الأيدي
+@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
         return
     
     target = e.pattern_match.group(1) or str(wfffp)
+    extra_arg = e.pattern_match.group(2) # هذا قد يكون رابطاً أو reply_to=أيدي
     
-    # محاولة استخراج ID الرسالة سواء كان رقماً مجرداً أو داخل رابط
     reply_to_id = None
-    match_group_2 = e.pattern_match.group(2) # الرابط أو الرقم
-    match_group_3 = e.pattern_match.group(3) # الأيدي المستخرج من الرابط (إن وجد)
 
-    if match_group_3: # إذا كان المدخل رابطاً
-        reply_to_id = int(match_group_3)
-    elif match_group_2 and match_group_2.isdigit(): # إذا كان رقماً فقط
-        reply_to_id = int(match_group_2)
+    # 1. فحص إذا كان المستخدم أرسل رابطاً كاملاً في الخانة الثانية
+    if extra_arg:
+        # البحث عن رقم الرسالة في روابط t.me
+        link_match = re.search(r't\.me/(?:c/)?[\w+/]+/(\d+)', extra_arg)
+        if link_match:
+            reply_to_id = int(link_match.group(1))
+        # البحث عن نمط reply_to=123
+        elif 'reply_to=' in extra_arg:
+            digits = re.findall(r'\d+', extra_arg)
+            if digits:
+                reply_to_id = int(digits[0])
+        # إذا كان مجرد رقم
+        elif extra_arg.isdigit():
+            reply_to_id = int(extra_arg)
 
     for ABH in ABHS:
         try:
             entity = None
-            # التحقق من نوع الهدف (Target)
-            if target.startswith("-100") or target.isdigit() or target.startswith("-"):
+            # تنظيف المعرف إذا أرسل المستخدم رابط القناة كـ target بالخطأ
+            clean_target = target
+            if "t.me/" in target and not target.startswith("-100"):
+                # استخراج اليوزر من الرابط (مثلاً من https://t.me/hh4h9/123 يأخذ hh4h9)
+                t_match = re.search(r't\.me/(?:c/)?([\w+]+)', target)
+                if t_match:
+                    clean_target = t_match.group(1)
+                    if clean_target.isdigit(): # للقنوات الخاصة
+                        clean_target = int("-100" + clean_target)
+
+            # تحديد الكيان (Entity)
+            if str(clean_target).startswith("-100") or str(clean_target).replace('-', '').isdigit():
                 try:
-                    entity = await ABH.get_entity(int(target))
+                    entity = await ABH.get_entity(int(clean_target))
                 except:
-                    entity = int(target)
-            elif "t.me/+" in target or "joinchat/" in target:
-                invite_hash = target.split("/")[-1].replace("+", "")
+                    entity = int(clean_target)
+            elif "t.me/+" in clean_target or "joinchat/" in clean_target:
+                invite_hash = clean_target.split("/")[-1].replace("+", "")
                 try: await ABH(ImportChatInviteRequest(invite_hash))
                 except: pass
-                entity = await ABH.get_entity(target)
+                entity = await ABH.get_entity(clean_target)
             else:
-                entity = await ABH.get_entity(target)
+                entity = await ABH.get_entity(clean_target)
 
             if entity:
                 try: await ABH(JoinChannelRequest(entity))
                 except: pass
                 
-                # إرسال الرسالة مع الرد المطلوب
+                # الإرسال مع الرد
                 await ABH.send_message(entity, reply, reply_to=reply_to_id)
                 
         except Exception as err:
