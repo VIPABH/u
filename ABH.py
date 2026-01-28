@@ -146,64 +146,67 @@ import re
 import re
 
 # نمط محسّن جداً يفصل الهدف عن الرابط/الأيدي
+import re
+
 @bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
         return
     
-    target = e.pattern_match.group(1) or str(wfffp)
-    extra_arg = e.pattern_match.group(2) # هذا قد يكون رابطاً أو reply_to=أيدي
-    
+    target = e.pattern_match.group(1)
+    extra_arg = e.pattern_match.group(2)
     reply_to_id = None
 
-    # 1. فحص إذا كان المستخدم أرسل رابطاً كاملاً في الخانة الثانية
-    if extra_arg:
-        # البحث عن رقم الرسالة في روابط t.me
-        link_match = re.search(r't\.me/(?:c/)?[\w+/]+/(\d+)', extra_arg)
-        if link_match:
-            reply_to_id = int(link_match.group(1))
-        # البحث عن نمط reply_to=123
-        elif 'reply_to=' in extra_arg:
-            digits = re.findall(r'\d+', extra_arg)
-            if digits:
-                reply_to_id = int(digits[0])
-        # إذا كان مجرد رقم
-        elif extra_arg.isdigit():
-            reply_to_id = int(extra_arg)
+    # --- منطق الاستخراج الذكي ---
+    # إذا كان الـ target نفسه عبارة عن رابط رسالة
+    if target and "t.me/" in target:
+        # استخراج اليوزر وأيدي الرسالة من الرابط
+        # يدعم الروابط العامة والروابط الخاصة t.me/c/xxxx/yyyy
+        link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', target)
+        if link_parts:
+            target = link_parts.group(1)
+            reply_to_id = int(link_parts.group(2))
+            # إذا كان الرابط خاص (أرقام)، نحوله لصيغة -100
+            if target.isdigit():
+                target = int(f"-100{target}")
 
+    # إذا كان هناك وسيط ثانٍ (extra_arg) وكان رابطاً
+    if extra_arg and "t.me/" in extra_arg:
+        link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', extra_arg)
+        if link_parts:
+            reply_to_id = int(link_parts.group(2))
+    elif extra_arg and extra_arg.isdigit():
+        reply_to_id = int(extra_arg)
+    elif extra_arg and "reply_to=" in extra_arg:
+        digits = re.findall(r'\d+', extra_arg)
+        if digits: reply_to_id = int(digits[0])
+
+    # إذا لم يتم تحديد target نهائياً
+    if not target:
+        target = str(wfffp)
+
+    # --- بد السيرفرات ---
     for ABH in ABHS:
         try:
             entity = None
-            # تنظيف المعرف إذا أرسل المستخدم رابط القناة كـ target بالخطأ
-            clean_target = target
-            if "t.me/" in target and not target.startswith("-100"):
-                # استخراج اليوزر من الرابط (مثلاً من https://t.me/hh4h9/123 يأخذ hh4h9)
-                t_match = re.search(r't\.me/(?:c/)?([\w+]+)', target)
-                if t_match:
-                    clean_target = t_match.group(1)
-                    if clean_target.isdigit(): # للقنوات الخاصة
-                        clean_target = int("-100" + clean_target)
-
-            # تحديد الكيان (Entity)
-            if str(clean_target).startswith("-100") or str(clean_target).replace('-', '').isdigit():
-                try:
-                    entity = await ABH.get_entity(int(clean_target))
-                except:
-                    entity = int(clean_target)
-            elif "t.me/+" in clean_target or "joinchat/" in clean_target:
-                invite_hash = clean_target.split("/")[-1].replace("+", "")
+            # تحديد نوع الكيان
+            if isinstance(target, int) or (isinstance(target, str) and (target.startswith("-100") or target.replace('-', '').isdigit())):
+                try: entity = await ABH.get_entity(int(target))
+                except: entity = int(target)
+            elif "t.me/+" in str(target) or "joinchat/" in str(target):
+                invite_hash = target.split("/")[-1].replace("+", "")
                 try: await ABH(ImportChatInviteRequest(invite_hash))
                 except: pass
-                entity = await ABH.get_entity(clean_target)
+                entity = await ABH.get_entity(target)
             else:
-                entity = await ABH.get_entity(clean_target)
+                entity = await ABH.get_entity(target)
 
             if entity:
                 try: await ABH(JoinChannelRequest(entity))
                 except: pass
                 
-                # الإرسال مع الرد
+                # الإرسال النهائي
                 await ABH.send_message(entity, reply, reply_to=reply_to_id)
                 
         except Exception as err:
