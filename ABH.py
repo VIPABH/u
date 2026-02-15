@@ -18,18 +18,20 @@ target_user_id = 1421907917
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
-bot_tokens = [os.getenv(f"bot_token{i}") for i in range(6, 17)]
+bot_tokens = [os.getenv(f"bot_token{i}") for i in range(8, 20)]
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5]
-for i, token in enumerate(bot_tokens, start=6):
+ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
+ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")).start()
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7]
+for i, token in enumerate(bot_tokens, start=8):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
-idd = ABHS[5:]
+idd = ABHS[7:]
 client = ABH1
 async def promote_ABHS(chat_id=None):
     try:
@@ -201,7 +203,6 @@ async def send_to_target(e):
                 try: await ABH(JoinChannelRequest(entity))
                 except: pass
                 
-                # الإرسال النهائي
                 await ABH.send_message(entity, reply, reply_to=reply_to_id)
                 
         except Exception as err:
@@ -212,7 +213,11 @@ names = {
     'ابو صالح': ABH3,
     'هاشم محمد': ABH4,
     'سالو': ABH5,
-    'salo': ABH5
+    'salo': ABH5,
+    'حسن جداحه': ABH6,
+    'حسن جداحة': ABH6,
+    'برق الشايب': ABH7,
+    
 }
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
@@ -220,7 +225,7 @@ async def reactauto(e):
         return
     text = e.text
     if text in names:
-        reply_text = "عيني"
+        reply_text = random.choice(['الزعيم', "الغالي", "كول يالامير", "تاج الراس"])
         try:
             await names[text].send_message(
                 e.chat_id,
