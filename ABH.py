@@ -113,10 +113,7 @@ async def test(e):
         await e.reply(f"{x.id}    {E}")
 import asyncio
 import random
-
-# قائمة المجموعات
 groups = [-1002541767486, -1002522016427, -1002069775937]
-
 @ABH1.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
