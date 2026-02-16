@@ -85,24 +85,41 @@ def remove_non_private_chats():
         if not chat_id_str.startswith("-100"):
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
+import random
+from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
+from telethon.tl.types import ReactionEmoji
+
 async def react(event):
+    # نستخدم input_chat لضمان تعريف القناة/الدردشة بدقة
+    peer = await event.get_input_chat()
+    msg_id = event.message.id
+    
     for ABH in ABHS:
-        stored = get_reactions(event.chat_id)
-        emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
-        await ABH(SendReactionRequest(
-            peer=event.chat_id,
-            msg_id=event.message.id,
-            reaction=[ReactionEmoji(emoticon=emoji)],
-            big=False
-        ))
         try:
-            await ABH(GetMessagesViewsRequest(
-                peer=event.chat_id,
-                id=[event.message.id],
-                increment=True
+            stored = get_reactions(event.chat_id)
+            emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+            
+            # تنفيذ التفاعل
+            await ABH(SendReactionRequest(
+                peer=peer,
+                msg_id=msg_id,
+                reaction=[ReactionEmoji(emoticon=emoji_text)],
+                big=False
             ))
-        except Exception:
-            pass
+            
+            # زيادة المشاهدات (تعمل فقط في القنوات)
+            try:
+                await ABH(GetMessagesViewsRequest(
+                    peer=peer,
+                    id=[msg_id],
+                    increment=True
+                ))
+            except Exception:
+                pass # تجاهل فشل زيادة المشاهدات (مثلاً في المجموعات)
+
+        except Exception as e:
+            print(f"فشل التفاعل للحساب {ABH}: {e}")
+            continue # تخطي هذا الحساب والانتقال للتالي في حال حدوث خطأ
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
