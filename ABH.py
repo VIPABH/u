@@ -216,6 +216,9 @@ names = {
     'برق الشايب': ABH7,
     
 }
+@ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
+async def reactauto(e):
+    await react(e)
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
