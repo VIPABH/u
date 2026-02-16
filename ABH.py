@@ -36,7 +36,7 @@ idd = ABHS[7:]
 async def promote_ABHS(chat_id=None):
     try:
         xxx = int(chat_id)
-        for AB in ABHS:
+        for AB in idd:
             id_info = await AB.get_me()
             rights = ChatAdminRights(
                 change_info=True,
