@@ -94,32 +94,43 @@ async def startup_warmup():
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
-import random
-import asyncio
-from telethon.tl.functions.messages import SendReactionRequest
-from telethon.tl.types import ReactionEmoji, InputPeerChannel
-
 async def react(event):
-    # التأكد أن الرسالة من قناة وليست خدمة (مثل تغيير الصورة)
-    if not event.is_channel or not event.message:
-        return
-
-    chat_id = event.chat_id
-    msg_id = event.message.id
-
+    """
+    تفاعل مع رسالة من القنوات المسموح بها.
+    - يستخدم الإيموجيات المخزنة إذا وجدت.
+    - إذا ماكو مخزون، يستخدم عشوائيًا: ❤️ و 🕊 و 🌚
+    """
+    # جلب التفاعلات المخزنة للقناة
     for ABH in ABHS:
-        stored = get_reactions(chat_id)
-        emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
-        
-        # 3. إرسال التفاعل
-        await ABH(SendReactionRequest(
-            peer=int(chat_id),
-            msg_id=msg_id,
-            reaction=[ReactionEmoji(emoticon=emoji_text)],
-            big=False
-        ))
-        
-        # تأخير بسيط جداً لضمان عدم حظر اليوزر بوت
+        try:
+            stored = get_reactions(event.chat_id)
+            if stored:
+                emoji = random.choice(stored)
+            else:
+                # الإيموجيات الافتراضية إذا ماكو مخزون
+                emoji = random.choice(['❤️', '🕊', '🌚'])
+
+            await asyncio.sleep(3)
+            await ABH(
+                SendReactionRequest(
+                    peer=event.chat_id,
+                    msg_id=event.message.id,
+                    reaction=[ReactionEmoji(emoticon=emoji)],
+                    big=False
+                )
+            )
+
+            await ABH(
+                GetMessagesViewsRequest(
+                    peer=event.chat_id,        # القناة أو المجموعة
+                    id=[event.message.id],     # قائمة بالرسائل المطلوبة
+                    increment=True             # True = زيادة عدد المشاهدات
+                )
+            )
+
+        except Exception as ex:
+            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
+
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
