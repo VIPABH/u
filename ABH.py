@@ -102,7 +102,7 @@ from telethon.tl.types import ReactionEmoji, InputPeerChannel
 async def react(event):
     for ABH in ABHS:
         msg_id = getattr(event, 'id', None) or getattr(event.message, 'id', None)
-        chat_id = getattr(event, 'chat_id', None) or getattr(event.message, 'chat_id', None)
+        chat_id = await client.get_entity(chat_id)
         if not msg_id or not chat_id:
             return
         try:
