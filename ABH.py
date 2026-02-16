@@ -56,7 +56,7 @@ async def promote_ABHS(chat_id=None):
     )
 
     # for AB in idd:
-    for AB in ABSH:
+    for AB in ABHS:
         try:
             id_info = await AB.get_me()
 
