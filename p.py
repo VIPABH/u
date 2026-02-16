@@ -1,5 +1,6 @@
 import json, pytz, asyncio, os, sys
-from ABH import bot, events
+from ABH import *
+from p import *
 from datetime import datetime
 from وعد import *
 async def run_cmd(command: str):
