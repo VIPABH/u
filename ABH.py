@@ -94,43 +94,25 @@ async def startup_warmup():
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
+import random
+import asyncio
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.types import ReactionEmoji, InputPeerChannel
+
 async def react(event):
-    """
-    تفاعل مع رسالة من القنوات المسموح بها.
-    - يستخدم الإيموجيات المخزنة إذا وجدت.
-    - إذا ماكو مخزون، يستخدم عشوائيًا: ❤️ و 🕊 و 🌚
-    """
-    # جلب التفاعلات المخزنة للقناة
     for ABH in ABHS:
+        msg_id = getattr(event, 'id', None) or getattr(event.message, 'id', None)
+        chat_id = getattr(event, 'chat_id', None) or getattr(event.message, 'chat_id', None)
+        if not msg_id or not chat_id:
+            return
         try:
-            stored = get_reactions(event.chat_id)
-            if stored:
-                emoji = random.choice(stored)
-            else:
-                # الإيموجيات الافتراضية إذا ماكو مخزون
-                emoji = random.choice(['❤️', '🕊', '🌚'])
-
-            await asyncio.sleep(3)
-            await ABH(
-                SendReactionRequest(
-                    peer=event.chat_id,
-                    msg_id=event.message.id,
-                    reaction=[ReactionEmoji(emoticon=emoji)],
-                    big=False
-                )
-            )
-
-            await ABH(
-                GetMessagesViewsRequest(
-                    peer=event.chat_id,        # القناة أو المجموعة
-                    id=[event.message.id],     # قائمة بالرسائل المطلوبة
-                    increment=True             # True = زيادة عدد المشاهدات
-                )
-            )
-
-        except Exception as ex:
-            print(f"⚠️ خطأ أثناء التفاعل في {event.chat_id}: {ex}")
-
+            await ABH(SendReactionRequest(
+                peer=chat_id,
+                msg_id=msg_id,
+                reaction=[ReactionEmoji(emoticon=x)],
+                big=False))
+        except Exception as e:
+            return
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
