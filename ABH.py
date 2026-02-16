@@ -32,6 +32,7 @@ for i, token in enumerate(bot_tokens, start=8):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 client = ABH1
+idd = ABHS[7:]
 async def promote_ABHS(chat_id=None):
     try:
         xxx = int(chat_id)
