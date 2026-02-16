@@ -236,12 +236,15 @@ async def reactauto(e):
             return
 @bot.on(events.NewMessage)
 async def nlits(e):
-    text = e.text
+    print(str(e.chat_id) in chats)
     if str(e.chat_id) in chats:
         try:
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
+@bot.on(events.NewMessage)
+async def nlits(e):
+    text = e.text
     sender = e.sender_id
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
