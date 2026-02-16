@@ -57,6 +57,10 @@ async def update_repo(event):
         os.execv(sys.executable, [sys.executable, "run.py"])
     else:
         await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
+# عند تشغيل اليوزر بوت لأول مرة في السكريبت
+for ABH in ABHS:
+    await ABH.get_dialogs() 
+    print("تم تحديث كيانات القنوات لليوزر بوت")
 async def main():
     await bot.start()
     await bot.run_until_disconnected()
