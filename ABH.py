@@ -85,44 +85,48 @@ def remove_non_private_chats():
         if not chat_id_str.startswith("-100"):
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
+async def startup_warmup():
+    print("جاري تهيئة الحسابات والتعرف على القنوات...")
+    for ABH in ABHS:
+        try:
+            # يجلب آخر 20 محادثة لكل حساب، وهذا كافٍ لتخزين الـ Access Hash
+            await ABH.get_dialogs(limit=20)
+            print(f"تمت تهيئة الحساب: {ABH.session.filename}")
+        except Exception as e:
+            print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
 import random
 import asyncio
-from telethon.tl.functions.messages import SendReactionRequest, GetFullChatRequest
-from telethon.tl.types import ReactionEmoji, PeerChannel
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.types import ReactionEmoji
 
 async def react(event):
+    if not event.message:
+        return
+
     chat_id = event.chat_id
     msg_id = event.message.id
     
-    peer_type = PeerChannel(int(str(chat_id).replace("-100", "")))
-
     for ABH in ABHS:
         try:
-            # الحل السحري: إجبار الحساب على جلب بيانات الكيان برمجياً
-            # هذا السطر يجعل Telethon يحفظ الـ Access Hash تلقائياً
+            # محاولة جلب الكيان من ذاكرة الجلسة
             try:
-                entity = await ABH.get_input_entity(chat_id)
+                # get_input_entity أسرع ولا تستهلك طلبات API كثيرة
+                peer = await ABH.get_input_entity(chat_id)
             except ValueError:
-                # إذا لم يجدها، نحاول جلبها من الـ Dialogs (المحادثات الأخيرة)
-                async for dialog in ABH.iter_dialogs():
-                    if dialog.id == chat_id:
-                        entity = dialog.input_entity
-                        break
-                else:
-                    # إذا فشل كل شيء، نحاول جلب الكيان من الحدث مباشرة
-                    entity = await ABH.get_entity(chat_id)
+                # إذا لم يجدها، نجبره على جلبها من السيرفر (ستعمل إذا كان عضواً)
+                peer = await ABH.get_entity(chat_id)
 
             stored = get_reactions(chat_id)
-            emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+            emoji = random.choice(stored) if stored else random.choice(['❤️', '🔥', '👍'])
             
-            # إرسال التفاعل
             await ABH(SendReactionRequest(
-                peer=entity,
+                peer=peer,
                 msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon=emoji_text)],
+                reaction=[ReactionEmoji(emoticon=emoji)],
                 big=False
             ))
             
+            # تأخير بسيط جداً بين الحسابات لتفادي الـ Flood
             await asyncio.sleep(0.1)
 
         except Exception as e:
