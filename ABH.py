@@ -32,7 +32,7 @@ for i, token in enumerate(bot_tokens, start=8):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 client = ABH1
-idd = ABHS[7:]
+idd = ABHS[1:]
 from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
 from telethon.tl.functions.channels import EditAdminRequest
