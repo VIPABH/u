@@ -33,26 +33,51 @@ for i, token in enumerate(bot_tokens, start=8):
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 client = ABH1
 idd = ABHS[7:]
+from telethon.errors import FloodWaitError
+from telethon.tl.types import ChatAdminRights
+from telethon.tl.functions.channels import EditAdminRequest
+import asyncio
+
 async def promote_ABHS(chat_id=None):
+    if not chat_id:
+        return
+    
     try:
         xxx = int(chat_id)
-        for AB in idd:
+    except Exception:
+        print("❌ chat_id غير صالح")
+        return
+
+    rights = ChatAdminRights(
+        change_info=True,
+        post_messages=True,
+        edit_messages=True,
+        delete_messages=True
+    )
+
+    for AB in idd:
+        try:
             id_info = await AB.get_me()
-            rights = ChatAdminRights(
-                change_info=True,
-                post_messages=True,
-                edit_messages=True,
-                delete_messages=True
-            )
+
             await ABH1(EditAdminRequest(
                 channel=xxx,
                 user_id=id_info.id,
                 admin_rights=rights,
                 rank="bot"
             ))
-            print(f"✅ تم رفع البوت {id_info.id} مشرف بالقناة بالصلاحيات المناسبة")
-    except Exception as E:
-        print(E)
+
+            print(f"✅ تم رفع {id_info.id} مشرف")
+
+            await asyncio.sleep(0.5)
+
+        except FloodWaitError as e:
+            print(f"⏳ FloodWait لمدة {e.seconds} ثانية")
+            await asyncio.sleep(e.seconds)
+
+        except Exception as E:
+            print(f"⚠️ خطأ مع الحساب {AB.session.filename if hasattr(AB, 'session') else id_info.id}: {E}")
+            continue
+
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
@@ -85,24 +110,56 @@ def remove_non_private_chats():
         if not chat_id_str.startswith("-100"):
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
+import random
+import asyncio
+from telethon.errors import FloodWaitError
+from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
+from telethon.tl.types import ReactionEmoji
+
 async def react(event):
+
+    if not event.message or not event.chat_id:
+        return
+
+    stored = get_reactions(event.chat_id)
+    default_emojis = ['❤️', '🕊', '🌚']
+
     for ABH in ABHS:
-        stored = get_reactions(event.chat_id)
-        emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
-        await ABH(SendReactionRequest(
-            peer=event.chat_id,
-            msg_id=event.message.id,
-            reaction=[ReactionEmoji(emoticon=emoji)],
-            big=False
-        ))
         try:
-            await ABH(GetMessagesViewsRequest(
-                peer=event.chat_id,
-                id=[event.message.id],
-                increment=True
+            emoji = random.choice(stored) if stored else random.choice(default_emojis)
+
+            # الأفضل جلب entity لتفادي أخطاء peer
+            try:
+                peer = await ABH.get_input_entity(event.chat_id)
+            except Exception:
+                peer = event.chat_id
+
+            await ABH(SendReactionRequest(
+                peer=peer,
+                msg_id=event.message.id,
+                reaction=[ReactionEmoji(emoticon=emoji)],
+                big=False
             ))
-        except Exception:
-            pass
+
+            try:
+                await ABH(GetMessagesViewsRequest(
+                    peer=peer,
+                    id=[event.message.id],
+                    increment=True
+                ))
+            except Exception:
+                pass
+
+            await asyncio.sleep(0.4)
+
+        except FloodWaitError as e:
+            print(f"⏳ FloodWait {e.seconds}s")
+            await asyncio.sleep(e.seconds)
+
+        except Exception as e:
+            print(f"⚠️ خطأ مع {ABH.session.filename if hasattr(ABH,'session') else 'account'}: {e}")
+            continue
+
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
