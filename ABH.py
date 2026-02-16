@@ -55,7 +55,8 @@ async def promote_ABHS(chat_id=None):
         delete_messages=True
     )
 
-    for AB in idd:
+    # for AB in idd:
+    for AB in ABSH:
         try:
             id_info = await AB.get_me()
 
