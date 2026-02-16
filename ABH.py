@@ -97,11 +97,12 @@ async def startup_warmup():
 import random
 import asyncio
 from telethon.tl.functions.messages import SendReactionRequest
-from telethon.tl.types import ReactionEmoji, InputPeerChannel
+from telethon.tl.types import ReactionEmoji
 
 async def react(event):
-    # التأكد من وجود الرسالة ومعرف الدردشة
-    if not event.chat_id or not event.message:
+    # 1. الشرط الأساسي: التحقق من أن الحدث من قناة (Broadcast Channel) 
+    # وليس من مجموعة (Supergroup) أو محادثة خاصة
+    if not event.is_channel or not event.message or not event.message.post:
         return
 
     msg_id = event.message.id
@@ -109,23 +110,22 @@ async def react(event):
 
     for ABH in ABHS:
         try:
-            # الحل الصحيح: جلب الـ Input Peer الخاص بكل حساب
-            # get_input_entity تقوم ببناء InputPeerChannel بالـ access_hash الصحيح تلقائياً
+            # جلب الكيان الخاص بالقناة لكل حساب
             peer = await ABH.get_input_entity(chat_id)
-
+            
             # تنفيذ طلب التفاعل
             await ABH(SendReactionRequest(
                 peer=peer,
                 msg_id=msg_id,
                 reaction=[ReactionEmoji(emoticon='🌚')],
                 big=False
-            ))
+            ))            
             
-            # تأخير بسيط جداً لتجنب ضغط الطلبات
+            # تأخير بسيط جداً
             await asyncio.sleep(0.1)
-
+            
         except Exception as e:
-            # طباعة الخطأ لمعرفة الحساب الذي واجه مشكلة (مثلاً إذا لم يكن عضواً في القناة)
+            # طباعة الخطأ إذا كان الحساب ليس عضواً في القناة
             print(f"Error for account {ABH}: {e}")
             continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
