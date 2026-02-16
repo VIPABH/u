@@ -88,17 +88,27 @@ def remove_non_private_chats():
 import random
 import asyncio
 from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
+from telethon.tl.functions.channels import JoinChannelRequest # لاستخدامه عند الضرورة
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
     msg_id = event.message.id
+    chat_id = event.chat_id
     
+    # محاولة الحصول على الكائن الكامل من الحدث الأصلي (الذي يمتلك الصلاحية)
+    chat_entity = await event.get_chat()
+
     for ABH in ABHS:
         try:
-            # الحل الأهم: جلب كائن الـ Peer الخاص بكل حساب بشكل مستقل
-            peer = await ABH.get_input_entity(event.chat_id)
-            
-            stored = get_reactions(event.chat_id)
+            # محاولة جلب الكائن الخاص بهذا الحساب تحديداً
+            try:
+                peer = await ABH.get_input_entity(chat_id)
+            except ValueError:
+                # إذا لم يجد الحساب الكائن، نحاول جلب الكائن باستخدام الرابط أو المعرف
+                # ملاحظة: يجب أن يكون الحساب قد رأى هذه القناة من قبل
+                peer = await ABH.get_input_entity(chat_entity)
+
+            stored = get_reactions(chat_id)
             emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             
             # تنفيذ التفاعل
@@ -109,21 +119,12 @@ async def react(event):
                 big=False
             ))
             
-            # محاولة زيادة المشاهدات (تعمل فقط في القنوات Supergroups/Channels)
-            try:
-                await ABH(GetMessagesViewsRequest(
-                    peer=peer,
-                    id=[msg_id],
-                    increment=True
-                ))
-            except:
-                pass 
-
-            # تأخير بسيط لتجنب الحظر أو تداخل الطلبات
-            await asyncio.sleep(0.2)
+            # تأخير بسيط جداً لضمان عدم حظر الحسابات
+            await asyncio.sleep(0.1)
 
         except Exception as e:
             print(f"فشل التفاعل للحساب {ABH}: {e}")
+            # إذا كان الخطأ بسبب عدم الانضمام، يمكنك إضافة كود للانضمام تلقائياً هنا
             continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
