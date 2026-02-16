@@ -100,19 +100,21 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.types import ReactionEmoji, InputPeerChannel
 
 async def react(event):
-    for ABH in ABHS:
-        msg_id = getattr(event, 'id', None) or getattr(event.message, 'id', None)
-        chat_id = await client.get_entity(event.chat_id)
-        if not msg_id or not chat_id:
-            return
-        try:
-            await ABH(SendReactionRequest(
-                peer=chat_id,
-                msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon=x)],
-                big=False))
-        except Exception as e:
-            return
+    try:
+        for ABH in ABHS:
+            msg_id = getattr(event, 'id', None) or getattr(event.message, 'id', None)
+            chat_id = await client.get_entity(event.chat_id)
+            if not msg_id or not chat_id:
+                return
+            try:
+                await ABH(SendReactionRequest(
+                    peer=chat_id,
+                    msg_id=msg_id,
+                    reaction=[ReactionEmoji(emoticon=x)],
+                    big=False))
+    except Exception as e:
+        print(e)
+        return
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
