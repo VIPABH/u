@@ -93,26 +93,43 @@ async def startup_warmup():
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
+import random
+import asyncio
+from telethon.tl.functions.messages import SendReactionRequest, GetFullChannelRequest
+from telethon.tl.types import ReactionEmoji
+
 async def react(event):
+    # التأكد أنها قناة (Broadcast) وليست رسالة خدمية
+    if not event.is_channel or not event.message or not event.message.post:
+        return
+
+    chat_id = event.chat_id
+    msg_id = event.message.id
+
     for ABH in ABHS:
-        await startup_warmup()
         try:
-            stored = get_reactions(event.chat_id)
-            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+            # جلب الكيان (Entity) وتحديث الجلسة إذا لزم الأمر
+            try:
+                peer = await ABH.get_input_entity(chat_id)
+            except Exception:
+                # إذا لم يجد الكيان، نجبره على جلب القناة بالكامل
+                peer = await ABH.get_entity(chat_id)
+
+            # لتجنب خطأ "Invalid reaction"، سنستخدم إيموجي بسيط ومضمون
+            # أو يمكنك استخراج الإيموجيات المسموحة في القناة برمجياً
             await ABH(SendReactionRequest(
-                peer=event.chat_id,
-                msg_id=event.message.id,
-                reaction=[ReactionEmoji(emoticon=emoji)],
+                peer=peer,
+                msg_id=msg_id,
+                reaction=[ReactionEmoji(emoticon='👍')], # جرب 👍 للتأكد من العمل
                 big=False
-            ))
-            await ABH(GetMessagesViewsRequest(
-                peer=event.chat_id,
-                id=[event.message.id],
-                increment=True
-            ))
+            ))            
+            
+            await asyncio.sleep(0.2)
+            
         except Exception as e:
-            print(e)
-            pass
+            # إذا كان الخطأ بسبب الإيموجي، سيطبع لنا ذلك
+            print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
+            continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
