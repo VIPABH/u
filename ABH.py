@@ -89,13 +89,13 @@ async def startup_warmup():
     print("جاري تهيئة الحسابات والتعرف على القنوات...")
     for ABH in ABHS:
         try:
-            # يجلب آخر 20 محادثة لكل حساب، وهذا كافٍ لتخزين الـ Access Hash
             await ABH.get_dialogs(limit=20)
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
 async def react(event):
     for ABH in ABHS:
+        await startup_warmup()
         try:
             stored = get_reactions(event.chat_id)
             emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
