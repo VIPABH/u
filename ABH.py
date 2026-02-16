@@ -109,7 +109,7 @@ async def react(event):
             await ABH(SendReactionRequest(
                 peer=chat_id,
                 msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon=x)],
+                reaction=[ReactionEmoji(emoticon='🌚')],
                 big=False))
     except Exception as e:
         print(e)
