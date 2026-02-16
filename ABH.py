@@ -253,7 +253,10 @@ names = {
 }
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
-    await react(e)
+# عند تشغيل اليوزر بوت لأول مرة في السكريبت
+for ABH in ABHS:
+    await ABH.get_dialogs() 
+    print("تم تحديث كيانات القنوات لليوزر بوت")
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
