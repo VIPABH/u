@@ -87,44 +87,49 @@ def remove_non_private_chats():
             print(f"✅ تم حذف {chat_id_str}")
 import random
 import asyncio
-from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
-from telethon.tl.functions.channels import JoinChannelRequest # لاستخدامه عند الضرورة
+from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
-    msg_id = event.message.id
-    chat_id = event.chat_id
-    
-    # محاولة الحصول على الكائن الكامل من الحدث الأصلي (الذي يمتلك الصلاحية)
-    chat_entity = await event.get_chat()
+    # 1. الحصول على الكيان الكامل من الحدث (الذي يحتوي على الـ Access Hash)
+    try:
+        chat_entity = await event.get_chat()
+    except Exception as e:
+        print(f"تعذر جلب بيانات القناة: {e}")
+        return
 
+    msg_id = event.message.id
+    
     for ABH in ABHS:
         try:
-            # محاولة جلب الكائن الخاص بهذا الحساب تحديداً
-            try:
-                peer = await ABH.get_input_entity(chat_id)
-            except ValueError:
-                # إذا لم يجد الحساب الكائن، نحاول جلب الكائن باستخدام الرابط أو المعرف
-                # ملاحظة: يجب أن يكون الحساب قد رأى هذه القناة من قبل
-                peer = await ABH.get_input_entity(chat_entity)
-
-            stored = get_reactions(chat_id)
+            # 2. الحصول على التفاعلات المحددة لهذه القناة
+            stored = get_reactions(event.chat_id)
             emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             
-            # تنفيذ التفاعل
+            # 3. محاولة التفاعل باستخدام الكيان الكامل مباشرة
+            # نمرر chat_entity بدلاً من chat_id لحل مشكلة Access Hash
             await ABH(SendReactionRequest(
-                peer=peer,
+                peer=chat_entity, 
                 msg_id=msg_id,
                 reaction=[ReactionEmoji(emoticon=emoji_text)],
                 big=False
             ))
             
-            # تأخير بسيط جداً لضمان عدم حظر الحسابات
-            await asyncio.sleep(0.1)
+            # تأخير بسيط جداً لتجنب تداخل الطلبات
+            await asyncio.sleep(0.2)
 
         except Exception as e:
-            print(f"فشل التفاعل للحساب {ABH}: {e}")
-            # إذا كان الخطأ بسبب عدم الانضمام، يمكنك إضافة كود للانضمام تلقائياً هنا
+            # إذا استمر الخطأ، نحاول جلب الكيان يدوياً لكل حساب (حل أخير)
+            try:
+                actual_peer = await ABH.get_input_entity(event.chat_id)
+                await ABH(SendReactionRequest(
+                    peer=actual_peer,
+                    msg_id=msg_id,
+                    reaction=[ReactionEmoji(emoticon=emoji_text)],
+                    big=False
+                ))
+            except Exception as e2:
+                print(f"فشل التفاعل للحساب {ABH}: {e2}")
             continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
