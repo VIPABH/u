@@ -95,7 +95,8 @@ async def startup_warmup():
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
 import random
 import asyncio
-from telethon.tl.functions.messages import SendReactionRequest, GetFullChannelRequest
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
