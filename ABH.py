@@ -92,8 +92,8 @@ from telethon.tl.types import ReactionEmoji, InputPeerChannel
 
 async def react(event):
     # التأكد أن الرسالة من قناة وليست خدمة (مثل تغيير الصورة)
-if not event.is_channel or not event.message:
-        return
+    if not event.is_channel or not event.message:
+            return
 
     chat_id = event.chat_id
     msg_id = event.message.id
