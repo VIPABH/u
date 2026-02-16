@@ -248,7 +248,8 @@ async def reactauto(e):
 @bot.on(events.NewMessage)
 async def nlits(e):
     print(str(e.chat_id) in chats)
-    if str(e.chat_id) in chats:
+    # if str(e.chat_id) in chats:
+    if str(e.chat_id) == -1002089029194:
         try:
             await react(e)
         except Exception as ex:
