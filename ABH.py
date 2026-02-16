@@ -100,20 +100,34 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.types import ReactionEmoji, InputPeerChannel
 
 async def react(event):
-    try:
-        for ABH in ABHS:
-            msg_id = getattr(event, 'id', None) or getattr(event.message, 'id', None)
-            chat_id = await client.get_entity(event.chat_id)
-            if not msg_id or not chat_id:
-                return
+    # التأكد من وجود الرسالة ومعرف الدردشة
+    if not event.chat_id or not event.message:
+        return
+
+    msg_id = event.message.id
+    chat_id = event.chat_id
+
+    for ABH in ABHS:
+        try:
+            # الحل الصحيح: جلب الـ Input Peer الخاص بكل حساب
+            # get_input_entity تقوم ببناء InputPeerChannel بالـ access_hash الصحيح تلقائياً
+            peer = await ABH.get_input_entity(chat_id)
+
+            # تنفيذ طلب التفاعل
             await ABH(SendReactionRequest(
-                peer=chat_id,
+                peer=peer,
                 msg_id=msg_id,
                 reaction=[ReactionEmoji(emoticon='🌚')],
-                big=False))
-    except Exception as e:
-        print(e)
-        return
+                big=False
+            ))
+            
+            # تأخير بسيط جداً لتجنب ضغط الطلبات
+            await asyncio.sleep(0.1)
+
+        except Exception as e:
+            # طباعة الخطأ لمعرفة الحساب الذي واجه مشكلة (مثلاً إذا لم يكن عضواً في القناة)
+            print(f"Error for account {ABH}: {e}")
+            continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
@@ -248,8 +262,7 @@ async def reactauto(e):
 @bot.on(events.NewMessage)
 async def nlits(e):
     print(str(e.chat_id) in chats)
-    # if str(e.chat_id) in chats:
-    if str(e.chat_id) == -1002089029194:
+    if str(e.chat_id) in chats:
         try:
             await react(e)
         except Exception as ex:
