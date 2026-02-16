@@ -33,6 +33,7 @@ async def resetbot(event):
     id = await event.get_reply_message()
     if id and id.id == 1910015590:
         return
+    await event.reply('🙃')
     await asyncio.sleep(1)
     await update_repo(event)
 @bot.on(events.NewMessage(pattern="^اعادة تشغيل$", outgoing=True))
