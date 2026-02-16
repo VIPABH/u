@@ -86,16 +86,18 @@ def remove_non_private_chats():
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
 import random
+import asyncio
 from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
-    # نستخدم input_chat لضمان تعريف القناة/الدردشة بدقة
-    peer = await event.get_input_chat()
     msg_id = event.message.id
     
     for ABH in ABHS:
         try:
+            # الحل الأهم: جلب كائن الـ Peer الخاص بكل حساب بشكل مستقل
+            peer = await ABH.get_input_entity(event.chat_id)
+            
             stored = get_reactions(event.chat_id)
             emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             
@@ -107,19 +109,22 @@ async def react(event):
                 big=False
             ))
             
-            # زيادة المشاهدات (تعمل فقط في القنوات)
+            # محاولة زيادة المشاهدات (تعمل فقط في القنوات Supergroups/Channels)
             try:
                 await ABH(GetMessagesViewsRequest(
                     peer=peer,
                     id=[msg_id],
                     increment=True
                 ))
-            except Exception:
-                pass # تجاهل فشل زيادة المشاهدات (مثلاً في المجموعات)
+            except:
+                pass 
+
+            # تأخير بسيط لتجنب الحظر أو تداخل الطلبات
+            await asyncio.sleep(0.2)
 
         except Exception as e:
             print(f"فشل التفاعل للحساب {ABH}: {e}")
-            continue # تخطي هذا الحساب والانتقال للتالي في حال حدوث خطأ
+            continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
