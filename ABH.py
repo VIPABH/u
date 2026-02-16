@@ -55,7 +55,7 @@ async def promote_ABHS(chat_id=None):
     )
 
     # for AB in idd:
-    for AB in idd:
+    for AB in ABHS:
         try:
             id_info = await AB.get_me()
 
@@ -287,8 +287,7 @@ async def reactauto(e):
             return
 @bot.on(events.NewMessage)
 async def nlits(e):
-    print(str(e.chat_id) in chats)
-    if str(e.chat_id) in chats:
+    if str(e.chat_id) in list_chats():
         try:
             await react(e)
         except Exception as ex:
