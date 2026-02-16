@@ -100,37 +100,43 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
+    # التحقق من أن الحدث يحتوي على رسالة
     if not event.message:
         return
 
+    # الحصول على ID الشات والتأكد من صيغته الصحيحة للقنوات
     chat_id = event.chat_id
     msg_id = event.message.id
-    
+
     for ABH in ABHS:
         try:
-            # محاولة جلب الكيان من ذاكرة الجلسة
+            # 1. محاولة جلب الكيان الكامل (هذا السطر سيحل مشكلة الـ Access Hash)
+            # نستخدم get_entity لأنه يقوم بتحديث قاعدة بيانات الجلسة تلقائياً
             try:
-                # get_input_entity أسرع ولا تستهلك طلبات API كثيرة
-                peer = await ABH.get_input_entity(chat_id)
-            except ValueError:
-                # إذا لم يجدها، نجبره على جلبها من السيرفر (ستعمل إذا كان عضواً)
                 peer = await ABH.get_entity(chat_id)
+            except ValueError:
+                # إذا فشل، نحاول استخدام المعرف الذي وفره الحدث الأصلي كجسر
+                original_chat = await event.get_chat()
+                peer = await ABH.get_entity(original_chat)
 
+            # 2. اختيار التفاعل
             stored = get_reactions(chat_id)
-            emoji = random.choice(stored) if stored else random.choice(['❤️', '🔥', '👍'])
+            emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             
+            # 3. إرسال طلب التفاعل باستخدام الكيان الذي جلبناه للتو
             await ABH(SendReactionRequest(
                 peer=peer,
                 msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon=emoji)],
+                reaction=[ReactionEmoji(emoticon=emoji_text)],
                 big=False
             ))
             
-            # تأخير بسيط جداً بين الحسابات لتفادي الـ Flood
-            await asyncio.sleep(0.1)
+            # تأخير بسيط جداً بين الحسابات لتجنب FloodWait
+            await asyncio.sleep(0.2)
 
         except Exception as e:
-            print(f"فشل التفاعل للحساب {ABH}: {e}")
+            # طباعة الخطأ بشكل أوضح لمعرفة السبب إذا استمر
+            print(f"فشل التفاعل للحساب {ABH.session.filename}: {str(e)}")
             continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
