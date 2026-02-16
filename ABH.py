@@ -38,9 +38,9 @@ async def promote_ABHS(chat_id=None):
         for AB in ABHS:
             id_info = await AB.get_me()
             rights = ChatAdminRights(
-                # change_info=True,
-                # post_messages=True,
-                # edit_messages=True,
+                change_info=True,
+                post_messages=True,
+                edit_messages=True,
                 delete_messages=True
             )
             await ABH1(EditAdminRequest(
@@ -84,51 +84,24 @@ def remove_non_private_chats():
         if not chat_id_str.startswith("-100"):
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
-async def startup_warmup():
-    print("جاري تهيئة الحسابات والتعرف على القنوات...")
-    for ABH in ABHS:
-        try:
-            await ABH.get_dialogs(limit=20)
-            print(f"تمت تهيئة الحساب: {ABH.session.filename}")
-        except Exception as e:
-            print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
-import random
-import asyncio
-from telethon.tl.functions.messages import SendReactionRequest
-from telethon.tl.functions.channels import GetFullChannelRequest
-from telethon.tl.types import ReactionEmoji
-
 async def react(event):
-    if not event.is_channel or not event.message or not event.message.post:
-        return
-
-    chat_id = event.chat_id
-    msg_id = event.message.id
-
     for ABH in ABHS:
+        stored = get_reactions(event.chat_id)
+        emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+        await ABH(SendReactionRequest(
+            peer=event.chat_id,
+            msg_id=event.message.id,
+            reaction=[ReactionEmoji(emoticon=emoji)],
+            big=False
+        ))
         try:
-            # جلب الكيان (Entity) وتحديث الجلسة إذا لزم الأمر
-            try:
-                peer = await ABH.get_input_entity(chat_id)
-            except Exception:
-                # إذا لم يجد الكيان، نجبره على جلب القناة بالكامل
-                peer = await ABH.get_entity(chat_id)
-
-            # لتجنب خطأ "Invalid reaction"، سنستخدم إيموجي بسيط ومضمون
-            # أو يمكنك استخراج الإيموجيات المسموحة في القناة برمجياً
-            await ABH(SendReactionRequest(
-                peer=peer,
-                msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon='👍')], # جرب 👍 للتأكد من العمل
-                big=False
-            ))            
-            
-            await asyncio.sleep(0.2)
-            
-        except Exception as e:
-            # إذا كان الخطأ بسبب الإيموجي، سيطبع لنا ذلك
-            print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
-            continue
+            await ABH(GetMessagesViewsRequest(
+                peer=event.chat_id,
+                id=[event.message.id],
+                increment=True
+            ))
+        except Exception:
+            pass
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
@@ -139,7 +112,10 @@ async def test(e):
         await e.reply(f"{x.id}    {E}")
 import asyncio
 import random
+
+# قائمة المجموعات
 groups = [-1002541767486, -1002522016427, -1002069775937]
+
 @ABH1.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
@@ -226,6 +202,7 @@ async def send_to_target(e):
                 try: await ABH(JoinChannelRequest(entity))
                 except: pass
                 
+                # الإرسال النهائي
                 await ABH.send_message(entity, reply, reply_to=reply_to_id)
                 
         except Exception as err:
@@ -239,19 +216,15 @@ names = {
     'salo': ABH5,
     'حسن جداحه': ABH6,
     'حسن جداحة': ABH6,
-    'برق الشايب': ABH7,
-    
+    'برق الشايب': ABH7,    
 }
-@ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
-async def reactauto(e):
-    await react(e)
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
         return
     text = e.text
     if text in names:
-        reply_text = random.choice(['الزعيم', "الغالي", "كول يالامير", "تاج الراس"])
+        reply_text = "عيني"
         try:
             await names[text].send_message(
                 e.chat_id,
@@ -262,15 +235,12 @@ async def reactauto(e):
             return
 @bot.on(events.NewMessage)
 async def nlits(e):
-    print(str(e.chat_id) in chats)
+    text = e.text
     if str(e.chat_id) in chats:
         try:
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
-@bot.on(events.NewMessage)
-async def nlits(e):
-    text = e.text
     sender = e.sender_id
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
