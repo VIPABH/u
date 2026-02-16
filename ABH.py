@@ -94,40 +94,25 @@ async def startup_warmup():
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
-import random
-import asyncio
-from telethon.tl.functions.messages import SendReactionRequest
-from telethon.tl.types import ReactionEmoji
-
 async def react(event):
-    # 1. الشرط الأساسي: التحقق من أن الحدث من قناة (Broadcast Channel) 
-    # وليس من مجموعة (Supergroup) أو محادثة خاصة
-    if not event.is_channel or not event.message or not event.message.post:
-        return
-
-    msg_id = event.message.id
-    chat_id = event.chat_id
-
     for ABH in ABHS:
         try:
-            # جلب الكيان الخاص بالقناة لكل حساب
-            peer = await ABH.get_input_entity(chat_id)
-            
-            # تنفيذ طلب التفاعل
+            stored = get_reactions(event.chat_id)
+            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             await ABH(SendReactionRequest(
-                peer=peer,
-                msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon='🌚')],
+                peer=event.chat_id,
+                msg_id=event.message.id,
+                reaction=[ReactionEmoji(emoticon=emoji)],
                 big=False
-            ))            
-            
-            # تأخير بسيط جداً
-            await asyncio.sleep(0.1)
-            
+            ))
+            await ABH(GetMessagesViewsRequest(
+                peer=event.chat_id,
+                id=[event.message.id],
+                increment=True
+            ))
         except Exception as e:
-            # طباعة الخطأ إذا كان الحساب ليس عضواً في القناة
-            print(f"Error for account {ABH}: {e}")
-            continue
+            print(e)
+            pass
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
