@@ -31,12 +31,11 @@ ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7]
 for i, token in enumerate(bot_tokens, start=8):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
-idd = ABHS[7:]
 client = ABH1
 async def promote_ABHS(chat_id=None):
     try:
         xxx = int(chat_id)
-        for AB in idd:
+        for AB in ABHS:
             id_info = await AB.get_me()
             rights = ChatAdminRights(
                 change_info=True,
@@ -100,7 +99,6 @@ from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.types import ReactionEmoji
 
 async def react(event):
-    # التأكد أنها قناة (Broadcast) وليست رسالة خدمية
     if not event.is_channel or not event.message or not event.message.post:
         return
 
