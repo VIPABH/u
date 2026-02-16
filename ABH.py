@@ -79,31 +79,6 @@ async def promote_ABHS(chat_id=None):
             print(f"⚠️ خطأ مع الحساب {AB.session.filename if hasattr(AB, 'session') else id_info.id}: {E}")
             continue
 
-def add_chat(chat_id):
-    r.sadd("whitelist_chats", str(chat_id))
-def remove_chat(chat_id):
-    r.srem("whitelist_chats", str(chat_id))
-def clear_chats():
-    r.delete("whitelist_chats")
-def is_chat_allowed(chat_id):
-    return str(chat_id) in r.smembers("whitelist_chats")
-def list_chats():
-    return list(r.smembers("whitelist_chats"))
-chats = list_chats()
-def add_reactions(chat_id, emojis):
-    key = f"chat_reactions:{chat_id}"
-    for emoji in emojis:
-        r.sadd(key, emoji)
-def get_reactions(chat_id):
-    key = f"chat_reactions:{chat_id}"
-    return list(r.smembers(key))
-def get_random_reaction(chat_id):
-    reactions = get_reactions(chat_id)
-    return random.choice(reactions) if reactions else None
-def clear_reactions(chat_id):
-    r.delete(f"chat_reactions:{chat_id}")
-def remove_reaction(chat_id, emoji):
-    r.srem(f"chat_reactions:{chat_id}", emoji)
 def remove_non_private_chats():
     chats = r.smembers("whitelist_chats")
     for chat_id in chats:
@@ -292,112 +267,105 @@ async def reactauto(e):
             )
         except:
             return
+# =========================
+# WHITELIST MANAGEMENT
+# =========================
+
+def add_chat(chat_id: int):
+    r.sadd("whitelist_chats", str(chat_id))
+
+def remove_chat(chat_id: int):
+    r.srem("whitelist_chats", str(chat_id))
+
+def clear_chats():
+    r.delete("whitelist_chats")
+
+def is_chat_allowed(chat_id: int) -> bool:
+    return r.sismember("whitelist_chats", str(chat_id))
+
+def list_chats():
+    return [chat.decode() if isinstance(chat, bytes) else chat 
+            for chat in r.smembers("whitelist_chats")]
+# =========================
+# REACTIONS MANAGEMENT
+# =========================
+
+def add_reactions(chat_id: int, emojis: list):
+    key = f"chat_reactions:{chat_id}"
+    for emoji in emojis:
+        r.sadd(key, emoji)
+
+def get_reactions(chat_id: int):
+    key = f"chat_reactions:{chat_id}"
+    data = r.smembers(key)
+    return [e.decode() if isinstance(e, bytes) else e for e in data]
+
+def remove_reaction(chat_id: int, emoji: str):
+    r.srem(f"chat_reactions:{chat_id}", emoji)
+
+def clear_reactions(chat_id: int):
+    r.delete(f"chat_reactions:{chat_id}")
+
+def get_random_reaction(chat_id: int):
+    reactions = get_reactions(chat_id)
+    return random.choice(reactions) if reactions else None
 @bot.on(events.NewMessage)
 async def nlits(e):
-    text = e.text
-    if str(e.chat_id) in chats:
+
+    if not e.text:
+        return
+
+    text = e.text.strip()
+    sender = e.sender_id
+
+    # =====================
+    # AUTO REACTION SYSTEM
+    # =====================
+    if is_chat_allowed(e.chat_id):
         try:
             await react(e)
         except Exception as ex:
-            print(f"خطأ في التفاعل: {ex}")
-    sender = e.sender_id
-    chat_id = None
+            print(f"[REACT ERROR] {ex}")
     if text.startswith("اضف") and sender == wfffp:
-        try:
-            chat_id = text.split(" ", 1)[1]
-        except (IndexError, ValueError):
-            await e.reply("❌ يرجى تحديد رقم القناة بعد 'اضف'")
+        parts = text.split()
+
+        if len(parts) < 2:
+            await e.reply("❌ استخدم: اضف -100xxxx")
             return
+
+        chat_id = parts[1]
+
         if not chat_id.startswith("-100"):
+            await e.reply("❌ يجب أن يبدأ المعرف بـ -100")
             return
+
         chat_id = int(chat_id)
-        await promote_ABHS(chat_id)
-        await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
+
         add_chat(chat_id)
-    elif text.startswith("ضيف") and sender == wfffp:
-        try:
-            chat_id = int(text.split(" ", 1)[1])
-        except (IndexError, ValueError):
-            chat_id = e.chat_id 
         await promote_ABHS(chat_id)
-        await e.reply(f"✅ تم رفع البوتات في القناة `{chat_id}`")
-    elif text.startswith("القنوات") and sender == wfffp:
-        msg = "📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats) if chats else "⚠️ لا توجد قنوات مضافة حالياً"
-        await e.reply(msg)
-    elif text.startswith("التفاعلات") and sender == wfffp:
-        try:
-            chat_id = text.split(" ")[1]
-            emojis = get_reactions(chat_id)
-            if emojis:
-                msg = f"📌 التفاعلات المخزنة للقناة `{chat_id}`:\n" + " ".join(emojis)
-            else:
-                msg = f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`"
-            await e.reply(msg)
-        except IndexError:
-            await e.reply("⚠️ استخدم: `تفاعلات -100xxxx`")
-        except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء جلب التفاعلات: {ex}")
-    elif text == 'تصفية':
-        remove_non_private_chats()
-        await e.reply('تم التصفية')
-    elif text.startswith("تفاعل") and sender == wfffp:
-        try:
-            parts = text.split()
-            chat_id = parts[1]
-            emojis = parts[2:]
-            if not emojis:
-                await e.reply("⚠️ أرسل الإيموجيات بعد المعرف مثل:\n`تفاعل -100xxxx 😂 ❤️ 🔥`")
-                return
-            existing = get_reactions(chat_id) or []
-            updated = existing + emojis
-            add_reactions(chat_id, updated)
-            await e.reply(f"✅ تم حفظ {len(emojis)} إيموجي جديد للقناة `{chat_id}` (الإجمالي الآن {len(updated)})")
-        except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء حفظ التفاعلات: {ex}")
+
+        await e.reply(f"✅ تمت إضافة `{chat_id}` للقائمة البيضاء")
     elif text.startswith("حذف تفاعل") and sender == wfffp:
-        try:
-            parts = text.split()
-            if len(parts) < 4:
-                await e.reply("⚠️ استخدم الصيغة الصحيحة:\n`حذف تفاعل -100xxxx 😂`")
-                return
-            chat_id = parts[2]
-            emoji = parts[3]
-            emojis = get_reactions(chat_id)
-            if not emojis:
-                await e.reply(f"⚠️ لا توجد تفاعلات محفوظة للقناة `{chat_id}`")
-                return
-            if emoji in emojis:
-                emojis = [em for em in emojis if em != emoji]
-                add_reactions(chat_id, emojis)
-                await e.reply(f"🗑️ تم حذف جميع التكرارات للتفاعل `{emoji}` من القناة `{chat_id}`")
-            else:
-                await e.reply(f"⚠️ التفاعل `{emoji}` غير موجود في القناة `{chat_id}`")
-        except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء حذف التفاعل: {ex}")
-    elif text== "حذف التفاعلات" and sender == wfffp:
-        try:
-            parts = text.split()
-            if len(parts) < 3:
-                await e.reply("⚠️ استخدم الصيغة الصحيحة:\n`حذف التفاعلات -100xxxx`")
-                return
-            chat_id = parts[2]
-            key = f"chat_reactions:{chat_id}"
-            if r.exists(key):
-                r.delete(key)
-                await e.reply(f"🗑️ تم حذف جميع التفاعلات المخزنة للقناة `{chat_id}` بنجاح")
-            else:
-                await e.reply(f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`")
-        except Exception as ex:
-            await e.reply(f"⚠️ خطأ أثناء حذف جميع التفاعلات: {ex}")
-    elif text == "حذف الكل" and sender == wfffp:
-        clear_chats()
-        await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
-    elif text.startswith("حذف ") and sender == wfffp and not text == "حذف تفاعل" and not text == "حذف التفاعلات":
-        try:
-            chat_id = text.split(" ", 1)[1]
-            remove_chat(chat_id)
-            await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
-        except IndexError:
-            await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
+        parts = text.split()
+
+        if len(parts) < 4:
+            await e.reply("❌ استخدم: حذف تفاعل -100xxxx 😂")
+            return
+
+        chat_id = int(parts[2])
+        emoji = parts[3]
+
+        remove_reaction(chat_id, emoji)
+
+        await e.reply(f"🗑️ تم حذف `{emoji}` من `{chat_id}`")
+    elif text == "القنوات" and sender == wfffp:
+        chats = list_chats()
+
+        if not chats:
+            await e.reply("⚠️ لا توجد قنوات حالياً")
+        else:
+            msg = "📌 القنوات:\n" + "\n".join(chats)
+            await e.reply(msg)
+
 print('running')
 bot.run_until_disconnected()
