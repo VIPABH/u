@@ -39,10 +39,10 @@ async def promote_ABHS(chat_id=None):
         for AB in ABHS:
             id_info = await AB.get_me()
             rights = ChatAdminRights(
-                # change_info=True,
-                # post_messages=True,
-                # edit_messages=True,
-                # delete_messages=True
+                change_info=True,
+                post_messages=True,
+                edit_messages=True,
+                delete_messages=True
             )
             await ABH1(EditAdminRequest(
                 channel=xxx,
