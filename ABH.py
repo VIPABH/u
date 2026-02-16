@@ -100,7 +100,8 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.types import ReactionEmoji, InputPeerChannel
 
 async def react(event):
-    if not event.is_channel: # التأكد من أن الحدث من قناة
+    # التأكد أن الرسالة من قناة وليست خدمة (مثل تغيير الصورة)
+    if not event.is_channel or not event.message:
         return
 
     chat_id = event.chat_id
@@ -108,25 +109,20 @@ async def react(event):
 
     for ABH in ABHS:
         try:
-            # 1. محاولة الحصول على الـ Input Peer الخاص بالقناة لكل حساب
+            # 1. محاولة جلب الكيان (Peer) بطريقة قسرية للحساب
             try:
-                # هذه الطريقة تجلب الكيان من ذاكرة الجلسة (Session)
+                # نستخدم get_input_entity لسرعة الأداء من ملف الجلسة
                 peer = await ABH.get_input_entity(chat_id)
-                
-                # نتحقق إذا كان الكيان هو فعلاً قناة (Channel) وليس مستخدم أو دردشة عادية
-                if not isinstance(peer, InputPeerChannel):
-                    raise ValueError("Not a channel")
-                    
             except Exception:
-                # 2. إذا فشل، نجبر الحساب على جلب القناة من السيرفر لتحديث الـ Access Hash
-                full_entity = await ABH.get_entity(chat_id)
-                peer = await ABH.get_input_entity(full_entity)
+                # إذا لم يجدها (خاصة في القنوات الخاصة)، نجلب الكائن كاملاً لتحديث الـ Access Hash
+                entity = await ABH.get_entity(chat_id)
+                peer = await ABH.get_input_entity(entity)
 
-            # اختيار التفاعل
+            # 2. التأكد من أن التفاعل متاح (جلب قائمة الإيموجي المسموحة)
             stored = get_reactions(chat_id)
-            emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🔥', '🌚'])
+            emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             
-            # 3. إرسال التفاعل باستخدام الـ Peer الصحيح
+            # 3. إرسال التفاعل
             await ABH(SendReactionRequest(
                 peer=peer,
                 msg_id=msg_id,
@@ -134,13 +130,13 @@ async def react(event):
                 big=False
             ))
             
-            # تأخير لتجنب الحظر (FloodWait)
-            await asyncio.sleep(0.3)
+            # تأخير بسيط جداً لضمان عدم حظر اليوزر بوت
+            await asyncio.sleep(0.2)
 
         except Exception as e:
-            # طباعة اسم الجلسة مع الخطأ لتحديد الحساب المشكل
+            # طباعة الخطأ مع اسم الجلسة لمعرفة أي يوزر بوت واجه مشكلة
             session_name = getattr(ABH.session, 'filename', 'Unknown')
-            print(f"فشل في الحساب {session_name}: {e}")
+            print(f"فشل في اليوزر بوت {session_name}: {e}")
             continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
