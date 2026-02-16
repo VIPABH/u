@@ -85,6 +85,15 @@ def remove_non_private_chats():
         if not chat_id_str.startswith("-100"):
             r.srem("whitelist_chats", chat_id_str)
             print(f"✅ تم حذف {chat_id_str}")
+async def startup_warmup():
+    print("جاري تهيئة الحسابات والتعرف على القنوات...")
+    for ABH in ABHS:
+        try:
+            # يجلب آخر 20 محادثة لكل حساب، وهذا كافٍ لتخزين الـ Access Hash
+            await ABH.get_dialogs(limit=20)
+            print(f"تمت تهيئة الحساب: {ABH.session.filename}")
+        except Exception as e:
+            print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
 import random
 import asyncio
 from telethon.tl.functions.messages import SendReactionRequest
@@ -93,45 +102,24 @@ from telethon.tl.types import ReactionEmoji, InputPeerChannel
 async def react(event):
     # التأكد أن الرسالة من قناة وليست خدمة (مثل تغيير الصورة)
     if not event.is_channel or not event.message:
-            return
+        return
 
     chat_id = event.chat_id
     msg_id = event.message.id
 
     for ABH in ABHS:
-        try:
-            # 1. التمييز بين البوت واليوزر بوت
-            me = await ABH.get_me()
-            
-            if me.bot:
-                # إذا كان بوت رسمي: نستخدم المعرف مباشرة (البوتات لا تحتاج get_dialogs)
-                peer = await ABH.get_input_entity(chat_id)
-            else:
-                # إذا كان يوزر بوت: نحاول جلب الكيان وتحديثه إذا لزم الأمر
-                try:
-                    peer = await ABH.get_input_entity(chat_id)
-                except Exception:
-                    # اليوزر بوت يحتاج get_entity لتحديث الـ Access Hash للقنوات الخاصة
-                    peer = await ABH.get_entity(chat_id)
-
-            # 2. تجهيز التفاعل
-            stored = get_reactions(chat_id)
-            emoji = random.choice(stored) if stored else random.choice(['❤️', '🔥', '🌚'])
-            
-            # 3. إرسال التفاعل
-            await ABH(SendReactionRequest(
-                peer=peer,
-                msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon=emoji)],
-                big=False
-            ))
-            
-            await asyncio.sleep(0.2)
-
-        except Exception as e:
-            # طباعة الخطأ مع توضيح نوع الحساب
-            print(f"خطأ في الحساب ({'بوت' if me.bot else 'يوزر'}): {e}")
-            continue
+        stored = get_reactions(chat_id)
+        emoji_text = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+        
+        # 3. إرسال التفاعل
+        await ABH(SendReactionRequest(
+            peer=int(chat_id),
+            msg_id=msg_id,
+            reaction=[ReactionEmoji(emoticon=emoji_text)],
+            big=False
+        ))
+        
+        # تأخير بسيط جداً لضمان عدم حظر اليوزر بوت
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     try:
@@ -247,10 +235,7 @@ names = {
 }
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
-# عند تشغيل اليوزر بوت لأول مرة في السكريبت
-    for ABH in ABHS:
-        await ABH.get_dialogs() 
-        print("تم تحديث كيانات القنوات لليوزر بوت")
+    await react(e)
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
