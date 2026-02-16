@@ -106,12 +106,11 @@ async def react(event):
             chat_id = await client.get_entity(event.chat_id)
             if not msg_id or not chat_id:
                 return
-            try:
-                await ABH(SendReactionRequest(
-                    peer=chat_id,
-                    msg_id=msg_id,
-                    reaction=[ReactionEmoji(emoticon=x)],
-                    big=False))
+            await ABH(SendReactionRequest(
+                peer=chat_id,
+                msg_id=msg_id,
+                reaction=[ReactionEmoji(emoticon=x)],
+                big=False))
     except Exception as e:
         print(e)
         return
