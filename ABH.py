@@ -139,12 +139,12 @@ async def react(event):
                 # إذا لم يجد الكيان، نجبره على جلب القناة بالكامل
                 peer = await ABH.get_entity(chat_id)
 
-            # لتجنب خطأ "Invalid reaction"، سنستخدم إيموجي بسيط ومضمون
-            # أو يمكنك استخراج الإيموجيات المسموحة في القناة برمجياً
+            stored = get_reactions(event.chat_id)
+            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             await ABH(SendReactionRequest(
                 peer=peer,
                 msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon='👍')], # جرب 👍 للتأكد من العمل
+                reaction=[ReactionEmoji(emoticon=emoji)], # جرب 👍 للتأكد من العمل
                 big=False
             ))            
             
