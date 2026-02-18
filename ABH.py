@@ -24,7 +24,7 @@ ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
 ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
 ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")).start()
-ABH7 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
+ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7]
 for i, token in enumerate(bot_tokens, start=9):
     if token:
