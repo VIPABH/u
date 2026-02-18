@@ -1,24 +1,21 @@
 from telethon import TelegramClient, events
 import os, re, random, redis, asyncio
 from telethon.tl.types import (
-    PeerChannel,
     ReactionEmoji,
     ChatAdminRights)
-from telethon.errors import (
-    UserAlreadyParticipantError)
 from telethon.tl.functions.channels import (
     JoinChannelRequest,
     EditAdminRequest)
 from telethon.tl.functions.messages import (
     ImportChatInviteRequest)
-from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
+from telethon.tl.functions.messages import SendReactionRequest
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 target_user_id = 1421907917
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
-bot_tokens = [os.getenv(f"bot_token{i}") for i in range(8, 20)]
+bot_tokens = [os.getenv(f"bot_token{i}") for i in range(9, 25)]
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
@@ -27,8 +24,9 @@ ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
 ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
 ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")).start()
+ABH7 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7]
-for i, token in enumerate(bot_tokens, start=8):
+for i, token in enumerate(bot_tokens, start=9):
     if token:
         ABHS.append(TelegramClient(f"code{i}", api_id, api_hash).start(bot_token=token))
 idd = ABHS[1:]
@@ -36,7 +34,6 @@ from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
 from telethon.tl.functions.channels import EditAdminRequest
 import asyncio
-
 async def promote_ABHS(chat_id=None):
     if not chat_id:
         return
@@ -54,7 +51,6 @@ async def promote_ABHS(chat_id=None):
         delete_messages=True
     )
 
-    # for AB in idd:
     for AB in ABHS:
         try:
             id_info = await AB.get_me()
