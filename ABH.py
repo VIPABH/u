@@ -273,6 +273,7 @@ names = {
     'حسن جداحه': ABH6,
     'حسن جداحة': ABH6,
     'برق الشايب': ABH7,
+    'الخطير حسون': ABH8,
     
 }
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
@@ -404,3 +405,4 @@ async def nlits(e):
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 print('running')
 bot.run_until_disconnected()
+
