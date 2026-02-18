@@ -115,7 +115,7 @@ async def startup_warmup():
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
 import random
 import asyncio
-from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.types import ReactionEmoji
 
@@ -128,26 +128,38 @@ async def react(event):
 
     for ABH in ABHS:
         try:
-            # جلب الكيان (Entity) وتحديث الجلسة إذا لزم الأمر
+            # 1. جلب الكيان (Entity)
             try:
                 peer = await ABH.get_input_entity(chat_id)
             except Exception:
-                # إذا لم يجد الكيان، نجبره على جلب القناة بالكامل
                 peer = await ABH.get_entity(chat_id)
 
+            # 2. إضافة مشاهدة (View) للرسالة
+            # إرسال هذا الطلب يخبر تلغرام أن الحساب قد "رأى" الرسالة فعلياً
+            try:
+                await ABH(GetMessagesViewsRequest(
+                    peer=peer,
+                    id=[msg_id],
+                    increment=True # هذا الجزء هو المسؤول عن زيادة العداد
+                ))
+            except Exception as view_error:
+                print(f"فشل في زيادة المشاهدة: {view_error}")
+
+            # 3. اختيار الإيموجي وإرسال التفاعل
             stored = get_reactions(event.chat_id)
             emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+            
             await ABH(SendReactionRequest(
                 peer=peer,
                 msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon=emoji)], # جرب 👍 للتأكد من العمل
+                reaction=[ReactionEmoji(emoticon=emoji)],
                 big=False
             ))            
             
-            await asyncio.sleep(0.2)
+            # تأخير بسيط لتجنب حظر الحسابات (Flood Wait)
+            await asyncio.sleep(0.3)
             
         except Exception as e:
-            # إذا كان الخطأ بسبب الإيموجي، سيطبع لنا ذلك
             print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
             continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
