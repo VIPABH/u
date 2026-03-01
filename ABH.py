@@ -170,6 +170,7 @@ async def test(e):
     except Exception as E:
         x = await ABH.get_me()
         await e.reply(f"{x.id}    {E}")
+        pass
 import asyncio
 import random
 groups = [-1002541767486, -1002522016427, -1002069775937]
