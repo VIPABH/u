@@ -304,42 +304,33 @@ emoji = [
 
 @bot.on(events.NewMessage(pattern=r'^رياكت (.+)'))
 async def react_cmd(event):
-
-    link = event.pattern_match.group(1)
-
-    m = re.search(r't\.me\/([^\/]+)\/(\d+)', link)
-    if not m:
-        return await event.reply("❌ الرابط غير صحيح")
-
-    chat = m.group(1)
-    msg_id = int(m.group(2))
-
+    link = event.pattern_match.group(1).strip()
     try:
-
-        # رابط يوزر
-        if chat != "c":
-            entity = await bot.get_entity(chat)
-
-        # رابط خاص
+        if "/c/" in link:
+            # روابط المجموعات الخاصة
+            m = re.search(r't\.me/c/(-?\d+)/(\d+)', link)
+            chat_id = int("-100" + m.group(1)) if not m.group(1).startswith("-100") else int(m.group(1))
+            msg_id = int(m.group(2))
+            entity = chat_id
         else:
-            m2 = re.search(r't\.me\/c\/(\d+)\/(\d+)', link)
-            if not m2:
-                return await event.reply("❌ رابط غير مدعوم")
-
-            entity = int("-100" + m2.group(1))
-            msg_id = int(m2.group(2))
-
-        # اختيار ايموجي عشوائي بدون تكرار
-        selected = random.sample(emoji, min(len(ABHS), len(emoji)))
-
-        for ABH, e in zip(ABHS, selected):
-            try:
-                msg = await ABH.get_messages(entity, ids=msg_id)
-                await msg.react(e)
-            except:
-                pass
-    except Exception as er:
-        await event.reply(str(er))
+            # روابط اليوزرات أو القنوات العامة
+            m = re.search(r't\.me/([^\/]+)/(\d+)', link)
+            chat_username = m.group(1)
+            msg_id = int(m.group(2))
+            entity = await bot.get_entity(chat_username)
+    except Exception:
+        return await event.reply("❌ الرابط غير صحيح أو البوت لا يستطيع الوصول للمحادثة")
+    # اختيار ايموجي عشوائي
+    selected = random.sample(emoji, min(len(ABHS), len(emoji)))
+    for ABH, e in zip(ABHS, selected):
+        try:
+            # استخدام await bot.send_reaction لتنفيذ الرياكت
+            await ABH.send_reaction(entity, msg_id, reaction=e)
+            await asyncio.sleep(0.5) # تجنب الضغط على السيرفر (Flood)
+        except Exception as e:
+            print(f"فشل الرياكت: {e}")
+            continue            
+    await event.reply("✅ تم إرسال الرياكتات بنجاح!")
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
