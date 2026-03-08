@@ -29,8 +29,9 @@ ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
+        print(token)
         ABHS.append(TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token))
-        ABHS.append(bot)
+ABHS.append(bot)
 idd = ABHS[1:]
 from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
@@ -285,8 +286,8 @@ names = {
     'حسن جداحة': ABH6,
     'برق الشايب': ABH7,
     'الخطير حسون': ABH8,
-    'ابو قتادة الرافضي': ABH9,
-    'ابو قتاده الرافضي': ABH9
+    # 'ابو قتادة الرافضي': ABH9,
+    # 'ابو قتاده الرافضي': ABH9
 }
 import re
 import random
