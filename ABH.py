@@ -164,7 +164,7 @@ async def react(event):
             continue
 @bot.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
-    for ABH in ABHS[9:]:  # الحلقة هنا
+    for ABH in ABHS[:9]:  # الحلقة هنا
         try:
             await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
         except Exception as E:
