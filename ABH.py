@@ -21,8 +21,8 @@ import asyncio
 ALL_CLIENTS = []
 async def start_all_clients():
     user_sessions = [
-        ("code0", os.getenv("API_ID0"), os.getenv("API_HASH0")),
         ("code1", os.getenv("API_ID1"), os.getenv("API_HASH1")),
+        ("code2", os.getenv("API_ID2"), os.getenv("API_HASH2")),
         ("code3", os.getenv("API_ID3"), os.getenv("API_HASH3")),
         ("code4", os.getenv("API_ID4"), os.getenv("API_HASH4")),
         ("code5", os.getenv("API_ID5"), os.getenv("API_HASH5")),
