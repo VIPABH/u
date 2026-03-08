@@ -275,11 +275,62 @@ names = {
     'حسن جداحة': ABH6,
     'برق الشايب': ABH7,
     'الخطير حسون': ABH8,
-    
+    'ابو قتادة الرافضي': ABH9,
+    'ابو قتاده الرافضي': ABH9
 }
+import re
+import random
+from telethon import events
+
+emoji = [
+    "🤣","❤️","👍","👎","🔥","🥰","👏","😁","🤔","🤯","😱","🤬","😡","😢","🎉","🤩","🤮","💩","🙏","👌","🕊",
+    "🤡","🥱","☺️","😍","🐳","❤️‍🔥","🌚","🌭","😙","💯","⚡️","🍌","🏆","😘","🙊","😎","👾","🤷‍♂️",
+    "🤷‍♀️","🤷","☃️","🗿","🆒","💘","🙈","😇","😨","🤝","✍️","🤗","🫡","🎅","🎄","😴","😭","🤓","👻",
+    "👨‍💻","👀","🎃","💔","🤨","😐","🍓","🍾","💋","🖕","😈"
+]
+
+@bot.on(events.NewMessage(pattern=r'^رياكت (.+)'))
+async def react_cmd(event):
+
+    link = event.pattern_match.group(1)
+
+    m = re.search(r't\.me\/([^\/]+)\/(\d+)', link)
+    if not m:
+        return await event.reply("❌ الرابط غير صحيح")
+
+    chat = m.group(1)
+    msg_id = int(m.group(2))
+
+    try:
+
+        # رابط يوزر
+        if chat != "c":
+            entity = await bot.get_entity(chat)
+
+        # رابط خاص
+        else:
+            m2 = re.search(r't\.me\/c\/(\d+)\/(\d+)', link)
+            if not m2:
+                return await event.reply("❌ رابط غير مدعوم")
+
+            entity = int("-100" + m2.group(1))
+            msg_id = int(m2.group(2))
+
+        # اختيار ايموجي عشوائي بدون تكرار
+        selected = random.sample(emoji, min(len(ABHS), len(emoji)))
+
+        for ABH, e in zip(ABHS, selected):
+            try:
+                msg = await ABH.get_messages(entity, ids=msg_id)
+                await msg.react(e)
+            except:
+                pass
+    except Exception as er:
+        await event.reply(str(er))
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
+
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
