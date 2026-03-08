@@ -30,7 +30,7 @@ async def start_all_clients():
         ("code7", os.getenv("API_ID7"), os.getenv("API_HASH7")),
     ]
     for session_name, api_id, api_hash in user_sessions:
-        print(locals)
+        print(session_name, api_id, api_hash)
         client = TelegramClient(session_name, int(api_id), api_hash)
         await client.start()
         ALL_CLIENTS.append(client)
