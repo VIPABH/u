@@ -15,35 +15,22 @@ target_user_id = 1421907917
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
-bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
-bot = TelegramClient("bot", api_id, api_hash).start(bot_token=bot_token)
-import asyncio
-ALL_CLIENTS = []
-async def start_all_clients():
-    user_sessions = [
-        ("code1", os.getenv("API_ID1"), os.getenv("API_HASH1")),
-        ("code2", os.getenv("API_ID2"), os.getenv("API_HASH2")),
-        ("code3", os.getenv("API_ID3"), os.getenv("API_HASH3")),
-        ("code4", os.getenv("API_ID4"), os.getenv("API_HASH4")),
-        ("code5", os.getenv("API_ID5"), os.getenv("API_HASH5")),
-        ("code6", os.getenv("API_ID6"), os.getenv("API_HASH6")),
-        ("code7", os.getenv("API_ID7"), os.getenv("API_HASH7")),
-    ]
-    for session_name, api_id, api_hash in user_sessions:
-        print(session_name, api_id, api_hash)
-        client = TelegramClient(session_name, int(api_id), api_hash)
-        await client.start()
-        ALL_CLIENTS.append(client)
-    for i, token in enumerate(bot_tokens, start=1):
-        if token:
-            bot_client = TelegramClient(f"botcode{i}", api_id, api_hash)
-            await bot_client.start(bot_token=token)
-            ALL_CLIENTS.append(bot_client)
-            print(f"تم تشغيل البوت رقم {i}")
-loop = asyncio.get_event_loop()
-loop.run_until_complete(start_all_clients())
-ALL_CLIENTS.append(bot)
-idd = ALL_CLIENTS[1:]
+bot_tokens = [os.getenv(f"bot_token{i}") for i in range(10, 21)]
+bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
+ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
+ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
+ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
+ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
+ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
+ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
+ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")).start()
+ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
+ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")).start()
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9]
+for i, token in enumerate(bot_tokens, start=1):
+    if token:
+        ABHS.append(TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token))
+idd = ABHS[1:]
 from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
 from telethon.tl.functions.channels import EditAdminRequest
