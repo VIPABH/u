@@ -164,13 +164,13 @@ async def react(event):
             continue
 @bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
-    try:
-        for ABH in ABHS:
+    for ABH in ABHS:  # الحلقة هنا
+        try:
             await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
-    except Exception as E:
-        x = await ABH.get_me()
-        await e.reply(f"{x.id}    {E}")
-        continue
+        except Exception as E:
+            x = await ABH.get_me()
+            await e.reply(f"{x.id}    {E}")
+            continue  # هذا الآن صحيح، لأننا داخل الحلقة
 import asyncio
 import random
 groups = [-1002541767486, -1002522016427, -1002069775937]
