@@ -30,9 +30,8 @@ print('all userbot are working!')
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
-        print(token)
         ABHS.append(TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token))
-        print('all bot are working!')
+print('all bot are working!')
 ABHS.append(bot)
 idd = ABHS[1:]
 from telethon.errors import FloodWaitError
@@ -324,9 +323,12 @@ async def react_cmd(event):
     selected = random.sample(emoji, min(len(ABHS), len(emoji)))
     for ABH, e in zip(ABHS, selected):
         try:
-            # استخدام await bot.send_reaction لتنفيذ الرياكت
-            await ABH.send_reaction(entity, msg_id, reaction=e)
-            await asyncio.sleep(0.5) # تجنب الضغط على السيرفر (Flood)
+            await ABH(SendReactionRequest(
+                peer=entity,
+                msg_id=msg_id,
+                reaction=[ReactionEmoji(emoticon=e)],
+                big=False
+            ))            
         except Exception as e:
             print(f"فشل الرياكت: {e}")
             continue            
