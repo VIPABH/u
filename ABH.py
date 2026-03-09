@@ -25,8 +25,8 @@ ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")
 ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
 ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")).start()
 ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
-print('all userbot are working!')
 # ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")).start()
+print('all userbot are working!')
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
@@ -167,7 +167,7 @@ async def react(event):
             continue
 @bot.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
-    for ABH in ABHS[:9]:  # الحلقة هنا
+    for ABH in ABHS[:8]:  # الحلقة هنا
         try:
             await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
         except Exception as E:
@@ -471,4 +471,8 @@ async def nlits(e):
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 print('running')
+@bot.on(events.NewMessage(pattern="^تحديث$", from_users=[1910015590]))
+async def resetbot(event):
+    await event.reply('🙃')
+    await update_repo(event)
 bot.run_until_disconnected()
