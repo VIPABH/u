@@ -291,60 +291,60 @@ names = {
 }
 import re
 import random
-from telethon import events
+import asyncio
+from telethon import events, functions, types
+from telethon.tl.functions.messages import SendReactionRequest
 
-@bot.on(events.NewMessage(pattern=r'^رياكت (.+)'))
+@bot.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=wfffp))
 async def react_cmd(event):
-    emoji = [
-    "🤣", "❤️", "👍", "👎", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😡", "😢", "🎉", "🤩", "🤮", "💩", "🙏", "👌", "🕊",
-    "🤡", "🥱", "☺️", "😍", "🐳", "❤️‍🔥", "🌚", "🌭", "😙", "💯", "⚡️", "🍌", "🏆", "😡", "😘", "🙊", "😎", "👾", "🤷‍♂️",
-    "🤷‍♀️", "🤷", "☃️", "🗿", "🆒", "💘", "🙈", "😇", "😨", "🤝", "✍️", "🤗", "🫡", "🎅", "🎄", "😴", "😭", "🤓", "👻",
-    "👨‍💻", "👀", "🎃", "🙈", "💔", "🤨", "😐", "🍓", "🍾", "💋", "🖕", "😈"
-]
+    # 1. تحديد الرسالة المستهدفة (سواء عبر الرابط أو عبر الـ Reply)
+    reply = await event.get_reply_message()
+    input_str = event.pattern_match.group(1)
+    
+    msg_id = None
+    entity = None
 
-    link = event.pattern_match.group(1).strip()
-    try:
-        # استخراج الـ Entity (المعرف) بشكل صحيح
-        if "/c/" in link:
-            m = re.search(r't\.me/c/(-?\d+)/(\d+)', link)
-            raw_chat_id = m.group(1)
-            chat_id = int("-100" + raw_chat_id) if not raw_chat_id.startswith("-100") else int(raw_chat_id)
-            msg_id = int(m.group(2))
-            entity = chat_id
-        else:
-            m = re.search(r't\.me/([^\/]+)/(\d+)', link)
-            chat_username = m.group(1)
-            msg_id = int(m.group(2))
-            entity = await bot.get_entity(chat_username)
-    except Exception:
-        return await event.reply("❌ الرابط غير صحيح أو البوت لا يستطيع الوصول للمحادثة")
+    if input_str and "t.me/" in input_str:
+        # استخراج البيانات من الرابط المرسل في الأمر
+        link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', input_str)
+        if link_parts:
+            chat_info = link_parts.group(1)
+            msg_id = int(link_parts.group(2))
+            entity = int(f"-100{chat_info}") if chat_info.isdigit() else chat_info
+    elif reply:
+        # إذا لم يوجد رابط، نستخدم الرسالة التي تم الرد عليها
+        msg_id = reply.id
+        entity = reply.chat_id
+    else:
+        return await event.reply("❌ يرجى إرسال رابط الرسالة أو الرد على الرسالة المطلوبة.")
 
+    # 2. إعداد قائمة الإيموجي
+    emoji = ["🤣", "❤️", "👍", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😡", "🎉", "🤩", "🙏", "👌", "🤡", "😎", "🫡", "😭"]
     selected = random.sample(emoji, min(len(ABHS), len(emoji)))
     success_count = 0
 
-# ... بعد الحصول على msg_id و chat_id/username
-# حاول استبدال جزء الـ try الخاص بالـ SendReactionRequest بالتالي:
+    await event.reply(f"🚀 جاري إرسال {len(selected)} رياكت...")
 
+    # 3. إرسال الرياكتات عبر الحسابات
     for ABH, e in zip(ABHS, selected):
         try:
-            # تأكد من تحويل الـ entity لكل حساب (ABH)
-            # إذا كنت تستخدم chat_id (رقم):
-            target = await ABH.get_input_entity(int(entity)) 
+            # تحويل الـ entity لكل حساب لضمان الوصول
+            target = await ABH.get_input_entity(entity)
             
-            # إذا كان username، استخدم: 
-            # target = await ABH.get_input_entity(chat_username)
-
             await ABH(SendReactionRequest(
                 peer=target,
                 msg_id=msg_id,
-                reaction=[ReactionEmoji(emoticon=e)],
+                reaction=[types.ReactionEmoji(emoticon=e)],
                 big=False
             ))
             success_count += 1
-            await asyncio.sleep(1) # زيادة التأخير قليلاً لتجنب FloodWait
+            await asyncio.sleep(0.5) 
+            
         except Exception as er:
-            # التعامل مع الخطأ
-            print(f"فشل الرياكت: {er}")
+            print(f"فشل الرياكت من {ABH}: {er}")
+            continue
+
+    await event.reply(f"✅ تم إرسال {success_count} رياكت بنجاح.")
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
