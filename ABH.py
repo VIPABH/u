@@ -477,7 +477,14 @@ async def nlits(e):
             await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
-print('running')
+async def run_cmd(command: str):
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
+    return stdout.decode().strip(), stderr.decode().strip(), process.returncode
 @bot.on(events.NewMessage(pattern="^تحديث$", from_users=[1910015590]))
 async def update_repo(event):
     msg = await event.respond(" جاري جلب آخر التحديثات من الريبو عبر...")
@@ -487,4 +494,5 @@ async def update_repo(event):
         os.execv(sys.executable, [sys.executable, "run.py"])
     else:
         await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
+print('running')
 bot.run_until_disconnected()
