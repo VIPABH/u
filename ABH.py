@@ -295,7 +295,7 @@ import asyncio
 from telethon import events, functions, types
 from telethon.tl.functions.messages import SendReactionRequest
 
-@bot.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=wfffp))
+@bot.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
     # 1. تحديد الرسالة المستهدفة (سواء عبر الرابط أو عبر الـ Reply)
     reply = await event.get_reply_message()
@@ -319,7 +319,7 @@ async def react_cmd(event):
         return await event.reply("❌ يرجى إرسال رابط الرسالة أو الرد على الرسالة المطلوبة.")
 
     # 2. إعداد قائمة الإيموجي
-    emoji = ["🤣", "❤️", "👍", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😡", "🎉", "🤩", "🙏", "👌", "🤡", "😎", "🫡", "😭"]
+    emoji = ["🤣", "❤️", "👍", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "🎉", "🤩", "🙏", "👌", "😎", "🫡" ]
     selected = random.sample(emoji, min(len(ABHS), len(emoji)))
     success_count = 0
 
