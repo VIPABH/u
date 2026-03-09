@@ -326,7 +326,7 @@ async def react_cmd(event):
     await event.reply(f"🚀 جاري إرسال {len(selected)} رياكت...")
 
     # 3. إرسال الرياكتات عبر الحسابات
-    for ABH, e in zip(ABHS, selected):
+    for ABH, e in zip(ABHS[:8], selected):
         try:
             # تحويل الـ entity لكل حساب لضمان الوصول
             target = await ABH.get_input_entity(entity)
