@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-import os, re, random, redis, asyncio
+import os, re, random, redis, asyncio, sys
 from telethon.tl.types import (
     ReactionEmoji,
     ChatAdminRights)
