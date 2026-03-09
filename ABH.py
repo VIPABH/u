@@ -478,4 +478,13 @@ async def nlits(e):
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 print('running')
+@bot.on(events.NewMessage(pattern="^تحديث$", from_users=[1910015590]))
+async def update_repo(event):
+    msg = await event.respond(" جاري جلب آخر التحديثات من الريبو عبر...")
+    stdout, stderr, code = await run_cmd("git pull")
+    if code == 0:
+        await msg.edit(f" تحديث السورس بنجاح")
+        os.execv(sys.executable, [sys.executable, "run.py"])
+    else:
+        await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
 bot.run_until_disconnected()
