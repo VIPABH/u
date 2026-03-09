@@ -289,6 +289,8 @@ names = {
     'هاشم محمد': ABH6,
     'كرت الحظ': ABH7,
     'الخطير حسون': ABH8,
+    'حسن حسام': ABH9,
+    'عبدلمستسلم': ABH10,
 }
 import re
 import random
@@ -327,7 +329,7 @@ async def react_cmd(event):
     await event.reply(f"🚀 جاري إرسال {len(selected)} رياكت...")
 
     # 3. إرسال الرياكتات عبر الحسابات
-    for ABH, e in zip(ABHS[:8], selected):
+    for ABH, e in zip(ABHS[:10], selected):
         try:
             # تحويل الـ entity لكل حساب لضمان الوصول
             target = await ABH.get_input_entity(entity)
