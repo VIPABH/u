@@ -295,6 +295,13 @@ from telethon import events
 
 @bot.on(events.NewMessage(pattern=r'^رياكت (.+)'))
 async def react_cmd(event):
+    emoji = [
+    "🤣", "❤️", "👍", "👎", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😡", "😢", "🎉", "🤩", "🤮", "💩", "🙏", "👌", "🕊",
+    "🤡", "🥱", "☺️", "😍", "🐳", "❤️‍🔥", "🌚", "🌭", "😙", "💯", "⚡️", "🍌", "🏆", "😡", "😘", "🙊", "😎", "👾", "🤷‍♂️",
+    "🤷‍♀️", "🤷", "☃️", "🗿", "🆒", "💘", "🙈", "😇", "😨", "🤝", "✍️", "🤗", "🫡", "🎅", "🎄", "😴", "😭", "🤓", "👻",
+    "👨‍💻", "👀", "🎃", "🙈", "💔", "🤨", "😐", "🍓", "🍾", "💋", "🖕", "😈"
+]
+
     link = event.pattern_match.group(1).strip()
     try:
         # استخراج الـ Entity (المعرف) بشكل صحيح
@@ -471,8 +478,4 @@ async def nlits(e):
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
 print('running')
-@bot.on(events.NewMessage(pattern="^تحديث$", from_users=[1910015590]))
-async def resetbot(event):
-    await event.reply('🙃')
-    await update_repo(event)
 bot.run_until_disconnected()
