@@ -322,12 +322,18 @@ async def react_cmd(event):
     selected = random.sample(emoji, min(len(ABHS), len(emoji)))
     success_count = 0
 
+# ... بعد الحصول على msg_id و chat_id/username
+# حاول استبدال جزء الـ try الخاص بالـ SendReactionRequest بالتالي:
+
     for ABH, e in zip(ABHS, selected):
         try:
-            # تحويل الـ entity ليناسب الحساب الحالي
-            target = await ABH.get_input_entity(entity)
+            # تأكد من تحويل الـ entity لكل حساب (ABH)
+            # إذا كنت تستخدم chat_id (رقم):
+            target = await ABH.get_input_entity(int(entity)) 
             
-            # إرسال الرياكت
+            # إذا كان username، استخدم: 
+            # target = await ABH.get_input_entity(chat_username)
+
             await ABH(SendReactionRequest(
                 peer=target,
                 msg_id=msg_id,
@@ -335,20 +341,10 @@ async def react_cmd(event):
                 big=False
             ))
             success_count += 1
-            await asyncio.sleep(0.3) # تجنب الحظر المؤقت
-            
+            await asyncio.sleep(1) # زيادة التأخير قليلاً لتجنب FloodWait
         except Exception as er:
-            err_str = str(er)
-            if "reactions_uniq_max" in err_str:
-                print(f"توقف: الرسالة ممتلئة بالرياكتات.")
-                break # الخروج من اللوب لأن الرياكتات لن تقبل المزيد
-            elif "Could not find the input entity" in err_str:
-                print(f"الحساب {ABH} لا يرى المحادثة (ربما ليس منضماً).")
-            else:
-                print(f"فشل الرياكت: {err_str}")
-            continue
-
-    await event.reply(f"✅ تم إرسال {success_count} رياكت بنجاح.")
+            # التعامل مع الخطأ
+            print(f"فشل الرياكت: {er}")
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
