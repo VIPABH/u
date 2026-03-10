@@ -322,7 +322,7 @@ async def react_cmd(event):
         return await event.reply("❌ يرجى إرسال رابط الرسالة أو الرد على الرسالة المطلوبة.")
 
     # 2. إعداد قائمة الإيموجي
-    emoji = ["🤣", "❤️", "👍", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "🎉", "🤩", "🙏", "👌", "😎", "🫡" ]
+    emoji = ["❤️", "👍", "👏", "🤔", "🤯", "🙏", "👌", "😎", "🫡" ]
     selected = random.sample(emoji, min(len(ABHS), len(emoji)))
     success_count = 0
 
