@@ -537,7 +537,7 @@ async def react_cmd(event):
     else:
         return await event.reply("❌ يرجى إرسال رابط الرسالة أو الرد على الرسالة المطلوبة.")
     for ABH in ABHS:
-        count = await delete_bot_messages(entitiy)
+        count = await delete_bot_messages(entity)
         await event.reply(f"تم حذف {count} ")
     await event.reply("تم الحذف بنجاح")
         
