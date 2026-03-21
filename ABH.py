@@ -493,7 +493,7 @@ async def update_repo(event):
         os.execv(sys.executable, [sys.executable, "p.py"])
     else:
         await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
-async def delete_bot_messages(chat, limit=None):
+async def delete_bot_messages(client, chat, limit=None):
     """
     تحذف رسائل البوت من المحادثة المحددة.
     
@@ -537,7 +537,7 @@ async def react_cmd(event):
     else:
         return await event.reply("❌ يرجى إرسال رابط الرسالة أو الرد على الرسالة المطلوبة.")
     for ABH in ABHS:
-        count = await delete_bot_messages(entity)
+        count = await delete_bot_messages(ABH, entity)
         await event.reply(f"تم حذف {count} ")
     await event.reply("تم الحذف بنجاح")
         
