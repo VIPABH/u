@@ -493,6 +493,10 @@ async def update_repo(event):
         os.execv(sys.executable, [sys.executable, "p.py"])
     else:
         await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
+import re
+from telethon import events
+
+# دالة لحذف رسائل البوت
 async def delete_bot_messages(client, chat, limit=None):
     """
     تحذف رسائل البوت من المحادثة المحددة.
@@ -500,46 +504,60 @@ async def delete_bot_messages(client, chat, limit=None):
     :param client: كائن Telethon
     :param chat: الـ chat أو chat_id
     :param limit: عدد الرسائل للحذف (None = كل الرسائل)
+    :return: عدد الرسائل المحذوفة
     """
     messages = []
+    deleted_count = 0
+
     async for msg in client.iter_messages(chat, from_user='me', limit=limit):
         messages.append(msg.id)
 
         # حذف على دفعات لتجنب مشاكل الـ flood
         if len(messages) >= 100:
             await client.delete_messages(chat, messages)
+            deleted_count += len(messages)
             messages = []
+
     # حذف الباقي
     if messages:
         await client.delete_messages(chat, messages)
+        deleted_count += len(messages)
 
-    return len(messages)
+    return deleted_count
+
+# أمر تيليجرام لحذف رسائل البوت
 @bot.on(events.NewMessage(pattern=r'^حذف رسائل(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
-    # 1. تحديد الرسالة المستهدفة (سواء عبر الرابط أو عبر الـ Reply)
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
-    
+
     msg_id = None
     entity = None
 
+    # التعامل مع رابط t.me
     if input_str and "t.me/" in input_str:
-        # استخراج البيانات من الرابط المرسل في الأمر
-        link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', input_str)
+        link_parts = re.search(r't\.me/(?:c/)?([\w\d]+)/(\d+)', input_str)
         if link_parts:
             chat_info = link_parts.group(1)
             msg_id = int(link_parts.group(2))
+            # تحويل chat_id للقناة إذا كان رقمي
             entity = int(f"-100{chat_info}") if chat_info.isdigit() else chat_info
+        else:
+            return await event.reply("❌ الرابط غير صالح.")
     elif reply:
-        # إذا لم يوجد رابط، نستخدم الرسالة التي تم الرد عليها
+        # إذا لم يوجد رابط، استخدم الرسالة التي تم الرد عليها
         msg_id = reply.id
         entity = reply.chat_id
     else:
         return await event.reply("❌ يرجى إرسال رابط الرسالة أو الرد على الرسالة المطلوبة.")
+
+    # حذف الرسائل لكل عميل موجود في ABHS
+    total_deleted = 0
     for ABH in ABHS:
         count = await delete_bot_messages(ABH, entity)
-        await event.reply(f"تم حذف {count} ")
-    await event.reply("تم الحذف بنجاح")
+        total_deleted += count
+
+    await event.reply(f"✅ تم حذف {total_deleted} رسالة بنجاح.")
         
 print('running')
 bot.run_until_disconnected()
