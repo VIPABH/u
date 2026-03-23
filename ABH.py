@@ -351,7 +351,6 @@ async def react_cmd(event):
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
-
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
@@ -376,6 +375,7 @@ async def nlits(e):
             print(f"خطأ في التفاعل: {ex}")
 @bot.on(events.NewMessage)
 async def nlits(e):
+    if not event.is_private:return
     text = e.text
     sender = e.sender_id
     chat_id = None
