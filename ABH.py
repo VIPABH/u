@@ -375,7 +375,7 @@ async def nlits(e):
             print(f"خطأ في التفاعل: {ex}")
 @bot.on(events.NewMessage)
 async def nlits(e):
-    if not event.is_private:return
+    if not e.is_private:return
     text = e.text
     sender = e.sender_id
     chat_id = None
