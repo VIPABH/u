@@ -353,12 +353,12 @@ async def react_cmd(event):
 
     success_count = 0
 
-    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(ABHS)} حساب)...")
+    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(ABHS[:10])} حساب)...")
 
     # -------------------------------
     # 3. توزيع ذكي
     # -------------------------------
-    for ABH in ABHS:
+    for ABH in ABHS[:10]:
         try:
             target = await ABH.get_input_entity(entity)
 
@@ -385,8 +385,6 @@ async def react_cmd(event):
 
             if not sent:
                 print(f"❌ الحساب ما قدر يحط أي رياكت")
-
-            await asyncio.sleep(0.4)
 
         except Exception as er:
             print(f"❌ خطأ بالحساب: {er}")
