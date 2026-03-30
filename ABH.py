@@ -295,59 +295,108 @@ names = {
 import re
 import random
 import asyncio
-from telethon import events, functions, types
+from telethon import events, types
 from telethon.tl.functions.messages import SendReactionRequest
 
 @bot.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
-    # 1. تحديد الرسالة المستهدفة (سواء عبر الرابط أو عبر الـ Reply)
+
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
-    
+
+    if not input_str and not reply:
+        return await event.reply("❌ ارسل: رياكت + رابط + ايموجي\nاو رد + ايموجي")
+
     msg_id = None
     entity = None
+    emojis = []
 
-    if input_str and "t.me/" in input_str:
-        # استخراج البيانات من الرابط المرسل في الأمر
-        link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', input_str)
-        if link_parts:
-            chat_info = link_parts.group(1)
-            msg_id = int(link_parts.group(2))
+    # -------------------------------
+    # 1. تحليل الإدخال
+    # -------------------------------
+    if input_str:
+        parts = input_str.strip().split()
+
+        # إذا أول عنصر رابط
+        if "t.me/" in parts[0]:
+            link = parts[0]
+
+            match = re.search(r't\.me/(?:c/)?([\w]+)/(\d+)', link)
+            if not match:
+                return await event.reply("❌ رابط غير صالح")
+
+            chat_info = match.group(1)
+            msg_id = int(match.group(2))
             entity = int(f"-100{chat_info}") if chat_info.isdigit() else chat_info
+
+            emojis = parts[1:]
+
+        else:
+            if reply:
+                msg_id = reply.id
+                entity = reply.chat_id
+                emojis = parts
+            else:
+                return await event.reply("❌ لازم رابط أو رد")
+
     elif reply:
-        # إذا لم يوجد رابط، نستخدم الرسالة التي تم الرد عليها
         msg_id = reply.id
         entity = reply.chat_id
-    else:
-        return await event.reply("❌ يرجى إرسال رابط الرسالة أو الرد على الرسالة المطلوبة.")
 
-    # 2. إعداد قائمة الإيموجي
-    emoji = ["❤️", "👍", "👏", "🤔", "🤯", "🙏", "👌", "😎", "🫡" ]
-    selected = random.sample(emoji, min(len(ABHS), len(emoji)))
+    # -------------------------------
+    # 2. تحقق من الإيموجي
+    # -------------------------------
+    if not emojis:
+        return await event.reply("❌ لازم تضيف ايموجي واحد على الأقل")
+
+    emoji_list = list(emojis)
+
     success_count = 0
 
-    await event.reply(f"🚀 جاري إرسال {len(selected)} رياكت...")
+    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(ABHS)} حساب)...")
 
-    # 3. إرسال الرياكتات عبر الحسابات
-    for ABH, e in zip(ABHS[:10], selected):
+    # -------------------------------
+    # 3. توزيع ذكي
+    # -------------------------------
+    for ABH in ABHS:
         try:
-            # تحويل الـ entity لكل حساب لضمان الوصول
             target = await ABH.get_input_entity(entity)
-            
-            await ABH(SendReactionRequest(
-                peer=target,
-                msg_id=msg_id,
-                reaction=[types.ReactionEmoji(emoticon=e)],
-                big=False
-            ))
-            success_count += 1
-            await asyncio.sleep(0.5) 
-            
+
+            # خلط الإيموجي لكل حساب (عشوائية حقيقية)
+            shuffled = random.sample(emoji_list, len(emoji_list))
+
+            sent = False
+
+            for emo in shuffled:
+                try:
+                    await ABH(SendReactionRequest(
+                        peer=target,
+                        msg_id=msg_id,
+                        reaction=[types.ReactionEmoji(emoticon=emo)],
+                        big=False
+                    ))
+
+                    success_count += 1
+                    sent = True
+                    break  # ✅ يوقف بعد أول نجاح
+
+                except:
+                    continue  # ❌ جرّب ايموجي ثاني
+
+            if not sent:
+                print(f"❌ الحساب ما قدر يحط أي رياكت")
+
+            await asyncio.sleep(0.4)
+
         except Exception as er:
-            print(f"فشل الرياكت من {ABH}: {er}")
+            print(f"❌ خطأ بالحساب: {er}")
             continue
 
-    await event.reply(f"✅ تم إرسال {success_count} رياكت بنجاح.")
+    await event.reply(
+        f"✅ تم الإرسال بنجاح\n"
+        f"👥 الحسابات: {len(ABHS)}\n"
+        f"🔥 الناجح: {success_count}"
+    )
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
