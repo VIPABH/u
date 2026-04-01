@@ -347,7 +347,7 @@ async def react_cmd(event):
     # 2. تحقق من الإيموجي
     # -------------------------------
     if not emojis:
-        return await event.reply("❌ لازم تضيف ايموجي واحد على الأقل")
+        emojis = ["❤️", "👍", "👏", "🤔", "🤯", "🙏", "👌", "😎", "🫡" ]
 
     emoji_list = list(emojis)
 
