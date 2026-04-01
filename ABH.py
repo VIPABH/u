@@ -392,7 +392,7 @@ async def react_cmd(event):
 
     await event.reply(
         f"✅ تم الإرسال بنجاح\n"
-        f"👥 الحسابات: {len(ABHS)}\n"
+        f"👥 الحسابات: {len(ABHS[:10])}\n"
         f"🔥 الناجح: {success_count}"
     )
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
