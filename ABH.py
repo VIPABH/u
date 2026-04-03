@@ -27,8 +27,9 @@ ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")
 ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
 ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")).start()
 ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH10")).start()
+ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
 print('all userbot are working!')
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10]
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
         ABHS.append(TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token))
@@ -291,6 +292,7 @@ names = {
     'الخطير حسون': ABH8,
     'حسن حسام': ABH9,
     'عبدلمستسلم': ABH10,
+    'مستر بركر': ABH11,
 }
 import re
 import random
@@ -353,12 +355,12 @@ async def react_cmd(event):
 
     success_count = 0
 
-    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(ABHS[:10])} حساب)...")
+    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(ABHS[:11])} حساب)...")
 
     # -------------------------------
     # 3. توزيع ذكي
     # -------------------------------
-    for ABH in ABHS[:10]:
+    for ABH in ABHS[:11]:
         try:
             target = await ABH.get_input_entity(entity)
 
@@ -392,7 +394,7 @@ async def react_cmd(event):
 
     await event.reply(
         f"✅ تم الإرسال بنجاح\n"
-        f"👥 الحسابات: {len(ABHS[:10])}\n"
+        f"👥 الحسابات: {len(ABHS[:11])}\n"
         f"🔥 الناجح: {success_count}"
     )
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
