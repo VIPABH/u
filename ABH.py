@@ -19,7 +19,7 @@ bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
-ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
+# ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
 ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
@@ -29,7 +29,8 @@ ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")
 ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH10")).start()
 ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
 print('all userbot are working!')
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
+# ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
+ABHS = [ABH1, ABH2, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
         ABHS.append(TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token))
@@ -282,8 +283,8 @@ names = {
     'العميل الاول': ABH1,
     'ابو قتادة الرافضي': ABH2,
     'ابو قتاده الرافضي': ABH2,
-    'سالو': ABH3,
-    'salo': ABH3,
+    # 'سالو': ABH3,
+    # 'salo': ABH3,
     'حسن جداحه': ABH4,
     'حسن جداحة': ABH4,
     'برق الشايب': ABH5,
