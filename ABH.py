@@ -343,7 +343,7 @@ async def react_cmd(event):
     else:
         emoji_list = list(emojis)
 
-    accounts_to_use = ABHS[:11]
+    accounts_to_use = ABHS
     status_msg = await event.reply(f"⏳ جاري العمل بواسطة {len(accounts_to_use)} حساب...")
     
     success_count = 0
@@ -383,7 +383,6 @@ async def react_cmd(event):
                     continue
 
             # تأخير عشوائي بسيط بين 0.3 و 0.8 ثانية (أكثر دقة وأمان)
-            await asyncio.sleep(random.uniform(0.3, 0.8))
 
         except Exception as e:
             print(f"❌ فشل حساب: {e}")
