@@ -295,15 +295,8 @@ names = {
     'عبدلمستسلم': ABH10,
     'مستر بركر': ABH11,
 }
-import re
-import random
-import asyncio
-from telethon import events, types
-from telethon.tl.functions.messages import SendReactionRequest
-
 @bot.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
-
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
 
@@ -314,26 +307,22 @@ async def react_cmd(event):
     entity = None
     emojis = []
 
-    # -------------------------------
-    # 1. تحليل الإدخال
-    # -------------------------------
     if input_str:
         parts = input_str.strip().split()
-
-        # إذا أول عنصر رابط
         if "t.me/" in parts[0]:
             link = parts[0]
-
             match = re.search(r't\.me/(?:c/)?([\w]+)/(\d+)', link)
             if not match:
                 return await event.reply("❌ رابط غير صالح")
-
+            
             chat_info = match.group(1)
             msg_id = int(match.group(2))
-            entity = int(f"-100{chat_info}") if chat_info.isdigit() else chat_info
-
+            # تصحيح آيدي القنوات الخاصة
+            if chat_info.isdigit():
+                entity = int(f"-100{chat_info}")
+            else:
+                entity = chat_info
             emojis = parts[1:]
-
         else:
             if reply:
                 msg_id = reply.id
@@ -341,35 +330,27 @@ async def react_cmd(event):
                 emojis = parts
             else:
                 return await event.reply("❌ لازم رابط أو رد")
-
     elif reply:
         msg_id = reply.id
         entity = reply.chat_id
 
-    # -------------------------------
-    # 2. تحقق من الإيموجي
-    # -------------------------------
+    # تصحيح منطق الإيموجي الافتراضي
     if not emojis:
-        emoji = ["❤️", "👍", "🔥", "🥰", "👏", "🤔", "🤯", "🤩", "🙏", "👌", "😎", "🫡" ]
-
-    emoji_list = list(emojis)
+        emoji_list = ["❤️", "👍", "🔥", "🥰", "👏", "🤔", "🤯", "🤩", "🙏", "👌", "😎", "🫡"]
+    else:
+        emoji_list = list(emojis)
 
     success_count = 0
+    accounts_to_use = ABHS[:11]
+    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(accounts_to_use)} حساب)...")
 
-    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(ABHS[:11])} حساب)...")
-
-    # -------------------------------
-    # 3. توزيع ذكي
-    # -------------------------------
-    for ABH in ABHS[:11]:
+    for ABH in accounts_to_use:
         try:
+            # محاولة جلب الكيان (Entity)
             target = await ABH.get_input_entity(entity)
-
-            # خلط الإيموجي لكل حساب (عشوائية حقيقية)
             shuffled = random.sample(emoji_list, len(emoji_list))
-
+            
             sent = False
-
             for emo in shuffled:
                 try:
                     await ABH(SendReactionRequest(
@@ -378,16 +359,14 @@ async def react_cmd(event):
                         reaction=[types.ReactionEmoji(emoticon=emo)],
                         big=False
                     ))
-
                     success_count += 1
                     sent = True
-                    break  # ✅ يوقف بعد أول نجاح
+                    break 
+                except Exception:
+                    continue 
 
-                except:
-                    continue  # ❌ جرّب ايموجي ثاني
-
-            if not sent:
-                print(f"❌ الحساب ما قدر يحط أي رياكت")
+            # تأخير بسيط حتى ما تنحظر الحسابات
+            await asyncio.sleep(0.5) 
 
         except Exception as er:
             print(f"❌ خطأ بالحساب: {er}")
@@ -395,7 +374,7 @@ async def react_cmd(event):
 
     await event.reply(
         f"✅ تم الإرسال بنجاح\n"
-        f"👥 الحسابات: {len(ABHS[:11])}\n"
+        f"👥 الحسابات: {len(accounts_to_use)}\n"
         f"🔥 الناجح: {success_count}"
     )
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
