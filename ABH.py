@@ -118,76 +118,68 @@ async def startup_warmup():
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
-import random
-import asyncio
-from telethon.tl.functions.messages import SendReactionRequest, GetMessagesViewsRequest
-from telethon.tl.functions.channels import GetFullChannelRequest
-from telethon.tl.types import ReactionEmoji
 import re
 import random
 import asyncio
-from telethon import events, types
-from telethon.tl.functions.messages import SendVoteRequest, GetMessages
+from telethon import events, types, functions # استدعاء عام للأوامر
 
 @bot.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
 async def vote_cmd(event):
     reply = await event.get_reply_message()
-    # إذا ما حدد رقم الخيار، نعتبره 0 (أول خيار)
     choice_index = int(event.pattern_match.group(1)) if event.pattern_match.group(1) else 0
     input_str = event.pattern_match.group(2)
 
     msg_id = None
     entity = None
 
-    # 1. تحليل الرابط أو الرد
     if input_str:
         link_match = re.search(r't\.me/(?:c/)?([^/]+)/(\d+)', input_str.strip())
         if link_match:
             chat_val = link_match.group(1)
             msg_id = int(link_match.group(2))
             entity = int(f"-100{chat_val}") if chat_val.isdigit() else chat_val
-        else:
-            return await event.reply("❌ **الرابط مو صحيح عيني علي!**")
+        else: return await event.reply("❌ الرابط غلط.")
     elif reply:
         msg_id = reply.id
         entity = reply.chat_id
-    else:
-        return await event.reply("❌ **حدد رقم الخيار أو رد على التصويت!**\nمثال: `تصويت 0` (للخيار الأول)")
+    else: return await event.reply("❌ رد على تصويت أو ارسل رابط.")
 
-    accounts_to_use = ABHS[:11]
-    status_msg = await event.reply(f"⏳ جاري التصويت بـ {len(accounts_to_use)} حساب...")
-    
+    # نستخدم بس الـ Userbots ونعوف الـ Bot الرئيسي
+    accounts_to_use = ABHS[:11] 
+    status_msg = await event.reply(f"⏳ جاري الفزعة بـ {len(accounts_to_use)} حساب...")
     success_count = 0
 
-    # 2. بدء عملية التصويت
     for ABH in accounts_to_use:
         try:
-            # جلب الكيان
-            target = await ABH.get_input_entity(entity)
+            # 1. جلب الرسالة للتأكد من بيانات التصويت (حل مشكلة Option Invalid)
+            msg_data = await ABH.get_messages(entity, ids=msg_id)
+            if not msg_data or not msg_data.media or not hasattr(msg_data.media, 'poll'):
+                print("❌ هذي الرسالة مو تصويت")
+                continue
+
+            # جلب الـ ID الخاص بالخيار من داخل التصويت نفسه
+            poll_options = msg_data.media.poll.answers
+            if choice_index >= len(poll_options):
+                print(f"❌ الخيار {choice_index} غير موجود")
+                continue
             
-            # إرسال التصويت باستخدام bytes للمؤشر (Index)
-            # ملاحظة: الخيار الأول بالبوتات غالباً يكون b'0'
-            await ABH(SendVoteRequest(
-                peer=target,
+            chosen_answer = poll_options[choice_index].option # هذا هو الـ Byte الصحيح
+
+            # 2. إرسال التصويت (حل مشكلة Restricted)
+            await ABH(functions.messages.SendVoteRequest(
+                peer=msg_data.peer_id,
                 msg_id=msg_id,
-                options=[str(choice_index).encode()] # تحويل الرقم لنص ثم بايتات (أضمن ببعض النسخ)
+                options=[chosen_answer]
             ))
             
             success_count += 1
-            # تأخير عشوائي حتى يبين التصويت بشري وما ينحظر الحساب
-            await asyncio.sleep(random.uniform(0.7, 1.5))
+            await asyncio.sleep(random.uniform(0.5, 1.2))
 
         except Exception as e:
-            print(f"❌ فشل تصويت حساب: {e}")
+            print(f"❌ فشل حساب: {e}")
             continue
 
-    # 3. تحديث النتيجة
-    await status_msg.edit(
-        f"✅ **تم التصويت بنجاح يا بطل**\n\n"
-        f"🔘 رقم الخيار: `{choice_index + 1}`\n"
-        f"✅ الناجح: `{success_count}`\n"
-        f"👥 الإجمالي: `{len(accounts_to_use)}`"
-    )
+    await status_msg.edit(f"✅ تم التصويت بنجاح\n🔥 الأصوات: {success_count} من {len(accounts_to_use)}")
 async def react(event):
     if not event.is_channel or not event.message or not event.message.post:
         return
