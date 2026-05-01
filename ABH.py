@@ -295,33 +295,36 @@ names = {
     'عبدلمستسلم': ABH10,
     'مستر بركر': ABH11,
 }
+import re
+import random
+import asyncio
+from telethon import events, types
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.functions.channels import GetFullChannelRequest
+from telethon.errors import FloodWaitError, ReactionInvalidError
+
 @bot.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
 
     if not input_str and not reply:
-        return await event.reply("❌ ارسل: رياكت + رابط + ايموجي\nاو رد + ايموجي")
+        return await event.reply("❌ **استخدام خطأ!**\nارسل: `رياكت + رابط + ايموجي`\nأو بالرد على رسالة: `رياكت + ايموجي`")
 
     msg_id = None
     entity = None
     emojis = []
 
+    # 1. تحليل المدخلات بدقة
     if input_str:
         parts = input_str.strip().split()
-        if "t.me/" in parts[0]:
-            link = parts[0]
-            match = re.search(r't\.me/(?:c/)?([\w]+)/(\d+)', link)
-            if not match:
-                return await event.reply("❌ رابط غير صالح")
-            
-            chat_info = match.group(1)
-            msg_id = int(match.group(2))
-            # تصحيح آيدي القنوات الخاصة
-            if chat_info.isdigit():
-                entity = int(f"-100{chat_info}")
-            else:
-                entity = chat_info
+        link_match = re.search(r't\.me/(?:c/)?([^/]+)/(\d+)', parts[0])
+        
+        if link_match:
+            chat_val = link_match.group(1)
+            msg_id = int(link_match.group(2))
+            # تحويل آيدي القنوات الخاصة للرقم الصحيح
+            entity = int(f"-100{chat_val}") if chat_val.isdigit() else chat_val
             emojis = parts[1:]
         else:
             if reply:
@@ -329,53 +332,69 @@ async def react_cmd(event):
                 entity = reply.chat_id
                 emojis = parts
             else:
-                return await event.reply("❌ لازم رابط أو رد")
+                return await event.reply("❌ **الرابط غير صحيح أو لازم ترد على رسالة!**")
     elif reply:
         msg_id = reply.id
         entity = reply.chat_id
 
-    # تصحيح منطق الإيموجي الافتراضي
+    # 2. قائمة الإيموجيات الافتراضية
     if not emojis:
-        emoji_list = ["❤️", "👍", "🔥", "🥰", "👏", "🤔", "🤯", "🤩", "🙏", "👌", "😎", "🫡"]
+        emoji_list = ["❤️", "👍", "🔥", "🥰", "👏", "🤔", "🤩", "🙏", "😎", "🫡"]
     else:
         emoji_list = list(emojis)
 
-    success_count = 0
     accounts_to_use = ABHS[:11]
-    await event.reply(f"🚀 بدء إرسال الرياكشنات ({len(accounts_to_use)} حساب)...")
+    status_msg = await event.reply(f"⏳ جاري العمل بواسطة {len(accounts_to_use)} حساب...")
+    
+    success_count = 0
 
+    # 3. دوران الحسابات
     for ABH in accounts_to_use:
         try:
-            # محاولة جلب الكيان (Entity)
-            target = await ABH.get_input_entity(entity)
+            # محاولة التعرف على القناة/الدردشة لكل حساب
+            try:
+                target = await ABH.get_input_entity(entity)
+            except Exception:
+                # محاولة أخيرة لجلب الكيان إذا كان معرف (Username)
+                if isinstance(entity, str):
+                    full = await ABH(GetFullChannelRequest(channel=entity))
+                    target = full.full_chat
+                else: raise
+
+            # خلط الإيموجيات لضمان التنوع
             shuffled = random.sample(emoji_list, len(emoji_list))
             
-            sent = False
             for emo in shuffled:
                 try:
                     await ABH(SendReactionRequest(
                         peer=target,
                         msg_id=msg_id,
                         reaction=[types.ReactionEmoji(emoticon=emo)],
-                        big=False
+                        big=True # خليتها True لضمان ظهور التأثير
                     ))
                     success_count += 1
-                    sent = True
-                    break 
+                    break # نجح الحساب، ننتقل للحساب التالي
+                except ReactionInvalidError:
+                    continue # الإيموجي ممنوع، جرب غيره
+                except FloodWaitError as e:
+                    print(f"⚠️ حساب عليه انتظار: {e.seconds} ثانية")
+                    break # ننتقل للحساب التالي
                 except Exception:
-                    continue 
+                    continue
 
-            # تأخير بسيط حتى ما تنحظر الحسابات
-            await asyncio.sleep(0.5) 
+            # تأخير عشوائي بسيط بين 0.3 و 0.8 ثانية (أكثر دقة وأمان)
+            await asyncio.sleep(random.uniform(0.3, 0.8))
 
-        except Exception as er:
-            print(f"❌ خطأ بالحساب: {er}")
+        except Exception as e:
+            print(f"❌ فشل حساب: {e}")
             continue
 
-    await event.reply(
-        f"✅ تم الإرسال بنجاح\n"
-        f"👥 الحسابات: {len(accounts_to_use)}\n"
-        f"🔥 الناجح: {success_count}"
+    # 4. النتيجة النهائية
+    await status_msg.edit(
+        f"✅ **اكتملت العملية بنجاح**\n\n"
+        f"👥 الحسابات المشاركة: `{len(accounts_to_use)}`\n"
+        f"🔥 التفاعلات الناجحة: `{success_count}`\n"
+        f"📍 الهدف: `{entity}`"
     )
 @ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
