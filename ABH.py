@@ -34,7 +34,7 @@ ABHS = [ABH1, ABH2, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
         ABHS.append(TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token))
-print('all bot are working!')
+        print('all bot are working!')
 ABHS.append(bot)
 idd = ABHS[1:]
 from telethon.errors import FloodWaitError
@@ -225,7 +225,7 @@ async def react(event):
             continue
 @bot.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
-    for ABH in ABHS[:8]:  # الحلقة هنا
+    for ABH in ABHS[:12]:  # الحلقة هنا
         try:
             await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
         except Exception as E:
