@@ -31,13 +31,13 @@ ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH
 print('all userbot are working!')
 # ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
 ABHS = [ABH1, ABH2, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
+ABHS.append(bot)
+idd = ABHS[1:]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
         ABH = TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token)
         ABHS.append(ABH)
         print('all bot are working!')
-ABHS.append(bot)
-idd = ABHS[1:]
 from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
 from telethon.tl.functions.channels import EditAdminRequest
