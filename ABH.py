@@ -419,6 +419,7 @@ async def react_cmd(event):
 
             # خلط الإيموجيات لضمان التنوع
             shuffled = random.sample(emoji_list, len(emoji_list))
+
             
             for emo in shuffled:
                 try:
