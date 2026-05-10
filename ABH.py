@@ -17,9 +17,10 @@ api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
+ABH = TelegramClient("code", int(os.getenv("API_ID")), os.getenv("API_HASH")).start()
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
-# ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
+ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
 ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
@@ -28,16 +29,16 @@ ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")
 ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")).start()
 ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH10")).start()
 ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
+ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
 print('all userbot are working!')
-# ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
-ABHS = [ABH1, ABH2, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11]
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12]
 ABHS.append(bot)
 idd = ABHS[1:]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
         ABH = TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token)
         ABHS.append(ABH)
-        print('all bot are working!')
+print('all bot are working!')
 from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
 from telethon.tl.functions.channels import EditAdminRequest
