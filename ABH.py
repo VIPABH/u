@@ -1,3 +1,4 @@
+from telethon.tl.functions.messages import GetMessagesViewsRequest
 from telethon import TelegramClient, events
 import os, re, random, redis, asyncio, sys
 from telethon.tl.types import (
