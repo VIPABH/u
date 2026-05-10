@@ -17,7 +17,7 @@ api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 bot = TelegramClient("code", api_id, api_hash).start(bot_token=bot_token)
-ABH = TelegramClient("code", int(os.getenv("API_ID")), os.getenv("API_HASH")).start()
+ABH = TelegramClient("ABH", int(os.getenv("API_ID")), os.getenv("API_HASH")).start()
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
