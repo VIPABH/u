@@ -17,7 +17,7 @@ api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
-ABH = TelegramClient("ABH", int(os.getenv("API_ID")), os.getenv("API_HASH")).start()
+mainABH = TelegramClient("ABH", int(os.getenv("API_ID")), os.getenv("API_HASH")).start()
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
@@ -36,8 +36,8 @@ ABHS.append(bot)
 idd = ABHS[1:]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
-        ABH = TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token)
-        ABHS.append(ABH)
+        mainABH = TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token)
+        ABHS.append(mainABH)
 print('all bot are working!')
 from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
@@ -125,7 +125,7 @@ import random
 import asyncio
 from telethon import events, types, functions # استدعاء عام للأوامر
 
-@ABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
+@mainABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
 async def vote_cmd(event):
     reply = await event.get_reply_message()
     choice_index = int(event.pattern_match.group(1)) if event.pattern_match.group(1) else 0
@@ -225,7 +225,7 @@ async def react(event):
         except Exception as e:
             print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
             continue
-@ABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
+@mainABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS[:12]:  # الحلقة هنا
         try:
@@ -234,7 +234,7 @@ async def test(e):
             x = await ABH.get_me()
             await e.reply(f"{x.id}    {E}")
             continue  # هذا الآن صحيح، لأننا داخل الحلقة
-@ABH.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
+@mainABH.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS:  # الحلقة هنا
         try:
@@ -246,7 +246,7 @@ async def test(e):
 import asyncio
 import random
 groups = [-1002541767486, -1002522016427, -1002069775937]
-@ABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
+@mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
     async def run_task(group_id):
@@ -274,7 +274,7 @@ async def words(e):
     await asyncio.gather(*tasks)
 import re
 
-@ABH.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
+@mainABH.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
@@ -363,7 +363,7 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.errors import FloodWaitError, ReactionInvalidError
 
-@ABH.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
+@mainABH.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
