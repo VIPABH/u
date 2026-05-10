@@ -125,7 +125,7 @@ import random
 import asyncio
 from telethon import events, types, functions # استدعاء عام للأوامر
 
-@bot.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
+@ABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
 async def vote_cmd(event):
     reply = await event.get_reply_message()
     choice_index = int(event.pattern_match.group(1)) if event.pattern_match.group(1) else 0
@@ -225,7 +225,7 @@ async def react(event):
         except Exception as e:
             print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
             continue
-@bot.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
+@ABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS[:12]:  # الحلقة هنا
         try:
@@ -234,7 +234,7 @@ async def test(e):
             x = await ABH.get_me()
             await e.reply(f"{x.id}    {E}")
             continue  # هذا الآن صحيح، لأننا داخل الحلقة
-@bot.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
+@ABH.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS:  # الحلقة هنا
         try:
@@ -246,7 +246,7 @@ async def test(e):
 import asyncio
 import random
 groups = [-1002541767486, -1002522016427, -1002069775937]
-@ABH1.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
+@ABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
     async def run_task(group_id):
@@ -274,7 +274,7 @@ async def words(e):
     await asyncio.gather(*tasks)
 import re
 
-@bot.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
+@ABH.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
@@ -340,8 +340,8 @@ names = {
     'العميل الاول': ABH1,
     'ابو قتادة الرافضي': ABH2,
     'ابو قتاده الرافضي': ABH2,
-    # 'سالو': ABH3,
-    # 'salo': ABH3,
+    'سالو': ABH3,
+    'salo': ABH3,
     'حسن جداحه': ABH4,
     'حسن جداحة': ABH4,
     'برق الشايب': ABH5,
@@ -351,6 +351,9 @@ names = {
     'حسن حسام': ABH9,
     'عبدلمستسلم': ABH10,
     'مستر بركر': ABH11,
+    'سمسير': ABH12,
+    'سمسير الولاية': ABH12,
+    'سمسير الولايه': ABH12,
 }
 import re
 import random
@@ -360,7 +363,7 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.errors import FloodWaitError, ReactionInvalidError
 
-@bot.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
+@ABH.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
