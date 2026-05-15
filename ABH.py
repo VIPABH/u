@@ -246,7 +246,7 @@ async def test(e):
             continue  # هذا الآن صحيح، لأننا داخل الحلقة
 import asyncio
 import random
-groups = [-1002541767486, -1002522016427, -1002069775937]
+groups = [-1002069775937]
 @mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
@@ -274,7 +274,6 @@ async def words(e):
     tasks = [run_task(g_id) for g_id in groups]
     await asyncio.gather(*tasks)
 import re
-
 @mainABH.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
