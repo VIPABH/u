@@ -31,6 +31,7 @@ ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")
 ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH10")).start()
 ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
 ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
+ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
 print('all userbot are working!')
 ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12]
 ABHS.append(bot)
@@ -354,6 +355,7 @@ names = {
     'سمسير': ABH12,
     'سمسير الولاية': ABH12,
     'سمسير الولايه': ABH12,
+    'الطفل البكاء': ABH13,
 }
 import re
 import random
