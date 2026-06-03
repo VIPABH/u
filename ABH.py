@@ -45,6 +45,12 @@ from telethon.errors import FloodWaitError
 from telethon.tl.types import ChatAdminRights
 from telethon.tl.functions.channels import EditAdminRequest
 import asyncio
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.functions.messages import EditChatAdminRequest  # تم إضافة هذا السطر للكروبات العادية
+from telethon.tl.types import ChatAdminRights
+from telethon.errors import FloodWaitError, ChatAdminRequiredError
+import asyncio
+
 async def promote_ABHS(chat_id=None):
     if not chat_id:
         return
@@ -65,15 +71,24 @@ async def promote_ABHS(chat_id=None):
         try:
             id_info = await AB.get_me()
 
-            await ABH1(EditAdminRequest(
-                channel=xxx,
-                user_id=id_info.id,
-                admin_rights=rights,
-                rank="bot"
-            ))
+            try:
+                # محاولة أولى: القنوات والمجموعات الخارقة (كودك الأصلي)
+                await ABH1(EditAdminRequest(
+                    channel=xxx,
+                    user_id=id_info.id,
+                    admin_rights=rights,
+                    rank="bot"
+                ))
+            except Exception as e:
+                # محاولة ثانية: إذا فشل الأول، يعني هذا كروب عادي
+                # الكروبات العادية تستخدم EditChatAdminRequest وتأخذ True أو False فقط
+                await ABH1(EditChatAdminRequest(
+                    chat_id=xxx,
+                    user_id=id_info.id,
+                    is_admin=True
+                ))
 
             print(f"✅ تم رفع {id_info.id} مشرف")
-
 
         except FloodWaitError as e:
             print(f"⏳ FloodWait لمدة {e.seconds} ثانية")
