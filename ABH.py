@@ -250,11 +250,6 @@ async def test(e):
             await e.reply(f"{x.id}    {E}")
             continue  
 groups = [-1002069775937, -1002522016427, -1002541767486, -1002539987965, -1002210645890]
-async def main():
-    await asyncio.gather(*(promote_ABHS(id) for id in groups))
-print('done')
-if __name__ == "__main__":
-    asyncio.run(main())
 @mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
@@ -470,7 +465,7 @@ async def react_cmd(event):
         f"🔥 التفاعلات الناجحة: `{success_count}`\n"
         f"📍 الهدف: `{entity}`"
     )
-@ABH1.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
+@mainABH.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
 @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
