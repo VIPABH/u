@@ -38,7 +38,7 @@ ABHS.append(bot)
 idd = ABHS[1:]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
-        mainABH = TelegramClient(f"botcode{i}", api_id, api_hash).start(bot_token=token)
+        mainABH = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
         ABHS.append(mainABH)
 print('all bot are working!')
 from telethon.errors import FloodWaitError
@@ -229,7 +229,7 @@ async def react(event):
             continue
 @mainABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
-    for ABH in ABHS[:12]:  # الحلقة هنا
+    for ABH in ABHS[:13]:  # الحلقة هنا
         try:
             await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
         except Exception as E:
@@ -244,16 +244,14 @@ async def test(e):
         except Exception as E:
             x = await ABH.get_me()
             await e.reply(f"{x.id}    {E}")
-            continue  # هذا الآن صحيح، لأننا داخل الحلقة
-import asyncio
-import random
-groups = [-1002069775937]
+            continue  
+groups = [-1002069775937, -1002522016427, -1002541767486, -1002539987965, -1002210645890]
 @mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
     async def run_task(group_id):
         while True:
-            client = random.choice([ABH1, ABH2, ABH3, ABH4, ABH5])
+            client = random.choice([ABHS])
             try:
                 async with client.conversation(group_id, timeout=10) as conv:
                     await conv.send_message("كلمات")
@@ -611,17 +609,7 @@ async def update_repo(event):
         await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
 import re
 from telethon import events
-
-# دالة لحذف رسائل البوت
 async def delete_bot_messages(client, chat, limit=None):
-    """
-    تحذف رسائل البوت من المحادثة المحددة.
-    
-    :param client: كائن Telethon
-    :param chat: الـ chat أو chat_id
-    :param limit: عدد الرسائل للحذف (None = كل الرسائل)
-    :return: عدد الرسائل المحذوفة
-    """
     messages = []
     deleted_count = 0
 
