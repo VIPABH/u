@@ -281,11 +281,12 @@ async def words(e):
                         if match:
                             await asyncio.sleep(10) 
                             await conv.send_message(match.group(1))
-                        break 
+                        break
             except asyncio.TimeoutError:
                 print(f"انتهى الوقت في المجموعة {group_id}، إعادة المحاولة...")
             except Exception as ex:
-                print(f"خطأ في المجموعة {group_id}: {ex}")
+                me = await client.get_me()  # جلب معلومات الحساب
+                print(f"خطأ في المجموعة `{group_id}`  -- `{me.id}`   : {ex} ")
             await asyncio.sleep(2) 
             
     tasks = [run_task(g_id) for g_id in groups]
