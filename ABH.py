@@ -256,7 +256,7 @@ async def words(e):
     await e.reply('تدلل حبيبي')
     async def run_task(group_id):
         while True:
-            client = random.choice([ABHS[2:]])
+            client = random.choice(ABHS[2:])
             try:
                 async with client.conversation(group_id, timeout=10) as conv:
                     await conv.send_message("كلمات")
