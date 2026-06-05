@@ -154,7 +154,7 @@ async def vote_cmd(event):
     else: return await event.reply("❌ رد على تصويت أو ارسل رابط.")
 
     # نستخدم بس الـ Userbots ونعوف الـ Bot الرئيسي
-    accounts_to_use = ABHS[:11] 
+    accounts_to_use = userbots[:13] 
     status_msg = await event.reply(f"⏳ جاري الفزعة بـ {len(accounts_to_use)} حساب...")
     success_count = 0
 
@@ -256,7 +256,7 @@ async def words(e):
     await e.reply('تدلل حبيبي')
     async def run_task(group_id):
         while True:
-            client = random.choice(ABHS[2:])
+            client = random.choice(userbots[2:])
             try:
                 async with client.conversation(group_id, timeout=10) as conv:
                     await conv.send_message("كلمات")
