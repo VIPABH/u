@@ -32,7 +32,7 @@ ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH
 ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
 ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
 ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
-userbots = [mainABH, ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13]
+userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13]
 print('All userbots are working!')
 bots_list = [bot]
 
@@ -252,18 +252,22 @@ async def test(e):
             continue  
 groups = [-1002069775937, -1002522016427, -1002541767486, -1002539987965, -1002210645890]
 posting = False
+
 @mainABH.on(events.NewMessage(pattern=r'^النشر تعطيل', from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
     global posting
     posting = False
+
 @mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     global posting
     posting = True
     await e.reply('تدلل حبيبي')
+    
     async def run_task(group_id):
         while posting:
+            # تم التصحيح هنا: إزالة الأقواس المربعة الزائدة المحيطة بـ userbots
             client = random.choice(userbots[2:])
             try:                
                 async with client.conversation(group_id, timeout=10) as conv:
@@ -283,9 +287,9 @@ async def words(e):
             except Exception as ex:
                 print(f"خطأ في المجموعة {group_id}: {ex}")
             await asyncio.sleep(2) 
+            
     tasks = [run_task(g_id) for g_id in groups]
     await asyncio.gather(*tasks)
-import re
 @mainABH.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
