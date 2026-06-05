@@ -268,7 +268,7 @@ async def words(e):
     async def run_task(group_id):
         while posting:
             # تم التصحيح هنا: إزالة الأقواس المربعة الزائدة المحيطة بـ userbots
-            client = random.choice(userbots[2:])
+            client = random.choice(userbots[:2])
             try:                
                 async with client.conversation(group_id, timeout=10) as conv:
                     await conv.send_message("كلمات")
