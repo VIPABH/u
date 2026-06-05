@@ -251,13 +251,21 @@ async def test(e):
             await e.reply(f"{x.id}    {E}")
             continue  
 groups = [-1002069775937, -1002522016427, -1002541767486, -1002539987965, -1002210645890]
-@mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
+posting = False
+@mainABH.on(events.NewMessage(pattern=r'^النشر تعطيل', from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
+    global posting
+    posting = False
+@mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
+async def words(e):
+    global posting
+    posting = True
+    await e.reply('تدلل حبيبي')
     async def run_task(group_id):
-        while True:
+        while posting:
             client = random.choice(userbots[2:])
-            try:
+            try:                
                 async with client.conversation(group_id, timeout=10) as conv:
                     await conv.send_message("كلمات")
                     while True:
