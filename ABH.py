@@ -18,7 +18,7 @@ api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
-mainABH = TelegramClient("wfffp", int(os.getenv("API_ID")), os.getenv("API_HASH")).start()
+mainABH = TelegramClient("wfffp", api_id, api_hash).start()
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
@@ -32,14 +32,15 @@ ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH
 ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
 ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
 ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
-print('all userbot are working!')
-ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13]
-ABHS.append(bot)
-idd = ABHS[1:]
+userbots = [mainABH, ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13]
+print('All userbots are working!')
+bots_list = [bot]
+
 for i, token in enumerate(bot_tokens, start=1):
     if token:
-        mainABH = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
-        ABHS.append(mainABH)
+        sub_bot = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
+        bots_list.append(sub_bot)
+ABHS = user_bots + bots_list
 print('all bot are working!')
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights
@@ -666,6 +667,5 @@ async def react_cmd(event):
         total_deleted += count
 
     await event.reply(f"✅ تم حذف {total_deleted} رسالة بنجاح.")
-        
 print('running')
 bot.run_until_disconnected()
