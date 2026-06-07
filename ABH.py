@@ -65,7 +65,7 @@ async def promote_ABHS(chat_id=None):
 
     for AB in ABHS:
         try:
-            await asyncio.sleep(random.randint(3, 6)
+            await asyncio.sleep(random.randint(3, 6))
             id_info = await AB.get_me()
 
             # الحل هنا: نجلب الـ Entity الكامل للميغاجروب أو القناة ليتعرف عليها الحساب بشكل صحيح
