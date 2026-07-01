@@ -32,16 +32,50 @@ ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH
 ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
 ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
 ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
-userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13]
+ABH14 = TelegramClient("code14", int(os.getenv("API_ID14")), os.getenv("API_HASH14")).start()
+userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14]
 print('All userbots are working!')
 bots_list = [bot]
-
 for i, token in enumerate(bot_tokens, start=1):
     if token:
         sub_bot = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
         bots_list.append(sub_bot)
 ABHS = userbots + bots_list
 print('all bot are working!')
+import asyncio
+
+# قمنا بتغيير (?: ) الأولى إلى ( ) لتصبح مجموعة التقاطية يمكن قراءتها بـ group(1)
+@mainABH.on(events.NewMessage(pattern=r'^مزامنه(?:\s+(@\w+|\d+))?$'))
+async def start_chat(event):
+    # جلب المدخل (المنشن أو الآيدي) إذا وُجد
+    arg = event.pattern_match.group(1)
+    
+    # إذا لم يكتب منشن أو آيدي، سيأخذ آيدي المحادثة الحالية تلقائيًا كخيار اختياري
+    if not arg:
+        arg = event.chat_id 
+    else:
+        # إذا كان المدخل عبارة عن أرقام فقط (ID)، نحوله إلى رقم (int) ليفهمه تليثون
+        if arg.isdigit():
+            arg = int(arg)
+
+    await event.edit("🔄 بدء المزامنة وجلب الرسائل...")
+    
+    # تحويل الـ range إلى قائمة لأن get_messages تحتاج list من الأرقام
+    msg_ids = list(range(10, 635))
+    
+    try:
+        # جلب الرسائل من القناة/المستهدف المحدد
+        msgs = await mainABH.get_messages(arg, ids=msg_ids)
+        
+        for msg in msgs:
+            if msg:
+                await react(event)
+                pass
+                
+        await event.respond("✅ تمت المزامنة بنجاح!")
+        
+    except Exception as e:
+        await event.reply(f"⚠️ حدث خطأ أثناء المزامنة: {e}")
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights
 from telethon.errors import FloodWaitError
@@ -373,6 +407,8 @@ names = {
     'سمسير الولاية': ABH12,
     'سمسير الولايه': ABH12,
     'الطفل الشايب': ABH13,
+    'الكلب المستعجل': ABH14,
+
 }
 import re
 import random
