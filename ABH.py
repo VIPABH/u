@@ -224,11 +224,11 @@ async def vote_cmd(event):
             continue
 
     await status_msg.edit(f"✅ تم التصويت بنجاح\n🔥 الأصوات: {success_count} من {len(accounts_to_use)}")
-async def react(event):
+async def react(event, chat=None):
     if not event.is_channel or not event.message or not event.message.post:
         return
 
-    chat_id = event.chat_id
+    chat_id = chat if chat esle event.chat_id
     msg_id = event.message.id
 
     for ABH in ABHS:
