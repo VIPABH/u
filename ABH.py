@@ -241,7 +241,7 @@ async def react(event, chat=None):
     if not event.is_channel or not event.message or not event.message.post:
         return
 
-    chat_id = chat if chat esle event.chat_id
+    chat_id = chat if chat else event.chat_id
     msg_id = event.message.id
 
     for ABH in ABHS:
