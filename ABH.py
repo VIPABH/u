@@ -13,23 +13,16 @@ from telethon.tl.functions.messages import SendReactionRequest
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 target_user_id = 1421907917
-import os
-from telethon import TelegramClient
-
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
-mainABH = TelegramClient("wfffp", api_id, api_hash).start()
-
-# الترتيب القديم المباشر مع جلب قيم البيئة لكل حساب
-ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start() if os.getenv("API_ID1") else None
-ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start() if os.getenv("API_ID2") else None
-ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start() if os.getenv("API_ID3") else None
-
-# حساباتك الحالية الشغالة (تبدأ من code4 فما فوق بعد الزيادة)
+mainABH = TelegramClient("ABH", api_id, api_hash).start()
+ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
+ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
+ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
 ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
@@ -42,8 +35,6 @@ ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH
 ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
 ABH14 = TelegramClient("code14", int(os.getenv("API_ID14")), os.getenv("API_HASH14")).start()
 ABH15 = TelegramClient("code15", int(os.getenv("API_ID15")), os.getenv("API_HASH15")).start()
-
-# تجميع الحسابات الشغالة فقط في القائمة حتى لا يحدث خطأ إذا كان 1 أو 2 أو 3 فارغين
 userbots = [x for x in [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14, ABH15] if x is not None]
 print('All userbots are working!')
 
