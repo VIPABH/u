@@ -40,6 +40,7 @@ for i, session in enumerate(sessions, start=1):
         print(f"{session} is working!")
     else:
         print(f"Skipping {session} due to missing environment variables.")
+mainABH  = clients.get("wfffp")
 ABH1  = clients.get("code1")
 ABH2  = clients.get("code2")
 ABH3  = clients.get("code3")
