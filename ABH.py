@@ -66,20 +66,20 @@ for i, token in enumerate(bot_tokens, start=1):
 
 ABHS = userbots + bots_list
 print('all bot are working!')
+
 import asyncio
 
-# قمنا بتغيير (?: ) الأولى إلى ( ) لتصبح مجموعة التقاطية يمكن قراءتها بـ group(1)
 @mainABH.on(events.NewMessage(pattern=r'^مزامنه'))
 async def start_chat(event):
-    # إرسال الرسالة الأولية
-    msg_reply = await event.reply("جاري المزامنة... \nالنجاح: 0\nالفشل: 0")
-    
+    msg_reply = await event.reply("جاري بدء المزامنة... يرجى الانتظار.")
     chat_id = -1002116581783
+    
     success_count = 0
     fail_count = 0
     
     for msg_id in range(10, 649):
         try:
+            # جلب الرسالة
             messages = await mainABH.get_messages(chat=chat_id, ids=[msg_id])
             
             if messages and messages[0]:
@@ -88,25 +88,29 @@ async def start_chat(event):
             else:
                 fail_count += 1
             
-            # تحديث الرسالة كل مرة (ملاحظة: إذا كان الـ Range كبير، قد يحدث Flood)
-            # يفضل تحديثها كل 5 أو 10 عمليات إذا كان العدد كبيراً
+            # **هنا السر:** تأخير بسيط جداً (0.5 ثانية) يمنع الحظر ويجعل الكود مستقر
+            await asyncio.sleep(0.5) 
+            
+            # تحديث الواجهة كل 5 عمليات
             if (success_count + fail_count) % 5 == 0: 
                 await msg_reply.edit(
-                    f"جاري المزامنة... 🔄\n\n"
+                    f"جاري المزامنة... 🔄\n"
                     f"✅ تم بنجاح: {success_count}\n"
                     f"❌ فشل: {fail_count}"
                 )
                 
         except Exception as e:
             fail_count += 1
+            print(f"Error at ID {msg_id}: {e}")
+            # في حال وجود خطأ تقني، انتظر أكثر قليلاً
+            await asyncio.sleep(1)
             continue
 
-    # الرسالة النهائية عند الانتهاء
     await msg_reply.edit(
-        f"✅ **اكتملت عملية المزامنة!**\n\n"
-        f"📊 **النتائج النهائية:**\n"
-        f"• عدد العمليات الناجحة: {success_count}\n"
-        f"• عدد العمليات الفاشلة: {fail_count}"
+        f"✅ **اكتملت العملية!**\n\n"
+        f"📊 النتائج:\n"
+        f"• نجاح: {success_count}\n"
+        f"• فشل: {fail_count}"
     )
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights
