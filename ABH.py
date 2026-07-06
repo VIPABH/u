@@ -79,7 +79,7 @@ async def start_chat(event):
     async for message in mainABH.iter_messages(chat_id, min_id=9, max_id=649, reverse=True):
         try:
             # هنا التفاعل مع كل رسالة تم جلبها
-            await react(chat=chat_id, id=message.id)
+            await react(event, chat=chat_id, id=message.id)
             success_count += 1
             
             # تحديث الرسالة كل 5 عمليات
