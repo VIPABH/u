@@ -66,98 +66,44 @@ for i, token in enumerate(bot_tokens, start=1):
 
 ABHS = userbots + bots_list
 print('all bot are working!')
-
-import asyncio
-
 @mainABH.on(events.NewMessage(pattern=r'^مزامنه'))
 async def start_chat(event):
-    msg_reply = await event.reply("جاري بدء المزامنة... يرجى الانتظار.")
+    msg_reply = await event.reply("جاري المزامنة... يرجى الانتظار.")
     chat_id = -1002116581783
     
     success_count = 0
     fail_count = 0
     
-    for msg_id in range(10, 649):
+    # جلب الرسائل من 10 إلى 649 دفعة واحدة
+    # ملاحظة: min_id و max_id يحددون النطاق بدقة
+    async for message in mainABH.iter_messages(chat_id, min_id=9, max_id=649, reverse=True):
         try:
-            # جلب الرسالة
-            messages = await mainABH.get_messages(chat=chat_id, ids=[msg_id])
+            # هنا التفاعل مع كل رسالة تم جلبها
+            await react(chat=chat_id, msg_id=message.id)
+            success_count += 1
             
-            if messages and messages[0]:
-                await react(chat=chat_id, msg_id=msg_id)
-                success_count += 1
-            else:
-                fail_count += 1
-            
-            # **هنا السر:** تأخير بسيط جداً (0.5 ثانية) يمنع الحظر ويجعل الكود مستقر
-            await asyncio.sleep(0.5) 
-            
-            # تحديث الواجهة كل 5 عمليات
-            if (success_count + fail_count) % 5 == 0: 
+            # تحديث الرسالة كل 5 عمليات
+            if (success_count + fail_count) % 5 == 0:
                 await msg_reply.edit(
-                    f"جاري المزامنة... 🔄\n"
+                    f"جاري المزامنة... 🔄\n\n"
                     f"✅ تم بنجاح: {success_count}\n"
                     f"❌ فشل: {fail_count}"
                 )
-                
+            
+            # تأخير بسيط جداً لمنع الـ Flood
+            await asyncio.sleep(0.3)
+            
         except Exception as e:
             fail_count += 1
-            print(f"Error at ID {msg_id}: {e}")
-            # في حال وجود خطأ تقني، انتظر أكثر قليلاً
-            await asyncio.sleep(1)
+            print(f"Error at ID {message.id}: {e}")
             continue
 
     await msg_reply.edit(
-        f"✅ **اكتملت العملية!**\n\n"
-        f"📊 النتائج:\n"
-        f"• نجاح: {success_count}\n"
-        f"• فشل: {fail_count}"
+        f"✅ **اكتملت عملية المزامنة!**\n\n"
+        f"📊 **النتائج النهائية:**\n"
+        f"• عدد العمليات الناجحة: {success_count}\n"
+        f"• عدد العمليات الفاشلة: {fail_count}"
     )
-from telethon.tl.functions.channels import EditAdminRequest
-from telethon.tl.types import ChatAdminRights
-from telethon.errors import FloodWaitError
-import asyncio
-
-async def promote_ABHS(chat_id=None):
-    if not chat_id:
-        return
-    try:
-        xxx = int(chat_id)
-    except Exception:
-        print("❌ chat_id غير صالح")
-        return
-
-    rights = ChatAdminRights(
-        change_info=True,
-        post_messages=True,
-        edit_messages=True,
-        delete_messages=True
-    )
-
-    for AB in ABHS:
-        try:
-            await asyncio.sleep(random.randint(3, 6))
-            id_info = await AB.get_me()
-
-            # الحل هنا: نجلب الـ Entity الكامل للميغاجروب أو القناة ليتعرف عليها الحساب بشكل صحيح
-            target_chat = await AB.get_input_entity(xxx)
-
-            # نمرر الـ target_chat المكتشف تلقائياً بدلاً من الآيدي الرقمي المجرّد
-            await ABH1(EditAdminRequest(
-                channel=target_chat, 
-                user_id=id_info.id,
-                admin_rights=rights,
-                rank="bot"
-            ))
-
-            print(f"✅ تم رفع {id_info.id} مشرف في الكروب/القناة")
-
-        except FloodWaitError as e:
-            print(f"⏳ FloodWait لمدة {e.seconds} ثانية")
-            await asyncio.sleep(e.seconds)
-
-        except Exception as E:
-            print(f"⚠️ خطأ مع الحساب {AB.session.filename if hasattr(AB, 'session') else id_info.id}: {E}")
-            continue
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
