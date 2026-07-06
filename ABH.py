@@ -20,20 +20,38 @@ bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
 mainABH = TelegramClient("wfffp", api_id, api_hash).start()
-ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
-ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
-ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
+print('mainABH is working!')
+# الترتيب القديم المباشر مع جلب قيم البيئة لكل حساب
+ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start() if os.getenv("API_ID1") else None
+print('ABH1 is working!')
+ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start() if os.getenv("API_ID2") else None
+print('ABH2 is working!')
+ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start() if os.getenv("API_ID3") else None
+print('ABH3 is working!')
+
+# حساباتك الحالية الشغالة (تبدأ من code4 فما فوق بعد الزيادة)
 ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
+print('ABH4 is working!')
 ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
+print('ABH5 is working!')
 ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
+print('ABH6 is working!')
 ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")).start()
+print('ABH7 is working!')
 ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
+print('ABH8 is working!')
 ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")).start()
+print('ABH9 is working!')
 ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH10")).start()
+print('ABH10 is working!')
 ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
+print('ABH11 is working!')
 ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
+print('ABH12 is working!')
 ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
+print('ABH13 is working!')
 ABH14 = TelegramClient("code14", int(os.getenv("API_ID14")), os.getenv("API_HASH14")).start()
+print('ABH14 is working!')
 userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14]
 print('All userbots are working!')
 
