@@ -24,6 +24,7 @@ bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
 print('mainABH is working!')
 mainABH = TelegramClient("wfffp", api_id, api_hash).start()
+print('mainABH is working!')
 # الترتيب القديم المباشر مع جلب قيم البيئة لكل حساب
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start() if os.getenv("API_ID1") else None
 print('ABH1 is working!')
