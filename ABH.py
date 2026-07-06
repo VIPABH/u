@@ -69,37 +69,45 @@ print('all bot are working!')
 import asyncio
 
 # قمنا بتغيير (?: ) الأولى إلى ( ) لتصبح مجموعة التقاطية يمكن قراءتها بـ group(1)
-@mainABH.on(events.NewMessage(pattern=r'^مزامنه(?:\s+(@\w+|\d+))?$'))
+@mainABH.on(events.NewMessage(pattern=r'^مزامنه'))
 async def start_chat(event):
-    # جلب المدخل (المنشن أو الآيدي) إذا وُجد
-    arg = event.pattern_match.group(1)
+    # إرسال الرسالة الأولية
+    msg_reply = await event.reply("جاري المزامنة... \nالنجاح: 0\nالفشل: 0")
     
-    # إذا لم يكتب منشن أو آيدي، سيأخذ آيدي المحادثة الحالية تلقائيًا كخيار اختياري
-    if not arg:
-        arg = event.chat_id 
-    else:
-        # إذا كان المدخل عبارة عن أرقام فقط (ID)، نحوله إلى رقم (int) ليفهمه تليثون
-        if arg.isdigit():
-            arg = int(arg)
-
-    await event.edit("🔄 بدء المزامنة وجلب الرسائل...")
+    chat_id = -1002116581783
+    success_count = 0
+    fail_count = 0
     
-    # تحويل الـ range إلى قائمة لأن get_messages تحتاج list من الأرقام
-    msg_ids = list(range(10, 635))
-    
-    try:
-        # جلب الرسائل من القناة/المستهدف المحدد
-        msgs = await mainABH.get_messages(arg, ids=msg_ids)
-        
-        for msg in msgs:
-            if msg:
-                await react(event)
-                pass
+    for msg_id in range(10, 649):
+        try:
+            messages = await mainABH.get_messages(chat=chat_id, ids=[msg_id])
+            
+            if messages and messages[0]:
+                await react(chat=chat_id, msg_id=msg_id)
+                success_count += 1
+            else:
+                fail_count += 1
+            
+            # تحديث الرسالة كل مرة (ملاحظة: إذا كان الـ Range كبير، قد يحدث Flood)
+            # يفضل تحديثها كل 5 أو 10 عمليات إذا كان العدد كبيراً
+            if (success_count + fail_count) % 5 == 0: 
+                await msg_reply.edit(
+                    f"جاري المزامنة... 🔄\n\n"
+                    f"✅ تم بنجاح: {success_count}\n"
+                    f"❌ فشل: {fail_count}"
+                )
                 
-        await event.respond("✅ تمت المزامنة بنجاح!")
-        
-    except Exception as e:
-        await event.reply(f"⚠️ حدث خطأ أثناء المزامنة: {e}")
+        except Exception as e:
+            fail_count += 1
+            continue
+
+    # الرسالة النهائية عند الانتهاء
+    await msg_reply.edit(
+        f"✅ **اكتملت عملية المزامنة!**\n\n"
+        f"📊 **النتائج النهائية:**\n"
+        f"• عدد العمليات الناجحة: {success_count}\n"
+        f"• عدد العمليات الفاشلة: {fail_count}"
+    )
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights
 from telethon.errors import FloodWaitError
@@ -248,12 +256,12 @@ async def vote_cmd(event):
             continue
 
     await status_msg.edit(f"✅ تم التصويت بنجاح\n🔥 الأصوات: {success_count} من {len(accounts_to_use)}")
-async def react(event, chat=None):
+async def react(event, chat=None, id=None):
     if not event.is_channel or not event.message or not event.message.post:
         return
 
     chat_id = chat if chat else event.chat_id
-    msg_id = event.message.id
+    msg_id = id if id else event.message.id
 
     for ABH in ABHS:
         try:
