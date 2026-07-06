@@ -27,23 +27,34 @@ clients = {}
 
 # قائمة بأسماء الجلسات (Sessions)
 sessions = ["wfffp", "code1", "code2", "code3", "code4", "code5", "code6", 
-            "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14", "code15"]
+            "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14"]
 
 for i, session in enumerate(sessions, start=1):
     # تحديد الـ ID والـ Hash (الرئيسي له معاملات خاصة، البقية من البيئة)
     api_id = os.getenv(f"API_ID{i}")
     api_hash = os.getenv(f"API_HASH{i}")
 
-    # التحقق من وجود البيانات قبل التشغيل
     if api_id and api_hash:
         print(f"Starting {session}...")
         clients[session] = TelegramClient(session, int(api_id), api_hash).start()
         print(f"{session} is working!")
     else:
         print(f"Skipping {session} due to missing environment variables.")
-        
-# تجميع الحسابات الشغالة فقط في القائمة حتى لا يحدث خطأ إذا كان 1 أو 2 أو 3 فارغين
-userbots = [x for x in [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14, ABH15] if x is not None]
+ABH1  = clients.get("code1")
+ABH2  = clients.get("code2")
+ABH3  = clients.get("code3")
+ABH4  = clients.get("code4")
+ABH5  = clients.get("code5")
+ABH6  = clients.get("code6")
+ABH7  = clients.get("code7")
+ABH8  = clients.get("code8")
+ABH9  = clients.get("code9")
+ABH10 = clients.get("code10")
+ABH11 = clients.get("code11")
+ABH12 = clients.get("code12")
+ABH13 = clients.get("code13")
+ABH14 = clients.get("code14")
+userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14]
 print('All userbots are working!')
 
 bots_list = [bot]
