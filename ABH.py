@@ -29,13 +29,10 @@ clients = {}
 sessions = ["wfffp", "code1", "code2", "code3", "code4", "code5", "code6", 
             "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14", "code15"]
 
-for i, session in enumerate(sessions):
+for i, session in enumerate(sessions, start=1):
     # تحديد الـ ID والـ Hash (الرئيسي له معاملات خاصة، البقية من البيئة)
-    if i == 0:
-        api_id, api_hash = YOUR_API_ID, YOUR_API_HASH
-    else:
-        api_id = os.getenv(f"API_ID{i}")
-        api_hash = os.getenv(f"API_HASH{i}")
+    api_id = os.getenv(f"API_ID{i}")
+    api_hash = os.getenv(f"API_HASH{i}")
 
     # التحقق من وجود البيانات قبل التشغيل
     if api_id and api_hash:
