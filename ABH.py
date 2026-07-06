@@ -19,7 +19,7 @@ bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
-mainABH = TelegramClient("ABH", api_id, api_hash).start()
+mainABH = TelegramClient("wfffp", api_id, api_hash).start()
 ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start()
 ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start()
 ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start()
@@ -34,8 +34,7 @@ ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH
 ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
 ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
 ABH14 = TelegramClient("code14", int(os.getenv("API_ID14")), os.getenv("API_HASH14")).start()
-ABH15 = TelegramClient("code15", int(os.getenv("API_ID15")), os.getenv("API_HASH15")).start()
-userbots = [x for x in [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14, ABH15] if x is not None]
+userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14]
 print('All userbots are working!')
 
 bots_list = [bot]
@@ -74,7 +73,6 @@ async def start_chat(event):
         for msg in msgs:
             if msg:
                 await react(event)
-                pass
                 
         await event.respond("✅ تمت المزامنة بنجاح!")
         
@@ -193,7 +191,7 @@ async def vote_cmd(event):
     else: return await event.reply("❌ رد على تصويت أو ارسل رابط.")
 
     # نستخدم بس الـ Userbots ونعوف الـ Bot الرئيسي
-    accounts_to_use = userbots[:13] 
+    accounts_to_use = userbots 
     status_msg = await event.reply(f"⏳ جاري الفزعة بـ {len(accounts_to_use)} حساب...")
     success_count = 0
 
@@ -306,7 +304,6 @@ async def words(e):
     
     async def run_task(group_id):
         while posting:
-            # تم التصحيح هنا: إزالة الأقواس المربعة الزائدة المحيطة بـ userbots
             client = random.choice(userbots[:2])
             try:                
                 async with client.conversation(group_id, timeout=10) as conv:
@@ -411,7 +408,7 @@ names = {
     'سمسير الولاية': ABH12,
     'سمسير الولايه': ABH12,
     'الطفل الشايب': ABH13,
-    'الكلب المستعجل': ABH14,
+    'بيتر كريفن': ABH14,
 
 }
 import re
