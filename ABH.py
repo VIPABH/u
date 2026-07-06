@@ -22,43 +22,29 @@ bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
-print('mainABH is working!')
-mainABH = TelegramClient("wfffp", api_id, api_hash).start()
-print('mainABH is working!')
-# الترتيب القديم المباشر مع جلب قيم البيئة لكل حساب
-ABH1 = TelegramClient("code1", int(os.getenv("API_ID1")), os.getenv("API_HASH1")).start() if os.getenv("API_ID1") else None
-print('ABH1 is working!')
-ABH2 = TelegramClient("code2", int(os.getenv("API_ID2")), os.getenv("API_HASH2")).start() if os.getenv("API_ID2") else None
-print('ABH2 is working!')
-ABH3 = TelegramClient("code3", int(os.getenv("API_ID3")), os.getenv("API_HASH3")).start() if os.getenv("API_ID3") else None
-print('ABH3 is working!')
+# قائمة لتخزين الكلاينتات إذا احتجت الوصول لهم لاحقاً
+clients = {}
 
-# حساباتك الحالية الشغالة (تبدأ من code4 فما فوق بعد الزيادة)
-ABH4 = TelegramClient("code4", int(os.getenv("API_ID4")), os.getenv("API_HASH4")).start()
-print('ABH4 is working!')
-ABH5 = TelegramClient("code5", int(os.getenv("API_ID5")), os.getenv("API_HASH5")).start()
-print('ABH5 is working!')
-ABH6 = TelegramClient("code6", int(os.getenv("API_ID6")), os.getenv("API_HASH6")).start()
-print('ABH6 is working!')
-ABH7 = TelegramClient("code7", int(os.getenv("API_ID7")), os.getenv("API_HASH7")).start()
-print('ABH7 is working!')
-ABH8 = TelegramClient("code8", int(os.getenv("API_ID8")), os.getenv("API_HASH8")).start()
-print('ABH8 is working!')
-ABH9 = TelegramClient("code9", int(os.getenv("API_ID9")), os.getenv("API_HASH9")).start()
-print('ABH9 is working!')
-ABH10 = TelegramClient("code10", int(os.getenv("API_ID10")), os.getenv("API_HASH10")).start()
-print('ABH10 is working!')
-ABH11 = TelegramClient("code11", int(os.getenv("API_ID11")), os.getenv("API_HASH11")).start()
-print('ABH11 is working!')
-ABH12 = TelegramClient("code12", int(os.getenv("API_ID12")), os.getenv("API_HASH12")).start()
-print('ABH12 is working!')
-ABH13 = TelegramClient("code13", int(os.getenv("API_ID13")), os.getenv("API_HASH13")).start()
-print('ABH13 is working!')
-ABH14 = TelegramClient("code14", int(os.getenv("API_ID14")), os.getenv("API_HASH14")).start()
-print('ABH14 is working!')
-ABH15 = TelegramClient("code15", int(os.getenv("API_ID15")), os.getenv("API_HASH15")).start()
-print('ABH1 is working!')
+# قائمة بأسماء الجلسات (Sessions)
+sessions = ["wfffp", "code1", "code2", "code3", "code4", "code5", "code6", 
+            "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14", "code15"]
 
+for i, session in enumerate(sessions):
+    # تحديد الـ ID والـ Hash (الرئيسي له معاملات خاصة، البقية من البيئة)
+    if i == 0:
+        api_id, api_hash = YOUR_API_ID, YOUR_API_HASH
+    else:
+        api_id = os.getenv(f"API_ID{i}")
+        api_hash = os.getenv(f"API_HASH{i}")
+
+    # التحقق من وجود البيانات قبل التشغيل
+    if api_id and api_hash:
+        print(f"Starting {session}...")
+        clients[session] = TelegramClient(session, int(api_id), api_hash).start()
+        print(f"{session} is working!")
+    else:
+        print(f"Skipping {session} due to missing environment variables.")
+        
 # تجميع الحسابات الشغالة فقط في القائمة حتى لا يحدث خطأ إذا كان 1 أو 2 أو 3 فارغين
 userbots = [x for x in [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14, ABH15] if x is not None]
 print('All userbots are working!')
