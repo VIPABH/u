@@ -347,7 +347,7 @@ async def send_to_target(e):
         target = str(wfffp)
 
     # --- بد السيرفرات ---
-    for ABH in ABHS:
+    for ABH in userbots:
         try:
             entity = None
             # تحديد نوع الكيان
