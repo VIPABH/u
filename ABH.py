@@ -66,44 +66,6 @@ for i, token in enumerate(bot_tokens, start=1):
 
 ABHS = userbots + bots_list
 print('all bot are working!')
-@mainABH.on(events.NewMessage(pattern=r'^مزامنه'))
-async def start_chat(event):
-    msg_reply = await event.reply("جاري المزامنة... يرجى الانتظار.")
-    chat_id = -1002116581783
-    
-    success_count = 0
-    fail_count = 0
-    
-    # جلب الرسائل من 10 إلى 649 دفعة واحدة
-    # ملاحظة: min_id و max_id يحددون النطاق بدقة
-    async for message in mainABH.iter_messages(chat_id, min_id=9, max_id=649, reverse=True):
-        try:
-            # هنا التفاعل مع كل رسالة تم جلبها
-            await react(event, chat=chat_id, id=message.id)
-            success_count += 1
-            
-            # تحديث الرسالة كل 5 عمليات
-            if (success_count + fail_count) % 5 == 0:
-                await msg_reply.edit(
-                    f"جاري المزامنة... 🔄\n\n"
-                    f"✅ تم بنجاح: {success_count}\n"
-                    f"❌ فشل: {fail_count}"
-                )
-            
-            # تأخير بسيط جداً لمنع الـ Flood
-            await asyncio.sleep(0.3)
-            
-        except Exception as e:
-            fail_count += 1
-            print(f"Error at ID {message.id}: {e}")
-            continue
-
-    await msg_reply.edit(
-        f"✅ **اكتملت عملية المزامنة!**\n\n"
-        f"📊 **النتائج النهائية:**\n"
-        f"• عدد العمليات الناجحة: {success_count}\n"
-        f"• عدد العمليات الفاشلة: {fail_count}"
-    )
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
