@@ -485,7 +485,7 @@ async def nlits(e):
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
-@bot.on(events.NewMessage)
+@mainABH.on(events.NewMessage)
 async def nlits(e):
     if not e.is_private:return
     text = e.text
