@@ -62,7 +62,10 @@ bots_list = [bot]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
         print(f"starting bot{i}")
-        sub_bot = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
+        try:
+            sub_bot = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
+        except:
+            print(f" bot{i} bug error")
         bots_list.append(sub_bot)
         print(f" bot{i} done")
 
