@@ -61,6 +61,7 @@ print('All userbots are working!')
 bots_list = [bot]
 for i, token in enumerate(bot_tokens, start=1):
     if token:
+        print(f"starting bot{i}")
         sub_bot = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
         bots_list.append(sub_bot)
 
