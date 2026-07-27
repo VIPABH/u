@@ -111,6 +111,63 @@ async def startup_warmup():
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
+from telethon.tl.functions.channels import EditAdminRequest, InviteToChannelRequest
+from telethon.tl.types import ChatAdminRights
+from telethon.errors import FloodWaitError, UserAlreadyParticipantError
+
+async def promote_ABHS(chat_id=None, as_admin=True):
+    """
+    as_admin=True  -> يرفع كل حساب في ABHS مشرف بالقناة
+    as_admin=False -> يضيف كل حساب في ABHS كعضو عادي بالقناة
+    """
+    if not chat_id:
+        return
+    try:
+        xxx = int(chat_id)
+    except Exception:
+        xxx = chat_id
+
+    try:
+        target_chat = await ABH1.get_input_entity(xxx)
+    except Exception as E:
+        print(f"❌ تعذر جلب القناة: {E}")
+        return
+
+    rights = ChatAdminRights(
+        change_info=True,
+        post_messages=True,
+        edit_messages=True,
+        delete_messages=True,
+        invite_users=True
+    )
+
+    for AB in ABHS:
+        id_info = None
+        try:
+            id_info = await AB.get_me()
+            user_entity = await ABH1.get_input_entity(id_info.id)
+
+            if as_admin:
+                await ABH1(EditAdminRequest(
+                    channel=target_chat,
+                    user_id=user_entity,
+                    admin_rights=rights,
+                    rank="bot"
+                ))
+                print(f"✅ تم رفع {id_info.id} مشرف بالقناة")
+            else:
+                await ABH1(InviteToChannelRequest(target_chat, [user_entity]))
+                print(f"✅ تم إضافة {id_info.id} عضو بالقناة")
+
+        except FloodWaitError as e:
+            print(f"⏳ FloodWait لمدة {e.seconds} ثانية")
+            await asyncio.sleep(e.seconds)
+        except UserAlreadyParticipantError:
+            print(f"ℹ️ {id_info.id if id_info else '?'} عضو أصلاً بالقناة")
+        except Exception as E:
+            name = getattr(getattr(AB, 'session', None), 'filename', id_info.id if id_info else '?')
+            print(f"⚠️ خطأ مع الحساب {name}: {E}")
+            continue
 import re
 import random
 import asyncio
