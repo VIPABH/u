@@ -11,7 +11,15 @@ import redis  # مكتبة Redis العادية (متزامنة، بدون await
 from telethon import events
 from telethon.tl.types import DocumentAttributeAudio
 from apscheduler.triggers.cron import CronTrigger
+scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
+register_audio_publisher(bot, scheduler, hour=2, minute=15)
+async def _start_scheduler():
+    scheduler.start()
 
+m.loop.run_until_complete(_start_scheduler())
+
+print("🚀 كل شي شغال، بانتظار الأحداث...")
+m.run_until_disconnected()
 wfffp = 1910015590
 
 ALLOWED_USERS = [wfffp, 6520830528]
