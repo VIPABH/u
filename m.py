@@ -14,7 +14,6 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from m import *
 scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
-register_audio_publisher(bot, scheduler, hour=2, minute=30)
 async def _start_scheduler():
     scheduler.start()
 
@@ -159,3 +158,4 @@ def register_audio_publisher(client, scheduler, hour=13, minute=44):
 
     scheduler.add_job(publish_queue, CronTrigger(hour=hour, minute=minute))
     print(f"🚀 ميزة نشر الصوتيات مفعّلة، موعد النشر: {hour:02d}:{minute:02d}")
+register_audio_publisher(bot, scheduler, hour=2, minute=30)
