@@ -119,7 +119,7 @@ async def main():
 
     scheduler = AsyncIOScheduler(timezone=TIMEZONE)
     # scheduler.add_job(publish_queue, CronTrigger(hour=18, minute=30))  # 6:30 مساءً (الوقت الأساسي)
-    scheduler.add_job(publish_queue, CronTrigger(hour=13, minute=34))  # 1:30 مساءً (تجربة)
+    scheduler.add_job(publish_queue, CronTrigger(hour=13, minute=35))  # 1:30 مساءً (تجربة)
     scheduler.start()
 
     print("🚀 البوت شغال، بانتظار الملفات الصوتية...")
