@@ -80,10 +80,10 @@ register_audio_publisher(bot, scheduler, hour=2, minute=15)
 async def _start_scheduler():
     scheduler.start()
 
-bot.loop.run_until_complete(_start_scheduler())
+m.loop.run_until_complete(_start_scheduler())
 
 print("🚀 كل شي شغال، بانتظار الأحداث...")
-bot.run_until_disconnected()
+m.run_until_disconnected()
 
 ABHS = userbots + bots_list
 print('all bot are working!')
