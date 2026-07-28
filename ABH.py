@@ -10,6 +10,7 @@ from telethon.tl.functions.channels import (
 from telethon.tl.functions.messages import (
     ImportChatInviteRequest)
 from telethon.tl.functions.messages import SendReactionRequest
+from m import *
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 target_user_id = 1421907917
