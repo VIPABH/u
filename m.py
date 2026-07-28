@@ -2,18 +2,19 @@ import os
 import json
 import asyncio
 from datetime import datetime
-import redis.asyncio as redis
+import redis  # ← مكتبة Redis العادية (متزامنة، بدون await)
 from telethon import TelegramClient, events
 from telethon.tl.types import DocumentAttributeAudio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+
 wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("m")  # ← لازم يكون معرّف بمتغير البيئة
 
 ALLOWED_USERS = [wfffp, 6520830528]
-TARGET_CHANNEL = wfffp  # ← تأكد إنه آيدي قناتك الصحيح
+TARGET_CHANNEL = wfffp  # ⚠️ تأكد إنه آيدي قناتك الصحيح (راجع الملاحظة تحت)
 TIMEZONE = "Asia/Baghdad"
 
 # فقط اسم الناشر (Performer) اللي بيتغير
@@ -28,7 +29,7 @@ DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
 M = TelegramClient("m", api_id, api_hash)
-r = redis.from_url(REDIS_URL, decode_responses=True)
+r = redis.from_url(REDIS_URL, decode_responses=True)  # ← عميل متزامن، بدون asyncio
 
 
 def is_audio(e):
@@ -62,18 +63,18 @@ async def collect(e):
         "duration": duration,
         "title": original_title  # نحفظ العنوان الأصلي كما هو
     }
-    await r.rpush(QUEUE_KEY, json.dumps(item))
+    r.rpush(QUEUE_KEY, json.dumps(item))  # بدون await
     print(f"📥 صوتي أُضيف للطابور: {original_title}")
 
 
 async def publish_queue():
-    lock_acquired = await r.set(LOCK_KEY, "1", nx=True, ex=600)
+    lock_acquired = r.set(LOCK_KEY, "1", nx=True, ex=600)  # بدون await
     if not lock_acquired:
         print("⏭️ يوجد تنفيذ آخر شغال حاليًا، تم التجاوز")
         return
 
     try:
-        items_raw = await r.lrange(QUEUE_KEY, 0, -1)
+        items_raw = r.lrange(QUEUE_KEY, 0, -1)  # بدون await
         if not items_raw:
             print("ℹ️ ما فيه ملفات صوتية بالطابور")
             return
@@ -106,11 +107,11 @@ async def publish_queue():
             except Exception as E:
                 print(f"⚠️ فشل نشر ملف: {E}")
 
-        await r.delete(QUEUE_KEY)
+        r.delete(QUEUE_KEY)  # بدون await
         print(f"✅ تم نشر {sent_count} ملف صوتي الساعة {datetime.now()}")
 
     finally:
-        await r.delete(LOCK_KEY)
+        r.delete(LOCK_KEY)  # بدون await
 
 
 async def main():
@@ -119,10 +120,9 @@ async def main():
 
     scheduler = AsyncIOScheduler(timezone=TIMEZONE)
     # scheduler.add_job(publish_queue, CronTrigger(hour=18, minute=30))  # 6:30 مساءً (الوقت الأساسي)
-    scheduler.add_job(publish_queue, CronTrigger(hour=13, minute=40))  # 1:30 مساءً (تجربة)
+    scheduler.add_job(publish_queue, CronTrigger(hour=13, minute=44))  # 1:42 مساءً (تجربة)
     scheduler.start()
 
     print("🚀 البوت شغال، بانتظار الملفات الصوتية...")
-    await M.run_until_disconnected()
-
+    
 
