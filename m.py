@@ -162,7 +162,7 @@ register_audio_publisher(m, scheduler, hour=2, minute=30)
 async def _start_scheduler():
     scheduler.start()
 
-bot.loop.run_until_complete(_start_scheduler())
+m.loop.run_until_complete(_start_scheduler())
 
 print("🚀 كل شي شغال بملف m.py، جاهز للاستيراد بـ ABH.py")
 
