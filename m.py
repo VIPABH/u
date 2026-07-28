@@ -8,7 +8,7 @@ from telethon.tl.types import DocumentAttributeAudio
 # ============================================================
 ALLOWED_USERS = [1910015590, 6520830528]
 TARGET_CHANNEL = -1002980874985
-PUBLISH_HOUR, PUBLISH_MINUTE = 7, 05
+PUBLISH_HOUR, PUBLISH_MINUTE = 7, 5
 
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
