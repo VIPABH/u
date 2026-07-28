@@ -734,6 +734,6 @@ async def react_cmd(event):
 
     await event.reply(f"✅ تم حذف {total_deleted} رسالة بنجاح.")
 print('running')
-m.run_until_disconnected()
+
 bot.run_until_disconnected()
 
