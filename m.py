@@ -25,6 +25,8 @@ LOCK_KEY = "audio_publish_lock"
 DOWNLOAD_DIR = "downloads"
 
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+api_id = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
 m = TelegramClient("m", api_id, api_hash).start(bot_token=os.getenv("m"))
 r = redis.from_url(REDIS_URL, decode_responses=True)  # عميل متزامن، بدون asyncio
 
