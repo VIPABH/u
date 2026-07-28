@@ -81,3 +81,5 @@ async def collect_and_schedule_audio(e):
         await e.reply(f"❌ حدث خطأ أثناء جدولة الملف: {ex}")
 
 print(f"🚀 الكود جاهز، سيتم جدولة الصوتيات تلقائياً على موعد: {PUBLISH_HOUR:02d}:{PUBLISH_MINUTE:02d}")
+
+m.run_until_disconnected()
