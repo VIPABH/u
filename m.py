@@ -33,22 +33,7 @@ r = redis.from_url(REDIS_URL, decode_responses=True)  # عميل متزامن، 
 AUDIO_EXTENSIONS = (".mp3", ".m4a", ".ogg", ".opus", ".wav", ".flac", ".aac")
 
 def is_audio(e):
-    if e.audio:
-        return True
-
-    if e.document:
-        mime = e.document.mime_type or ""
-        if mime.startswith("audio/"):
-            return True
-
-        # فحص إضافي بالاعتماد على اسم الملف لو الـ mime_type غير موثوق
-        for attr in e.document.attributes:
-            if hasattr(attr, "file_name") and attr.file_name:
-                if attr.file_name.lower().endswith(AUDIO_EXTENSIONS):
-                    return True
-
-    return False bool(e.audio) or (e.document and e.document.mime_type and e.document.mime_type.startswith("audio/"))
-
+    return bool(e.audio) or (e.document and e.document.mime_type and e.document.mime_type.startswith("audio/"))
 
 def get_original_title(e):
     """يستخرج الـ title الأصلي من attributes الملف، أو يستخدم اسم الملف كبديل"""
