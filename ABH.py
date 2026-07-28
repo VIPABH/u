@@ -70,6 +70,7 @@ for i, token in enumerate(bot_tokens, start=1):
         bots_list.append(sub_bot)
         print(f" bot{i} done")
 
+
 # ============================================================
 # تفعيل ميزة استقبال ونشر الملفات الصوتية
 # ============================================================
@@ -733,4 +734,6 @@ async def react_cmd(event):
 
     await event.reply(f"✅ تم حذف {total_deleted} رسالة بنجاح.")
 print('running')
+m.run_until_disconnected()
 bot.run_until_disconnected()
+
