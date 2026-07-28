@@ -13,7 +13,7 @@ PUBLISH_HOUR, PUBLISH_MINUTE = 6, 55
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-m = TelegramClient("m", int(os.getenv("API_ID", 0)), os.getenv("API_HASH", ""))
+m = TelegramClient("m", api_id, api_hash).start(bot_token=os.getenv("m"))
 
 # ============================================================
 # 2) دالة حساب موعد النشر المجدول القادم
