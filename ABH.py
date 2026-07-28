@@ -16,7 +16,28 @@ wfffp = 1910015590
 target_user_id = 1421907917
 import os
 from telethon import TelegramClient
+"""
+usage_example.py
+هذا مو ملف مستقل — هذا مثال يوضح وين بالضبط تضيف كود الاستدعاء بملفك الرئيسي الموجود عندك.
+انسخ الأسطر المعلّمة فقط وضيفها بمكانها المناسب داخل ملفك.
+"""
 
+# 1) ضيف هذا الاستيراد بأعلى ملفك الرئيسي
+from audio_publisher import register_audio_publisher
+
+
+# 2) داخل دالة main() عندك، بعد ما تسوي client.start() وقبل scheduler.start()
+async def main():
+    # ... كودك الحالي (تعريف client، الاتصال، إلخ) ...
+
+    # await client.start(bot_token=bot_token)   ← هذا موجود عندك مسبقًا
+
+    # scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")   ← هذا موجود عندك مسبقًا
+
+    register_audio_publisher(client, scheduler, hour=13, minute=52)  # ← أضف هذا السطر فقط
+
+    # scheduler.start()   ← هذا موجود عندك مسبقًا، خليه بعد سطر الاستدعاء
+    # await client.run_until_disconnected()   ← هذا موجود عندك مسبقًا
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
