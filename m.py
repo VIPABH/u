@@ -14,7 +14,7 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from m import *
 scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
-register_audio_publisher(bot, scheduler, hour=2, minute=15)
+register_audio_publisher(bot, scheduler, hour=2, minute=30)
 async def _start_scheduler():
     scheduler.start()
 
