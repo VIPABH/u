@@ -1,27 +1,17 @@
-"""
-audio_publisher.py
-الملف الأساسي - يحتوي كل منطق استقبال الملفات الصوتية وإعادة نشرها مجدولاً.
-لا تشغّل هذا الملف مباشرة، بل استدعِ الدالة register_audio_publisher من ملفك الرئيسي.
-"""
-
 import os
 import json
 from datetime import datetime
-import redis  # مكتبة Redis العادية (متزامنة، بدون await)
-from telethon import events
+import redis
+from telethon import TelegramClient, events
 from telethon.tl.types import DocumentAttributeAudio
-from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from m import *
-scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
-async def _start_scheduler():
-    scheduler.start()
+from apscheduler.triggers.cron import CronTrigger
 
-m.loop.run_until_complete(_start_scheduler())
-
-print("🚀 كل شي شغال، بانتظار الأحداث...")
-m.run_until_disconnected()
+# ============================================================
+# 2) منطق استقبال ونشر الملفات الصوتية
+# ============================================================
 wfffp = 1910015590
+target_user_id = 1421907917
 
 ALLOWED_USERS = [wfffp, 6520830528]
 TARGET_CHANNEL = wfffp  # ⚠️ تأكد إنه آيدي قناتك الصحيح (مو آيدي مستخدم)
@@ -67,9 +57,9 @@ def get_original_title(e):
 def register_audio_publisher(client, scheduler, hour=13, minute=44):
     """
     يفعّل ميزة استقبال الصوتيات وجدولة نشرها.
-    client: كائن TelegramClient جاهز ومتصل (تم استدعاء start عليه مسبقًا)
-    scheduler: كائن AsyncIOScheduler جاهز (لا تستدعي scheduler.start() هنا، خليها بالملف الرئيسي)
-    hour, minute: وقت النشر اليومي (افتراضيًا 1:44 مساءً للتجربة)
+    client: كائن TelegramClient جاهز ومتصل
+    scheduler: كائن AsyncIOScheduler جاهز (لا تستدعي scheduler.start() هنا)
+    hour, minute: وقت النشر اليومي
     """
 
     @client.on(events.NewMessage(from_users=ALLOWED_USERS))
@@ -157,5 +147,25 @@ def register_audio_publisher(client, scheduler, hour=13, minute=44):
             r.delete(LOCK_KEY)
 
     scheduler.add_job(publish_queue, CronTrigger(hour=hour, minute=minute))
-    print(f"🚀 ميزة نشر الصوتيات مفعّلة، موعد النشر: {hour:02d}:{minute:02d}")
+    print(f"🎧 ميزة نشر الصوتيات مفعّلة، موعد النشر: {hour:02d}:{minute:02d}")
+
+
+# ============================================================
+# 3) تفعيل الميزة فعليًا (يشتغل تلقائيًا بمجرد استيراد هذا الملف)
+# ============================================================
+scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
 register_audio_publisher(bot, scheduler, hour=2, minute=30)
+
+
+async def _start_scheduler():
+    scheduler.start()
+
+bot.loop.run_until_complete(_start_scheduler())
+
+print("🚀 كل شي شغال بملف m.py، جاهز للاستيراد بـ ABH.py")
+
+# ⚠️ ملاحظة مهمة: لا تضيف هنا bot.run_until_disconnected()
+# لأن هذا الملف يُستورد داخل ABH.py عبر "from m import *"،
+# ولو حطينا هنا استدعاء يوقف وينتظر للأبد، ABH.py ما راح يكمل تشغيل باقي كوده
+# (مثل الـ event handlers الخاصة بالمشرفين والتفاعلات وغيرها).
+# خلي  بآخر ملف ABH.py أو p.py كما هو موجود عندك حاليًا.
