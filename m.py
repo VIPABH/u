@@ -13,7 +13,7 @@ wfffp = 1910015590
 target_user_id = 1421907917
 
 ALLOWED_USERS = [wfffp, 6520830528]
-TARGET_CHANNEL = wfffp  # آيدي القناة
+TARGET_CHANNEL = -1002980874985  # آيدي القناة
 
 CUSTOM_PERFORMER = "صدى الحسين"
 CUSTOM_THUMB = "IMG_5528.jpeg"
