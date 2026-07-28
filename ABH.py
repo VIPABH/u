@@ -12,7 +12,7 @@ from telethon.tl.functions.messages import (
 from telethon.tl.functions.messages import SendReactionRequest
 from m import *
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from m import register_audio_publisher
+from m import *
 
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
