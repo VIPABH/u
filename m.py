@@ -12,6 +12,7 @@ from telethon import events
 from telethon.tl.types import DocumentAttributeAudio
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from m import *
 scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
 register_audio_publisher(bot, scheduler, hour=2, minute=15)
 async def _start_scheduler():
