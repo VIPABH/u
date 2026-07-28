@@ -80,8 +80,11 @@ def clear_chats():
     r.delete("whitelist_chats")
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
+
 def list_chats():
     return list(r.smembers("whitelist_chats"))
+
+
 chats = list_chats()
 def add_reactions(chat_id, emojis):
     key = f"chat_reactions:{chat_id}"
