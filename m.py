@@ -7,12 +7,13 @@ from telethon import TelegramClient, events
 from telethon.tl.types import DocumentAttributeAudio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-
+wfffp = 1910015590
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
+bot_token = os.getenv("m")  # ← لازم يكون معرّف بمتغير البيئة
 
 ALLOWED_USERS = [wfffp, 6520830528]
-TARGET_CHANNEL = -1002980874985  # ← غيّرها لآيدي قناتك
+TARGET_CHANNEL = wfffp  # ← تأكد إنه آيدي قناتك الصحيح
 TIMEZONE = "Asia/Baghdad"
 
 # فقط اسم الناشر (Performer) اللي بيتغير
@@ -113,11 +114,12 @@ async def publish_queue():
 
 
 async def main():
-    await M.start()
+    # تشغيل الحساب كبوت بدل حساب مستخدم (userbot)
+    await M.start(bot_token=bot_token)
 
     scheduler = AsyncIOScheduler(timezone=TIMEZONE)
-    #scheduler.add_job(publish_queue, CronTrigger(hour=18, minute=30))  # 6:30 مساءً
-    scheduler.add_job(publish_queue, CronTrigger(hour=13, minute=25))  # 1:25 مساءً (تجربة)
+    # scheduler.add_job(publish_queue, CronTrigger(hour=18, minute=30))  # 6:30 مساءً (الوقت الأساسي)
+    scheduler.add_job(publish_queue, CronTrigger(hour=13, minute=30))  # 1:30 مساءً (تجربة)
     scheduler.start()
 
     print("🚀 البوت شغال، بانتظار الملفات الصوتية...")
