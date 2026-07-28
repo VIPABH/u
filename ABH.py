@@ -23,7 +23,7 @@ usage_example.py
 """
 
 # 1) ضيف هذا الاستيراد بأعلى ملفك الرئيسي
-from audio_publisher import register_audio_publisher
+from m import register_audio_publisher
 
 
 # 2) داخل دالة main() عندك، بعد ما تسوي client.start() وقبل scheduler.start()
