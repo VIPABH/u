@@ -76,7 +76,7 @@ for i, token in enumerate(bot_tokens, start=1):
 # تفعيل ميزة استقبال ونشر الملفات الصوتية
 # ============================================================
 scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
-register_audio_publisher(bot, scheduler, hour=2, minute=00)
+register_audio_publisher(bot, scheduler, hour=2, minute=03)
 async def _start_scheduler():
     scheduler.start()
 
