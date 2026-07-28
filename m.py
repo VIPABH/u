@@ -30,15 +30,24 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 r = redis.from_url(REDIS_URL, decode_responses=True)  # عميل متزامن، بدون asyncio
 
 
-AUDIO_EXTENSIONS = (".mp3", ".m4a", ".ogg", ".opus", ".wav", ".flac", ".aac")
-
 def is_audio(e):
     return bool(e.audio) or (e.document and e.document.mime_type and e.document.mime_type.startswith("audio/"))
 
+
+def get_audio_attribute(e):
+    """يبحث عن كائن DocumentAttributeAudio داخل attributes الملف (فيه title و duration الحقيقيين)"""
+    if e.document and e.document.attributes:
+        for attr in e.document.attributes:
+            if isinstance(attr, DocumentAttributeAudio):
+                return attr
+    return None
+
+
 def get_original_title(e):
     """يستخرج الـ title الأصلي من attributes الملف، أو يستخدم اسم الملف كبديل"""
-    if e.audio and e.audio.title:
-        return e.audio.title
+    audio_attr = get_audio_attribute(e)
+    if audio_attr and audio_attr.title:
+        return audio_attr.title
     if e.document and e.document.attributes:
         for attr in e.document.attributes:
             if hasattr(attr, "file_name") and attr.file_name:
@@ -57,13 +66,13 @@ def register_audio_publisher(client, scheduler, hour=13, minute=44):
     @client.on(events.NewMessage(from_users=ALLOWED_USERS))
     async def collect(e):
         if not is_audio(e):
-            print("وصلت رسالة")
             return
 
         try:
             file_path = await e.download_media(file=DOWNLOAD_DIR)
             original_title = get_original_title(e)
-            duration = e.audio.duration if e.audio else 0
+            audio_attr = get_audio_attribute(e)
+            duration = audio_attr.duration if audio_attr else 0
 
             item = {
                 "file_path": file_path,
