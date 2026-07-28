@@ -77,7 +77,10 @@ for i, token in enumerate(bot_tokens, start=1):
 # ============================================================
 scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
 register_audio_publisher(bot, scheduler, hour=2, minute=00)
-scheduler.start()
+async def _start_scheduler():
+    scheduler.start()
+
+bot.loop.run_until_complete(_start_scheduler())
 
 print("🚀 كل شي شغال، بانتظار الأحداث...")
 bot.run_until_disconnected()
