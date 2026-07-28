@@ -154,7 +154,7 @@ def register_audio_publisher(client, scheduler, hour=13, minute=44):
 # 3) تفعيل الميزة فعليًا (يشتغل تلقائيًا بمجرد استيراد هذا الملف)
 # ============================================================
 scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
-register_audio_publisher(bot, scheduler, hour=2, minute=30)
+register_audio_publisher(m, scheduler, hour=2, minute=30)
 
 
 async def _start_scheduler():
