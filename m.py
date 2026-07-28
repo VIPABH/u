@@ -136,5 +136,5 @@ def register_audio_publisher(client, scheduler, hour=13, minute=44):
         finally:
             r.delete(LOCK_KEY)
 
-    scheduler.add_job(publish_queue, CronTrigger(hour=hour, minute=52))
+    scheduler.add_job(publish_queue, CronTrigger(hour=hour, minute=minute))
     print(f"🚀 ميزة نشر الصوتيات مفعّلة، موعد النشر: {hour:02d}:{minute:02d}")
