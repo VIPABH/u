@@ -75,15 +75,7 @@ for i, token in enumerate(bot_tokens, start=1):
 # ============================================================
 # تفعيل ميزة استقبال ونشر الملفات الصوتية
 # ============================================================
-scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
-register_audio_publisher(bot, scheduler, hour=2, minute=15)
-async def _start_scheduler():
-    scheduler.start()
 
-m.loop.run_until_complete(_start_scheduler())
-
-print("🚀 كل شي شغال، بانتظار الأحداث...")
-m.run_until_disconnected()
 
 ABHS = userbots + bots_list
 print('all bot are working!')
