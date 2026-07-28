@@ -13,6 +13,10 @@ PUBLISH_HOUR, PUBLISH_MINUTE = 6, 55
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
+1421907917
+
+api_id = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
 m = TelegramClient("m", api_id, api_hash).start(bot_token=os.getenv("m"))
 
 # ============================================================
