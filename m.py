@@ -30,8 +30,24 @@ os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 r = redis.from_url(REDIS_URL, decode_responses=True)  # عميل متزامن، بدون asyncio
 
 
+AUDIO_EXTENSIONS = (".mp3", ".m4a", ".ogg", ".opus", ".wav", ".flac", ".aac")
+
 def is_audio(e):
-    return bool(e.audio) or (e.document and e.document.mime_type and e.document.mime_type.startswith("audio/"))
+    if e.audio:
+        return True
+
+    if e.document:
+        mime = e.document.mime_type or ""
+        if mime.startswith("audio/"):
+            return True
+
+        # فحص إضافي بالاعتماد على اسم الملف لو الـ mime_type غير موثوق
+        for attr in e.document.attributes:
+            if hasattr(attr, "file_name") and attr.file_name:
+                if attr.file_name.lower().endswith(AUDIO_EXTENSIONS):
+                    return True
+
+    return False bool(e.audio) or (e.document and e.document.mime_type and e.document.mime_type.startswith("audio/"))
 
 
 def get_original_title(e):
@@ -56,6 +72,7 @@ def register_audio_publisher(client, scheduler, hour=13, minute=44):
     @client.on(events.NewMessage(from_users=ALLOWED_USERS))
     async def collect(e):
         if not is_audio(e):
+            print("وصلت رسالة")
             return
 
         try:
