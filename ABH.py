@@ -11,72 +11,53 @@ from telethon.tl.functions.messages import (
     ImportChatInviteRequest)
 from telethon.tl.functions.messages import SendReactionRequest
 from m import *
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from audio_publisher import register_audio_publisher
+
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 target_user_id = 1421907917
-import os
-from telethon import TelegramClient
-"""
-usage_example.py
-هذا مو ملف مستقل — هذا مثال يوضح وين بالضبط تضيف كود الاستدعاء بملفك الرئيسي الموجود عندك.
-انسخ الأسطر المعلّمة فقط وضيفها بمكانها المناسب داخل ملفك.
-"""
 
-# 1) ضيف هذا الاستيراد بأعلى ملفك الرئيسي
-from m import register_audio_publisher
-
-
-# 2) داخل دالة main() عندك، بعد ما تسوي client.start() وقبل scheduler.start()
-async def main():
-    # ... كودك الحالي (تعريف client، الاتصال، إلخ) ...
-
-    # await client.start(bot_token=bot_token)   ← هذا موجود عندك مسبقًا
-
-    # scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")   ← هذا موجود عندك مسبقًا
-
-    register_audio_publisher(client, scheduler, hour=13, minute=52)  # ← أضف هذا السطر فقط
-
-    # scheduler.start()   ← هذا موجود عندك مسبقًا، خليه بعد سطر الاستدعاء
-    # await client.run_until_disconnected()   ← هذا موجود عندك مسبقًا
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
 
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
+
 # قائمة لتخزين الكلاينتات إذا احتجت الوصول لهم لاحقاً
 clients = {}
-
 # قائمة بأسماء الجلسات (Sessions)
-sessions = ["wfffp", "code1", "code2", "code3", "code4", "code5", "code6", 
+sessions = ["wfffp", "code1", "code2", "code3", "code4", "code5", "code6",
             "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14"]
 
 for i, session in enumerate(sessions, start=1):
     # تحديد الـ ID والـ Hash (الرئيسي له معاملات خاصة، البقية من البيئة)
-    api_id = os.getenv(f"API_ID{i}")
-    api_hash = os.getenv(f"API_HASH{i}")
-
-    if api_id and api_hash:
+    api_id_i = os.getenv(f"API_ID{i}")
+    api_hash_i = os.getenv(f"API_HASH{i}")
+    if api_id_i and api_hash_i:
         print(f"Starting {session}...")
-        clients[session] = TelegramClient(session, int(api_id), api_hash).start()
+        clients[session] = TelegramClient(session, int(api_id_i), api_hash_i).start()
         print(f"{session} is working!")
     else:
         print(f"Skipping {session} due to missing environment variables.")
-mainABH  = clients.get("wfffp")
-ABH1  = clients.get("code1")
-ABH2  = clients.get("code2")
-ABH3  = clients.get("code3")
-ABH4  = clients.get("code4")
-ABH5  = clients.get("code5")
-ABH6  = clients.get("code6")
-ABH7  = clients.get("code7")
-ABH8  = clients.get("code8")
-ABH9  = clients.get("code9")
+
+mainABH = clients.get("wfffp")
+ABH1 = clients.get("code1")
+ABH2 = clients.get("code2")
+ABH3 = clients.get("code3")
+ABH4 = clients.get("code4")
+ABH5 = clients.get("code5")
+ABH6 = clients.get("code6")
+ABH7 = clients.get("code7")
+ABH8 = clients.get("code8")
+ABH9 = clients.get("code9")
 ABH10 = clients.get("code10")
 ABH11 = clients.get("code11")
 ABH12 = clients.get("code12")
 ABH13 = clients.get("code13")
 ABH14 = clients.get("code14")
+
 userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14]
 print('All userbots are working!')
 
@@ -90,6 +71,16 @@ for i, token in enumerate(bot_tokens, start=1):
             print(f" bot{i} bug error")
         bots_list.append(sub_bot)
         print(f" bot{i} done")
+
+# ============================================================
+# تفعيل ميزة استقبال ونشر الملفات الصوتية
+# ============================================================
+scheduler = AsyncIOScheduler(timezone="Asia/Baghdad")
+register_audio_publisher(bot, scheduler, hour=13, minute=52)
+scheduler.start()
+
+print("🚀 كل شي شغال، بانتظار الأحداث...")
+bot.run_until_disconnected()
 
 ABHS = userbots + bots_list
 print('all bot are working!')
