@@ -342,7 +342,7 @@ async def words(e):
             
     tasks = [run_task(g_id) for g_id in groups]
     await asyncio.gather(*tasks)
-@mainABH.on(events.NewMessage(pattern=r'^ارسل(?: (\S+))?(?: (.*))?$', from_users=wfffp))
+@mainABH.on(events.NewMessage(pattern=r'^ارسلوا(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
