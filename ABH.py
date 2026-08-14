@@ -17,7 +17,7 @@ api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
-mainABH = TelegramClient(wfffp, int(api_id), api_hash).start()
+mainABH = TelegramClient("wfffp", int(api_id), api_hash).start()
 clients = {mainABH}
 sessions = ["code1", "code2", "code3", "code4", "code5", "code6",
             "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14", 'code15']
@@ -137,111 +137,111 @@ async def promote_ABHS(chat_id=None, as_admin=True):
             name = getattr(getattr(AB, 'session', None), 'filename', id_info.id if id_info else '?')
             print(f"⚠️ خطأ مع الحساب {name}: {E}")
             continue
-# import re
-# import random
-# import asyncio
-# from telethon import events, types, functions # استدعاء عام للأوامر
+import re
+import random
+import asyncio
+from telethon import events, types, functions # استدعاء عام للأوامر
 
-# @mainABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
-# async def vote_cmd(event):
-#     reply = await event.get_reply_message()
-#     choice_index = int(event.pattern_match.group(1)) if event.pattern_match.group(1) else 0
-#     input_str = event.pattern_match.group(2)
+@mainABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
+async def vote_cmd(event):
+    reply = await event.get_reply_message()
+    choice_index = int(event.pattern_match.group(1)) if event.pattern_match.group(1) else 0
+    input_str = event.pattern_match.group(2)
 
-#     msg_id = None
-#     entity = None
+    msg_id = None
+    entity = None
 
-#     if input_str:
-#         link_match = re.search(r't\.me/(?:c/)?([^/]+)/(\d+)', input_str.strip())
-#         if link_match:
-#             chat_val = link_match.group(1)
-#             msg_id = int(link_match.group(2))
-#             entity = int(f"-100{chat_val}") if chat_val.isdigit() else chat_val
-#         else: return await event.reply("❌ الرابط غلط.")
-#     elif reply:
-#         msg_id = reply.id
-#         entity = reply.chat_id
-#     else: return await event.reply("❌ رد على تصويت أو ارسل رابط.")
+    if input_str:
+        link_match = re.search(r't\.me/(?:c/)?([^/]+)/(\d+)', input_str.strip())
+        if link_match:
+            chat_val = link_match.group(1)
+            msg_id = int(link_match.group(2))
+            entity = int(f"-100{chat_val}") if chat_val.isdigit() else chat_val
+        else: return await event.reply("❌ الرابط غلط.")
+    elif reply:
+        msg_id = reply.id
+        entity = reply.chat_id
+    else: return await event.reply("❌ رد على تصويت أو ارسل رابط.")
 
-#     # نستخدم بس الـ Userbots ونعوف الـ Bot الرئيسي
-#     accounts_to_use = ABHS 
-#     status_msg = await event.reply(f"⏳ جاري الفزعة بـ {len(accounts_to_use)} حساب...")
-#     success_count = 0
+    # نستخدم بس الـ Userbots ونعوف الـ Bot الرئيسي
+    accounts_to_use = ABHS 
+    status_msg = await event.reply(f"⏳ جاري الفزعة بـ {len(accounts_to_use)} حساب...")
+    success_count = 0
 
-#     for ABH in accounts_to_use:
-#         try:
-#             # 1. جلب الرسالة للتأكد من بيانات التصويت (حل مشكلة Option Invalid)
-#             msg_data = await ABH.get_messages(entity, ids=msg_id)
-#             if not msg_data or not msg_data.media or not hasattr(msg_data.media, 'poll'):
-#                 print("❌ هذي الرسالة مو تصويت")
-#                 continue
+    for ABH in accounts_to_use:
+        try:
+            # 1. جلب الرسالة للتأكد من بيانات التصويت (حل مشكلة Option Invalid)
+            msg_data = await ABH.get_messages(entity, ids=msg_id)
+            if not msg_data or not msg_data.media or not hasattr(msg_data.media, 'poll'):
+                print("❌ هذي الرسالة مو تصويت")
+                continue
 
-#             # جلب الـ ID الخاص بالخيار من داخل التصويت نفسه
-#             poll_options = msg_data.media.poll.answers
-#             if choice_index >= len(poll_options):
-#                 print(f"❌ الخيار {choice_index} غير موجود")
-#                 continue
+            # جلب الـ ID الخاص بالخيار من داخل التصويت نفسه
+            poll_options = msg_data.media.poll.answers
+            if choice_index >= len(poll_options):
+                print(f"❌ الخيار {choice_index} غير موجود")
+                continue
             
-#             chosen_answer = poll_options[choice_index].option # هذا هو الـ Byte الصحيح
+            chosen_answer = poll_options[choice_index].option # هذا هو الـ Byte الصحيح
 
-#             # 2. إرسال التصويت (حل مشكلة Restricted)
-#             await ABH(functions.messages.SendVoteRequest(
-#                 peer=msg_data.peer_id,
-#                 msg_id=msg_id,
-#                 options=[chosen_answer]
-#             ))
+            # 2. إرسال التصويت (حل مشكلة Restricted)
+            await ABH(functions.messages.SendVoteRequest(
+                peer=msg_data.peer_id,
+                msg_id=msg_id,
+                options=[chosen_answer]
+            ))
             
-#             success_count += 1
-#             await asyncio.sleep(random.uniform(0.5, 1.2))
+            success_count += 1
+            await asyncio.sleep(random.uniform(0.5, 1.2))
 
-#         except Exception as e:
-#             print(f"❌ فشل حساب: {e}")
-#             continue
+        except Exception as e:
+            print(f"❌ فشل حساب: {e}")
+            continue
 
-#     await status_msg.edit(f"✅ تم التصويت بنجاح\n🔥 الأصوات: {success_count} من {len(accounts_to_use)}")
-# async def react(event, chat=None, id=None):
-#     if not event.is_channel or not event.message or not event.message.post:
-#         return
+    await status_msg.edit(f"✅ تم التصويت بنجاح\n🔥 الأصوات: {success_count} من {len(accounts_to_use)}")
+async def react(event, chat=None, id=None):
+    if not event.is_channel or not event.message or not event.message.post:
+        return
 
-#     chat_id = chat if chat else event.chat_id
-#     msg_id = id if id else event.message.id
+    chat_id = chat if chat else event.chat_id
+    msg_id = id if id else event.message.id
 
-#     for ABH in ABHS:
-#         try:
-#             # 1. جلب الكيان (Entity)
-#             try:
-#                 peer = await ABH.get_input_entity(chat_id)
-#             except Exception:
-#                 peer = await ABH.get_entity(chat_id)
+    for ABH in ABHS:
+        try:
+            # 1. جلب الكيان (Entity)
+            try:
+                peer = await ABH.get_input_entity(chat_id)
+            except Exception:
+                peer = await ABH.get_entity(chat_id)
 
-#             # 2. إضافة مشاهدة (View) للرسالة
-#             # إرسال هذا الطلب يخبر تلغرام أن الحساب قد "رأى" الرسالة فعلياً
-#             try:
-#                 await ABH(GetMessagesViewsRequest(
-#                     peer=peer,
-#                     id=[msg_id],
-#                     increment=True # هذا الجزء هو المسؤول عن زيادة العداد
-#                 ))
-#             except Exception as view_error:
-#                 print(f"فشل في زيادة المشاهدة: {view_error}")
+            # 2. إضافة مشاهدة (View) للرسالة
+            # إرسال هذا الطلب يخبر تلغرام أن الحساب قد "رأى" الرسالة فعلياً
+            try:
+                await ABH(GetMessagesViewsRequest(
+                    peer=peer,
+                    id=[msg_id],
+                    increment=True # هذا الجزء هو المسؤول عن زيادة العداد
+                ))
+            except Exception as view_error:
+                print(f"فشل في زيادة المشاهدة: {view_error}")
 
-#             # 3. اختيار الإيموجي وإرسال التفاعل
-#             stored = get_reactions(event.chat_id)
-#             emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+            # 3. اختيار الإيموجي وإرسال التفاعل
+            stored = get_reactions(event.chat_id)
+            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
             
-#             await ABH(SendReactionRequest(
-#                 peer=peer,
-#                 msg_id=msg_id,
-#                 reaction=[ReactionEmoji(emoticon=emoji)],
-#                 big=False
-#             ))            
+            await ABH(SendReactionRequest(
+                peer=peer,
+                msg_id=msg_id,
+                reaction=[ReactionEmoji(emoticon=emoji)],
+                big=False
+            ))            
             
-#             # تأخير بسيط لتجنب حظر الحسابات (Flood Wait)
-#             await asyncio.sleep(0.3)
+            # تأخير بسيط لتجنب حظر الحسابات (Flood Wait)
+            await asyncio.sleep(0.3)
             
-#         except Exception as e:
-#             print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
-#             continue
+        except Exception as e:
+            print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
+            continue
 @mainABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS: 
