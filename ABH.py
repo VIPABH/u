@@ -23,6 +23,7 @@ sessions = ["wfffp", "code1", "code2", "code3", "code4", "code5", "code6",
 for i, session in enumerate(sessions, start=1):
     api_id_i = os.getenv(f"API_ID{i}")
     api_hash_i = os.getenv(f"API_HASH{i}")
+    print(api_hash_i, api_hash_i)
     if api_id_i and api_hash_i:
         print(f"Starting {session}...")
         clients[session] = TelegramClient(session, int(api_id_i), api_hash_i).start()
