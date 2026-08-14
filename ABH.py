@@ -18,7 +18,8 @@ api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
 mainABH = TelegramClient("wfffp", int(api_id), api_hash).start()
-clients = {mainABH}
+clients = {}
+clients['wfffp'] = mainABH
 sessions = ["code1", "code2", "code3", "code4", "code5", "code6",
             "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14", 'code15']
 for i, session in enumerate(sessions, start=1):
