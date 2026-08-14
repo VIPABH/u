@@ -10,27 +10,17 @@ from telethon.tl.functions.channels import (
 from telethon.tl.functions.messages import (
     ImportChatInviteRequest)
 from telethon.tl.functions.messages import SendReactionRequest
-
-
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
 target_user_id = 1421907917
-
 api_id = int(os.getenv("API_ID"))
 api_hash = os.getenv("API_HASH")
 bot_token = os.getenv("bot_token")
-bot_tokens = [os.getenv(f"bot_token{i}") for i in range(1, 12)]
-
 bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
-
-# قائمة لتخزين الكلاينتات إذا احتجت الوصول لهم لاحقاً
 clients = {}
-# قائمة بأسماء الجلسات (Sessions)
 sessions = ["wfffp", "code1", "code2", "code3", "code4", "code5", "code6",
-            "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14"]
-
+            "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14", 'code15']
 for i, session in enumerate(sessions, start=1):
-    # تحديد الـ ID والـ Hash (الرئيسي له معاملات خاصة، البقية من البيئة)
     api_id_i = os.getenv(f"API_ID{i}")
     api_hash_i = os.getenv(f"API_HASH{i}")
     if api_id_i and api_hash_i:
@@ -39,7 +29,6 @@ for i, session in enumerate(sessions, start=1):
         print(f"{session} is working!")
     else:
         print(f"Skipping {session} due to missing environment variables.")
-
 mainABH = clients.get("wfffp")
 ABH1 = clients.get("code1")
 ABH2 = clients.get("code2")
@@ -55,29 +44,9 @@ ABH11 = clients.get("code11")
 ABH12 = clients.get("code12")
 ABH13 = clients.get("code13")
 ABH14 = clients.get("code14")
-
-userbots = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14]
+ABH15 = clients.get("code15")
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14, ABH15]
 print('All userbots are working!')
-
-bots_list = [bot]
-for i, token in enumerate(bot_tokens, start=1):
-    if token:
-        print(f"starting bot{i}")
-        try:
-            sub_bot = TelegramClient(f"bot{i}", api_id, api_hash).start(bot_token=token)
-        except:
-            print(f" bot{i} bug error")
-        bots_list.append(sub_bot)
-        print(f" bot{i} done")
-
-
-# ============================================================
-# تفعيل ميزة استقبال ونشر الملفات الصوتية
-# ============================================================
-
-
-ABHS = userbots + bots_list
-print('all bot are working!')
 def add_chat(chat_id):
     r.sadd("whitelist_chats", str(chat_id))
 def remove_chat(chat_id):
@@ -86,11 +55,8 @@ def clear_chats():
     r.delete("whitelist_chats")
 def is_chat_allowed(chat_id):
     return str(chat_id) in r.smembers("whitelist_chats")
-
 def list_chats():
     return list(r.smembers("whitelist_chats"))
-
-
 chats = list_chats()
 def add_reactions(chat_id, emojis):
     key = f"chat_reactions:{chat_id}"
@@ -121,39 +87,8 @@ async def startup_warmup():
             print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
             print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
-from telethon.tl.functions.channels import EditAdminRequest, InviteToChannelRequest
-from telethon.tl.types import ChatAdminRights
-from telethon.errors import FloodWaitError, UserAlreadyParticipantError
-from telethon import TelegramClient
-
-# احصل على هذه البيانات من my.telegram.org
-
-# الشخص أو القناة التي تريد إرسال الرسالة إليها (يمكنك كتابة 'me' لإرسالها لنفسك في الرسائل المحفوظة)
-TARGET_USER = 'me'  # أو ضع الـ username مثل 'username' أو الـ ID الرقمي
-
-@bot.on(events.NewMessage(pattern=".دز"))
-async def forward_last_telegram_code(e):
-    # 1. جلب آخر رسالة من الحساب 777000
-    messages = await mainABH.get_messages(777000, limit=1)
-    
-    if messages:
-        last_msg = messages[0]
-        
-        # 2. إرسال نص الرسالة إلى الهدف المحدد
-        sent_msg = await bot.send_message(
-            e.chat_id, 
-            f"📩 **آخر رسالة من 777000:**\n\n{last_msg.text}"
-        )
-        print(f"تم إرسال الرسالة بنجاح إلى: {TARGET_USER}")
-    else:
-        print("لم يتم العثور على أي رسائل من الحساب 777000.")
-
 
 async def promote_ABHS(chat_id=None, as_admin=True):
-    """
-    as_admin=True  -> يرفع كل حساب في ABHS مشرف بالقناة
-    as_admin=False -> يضيف كل حساب في ABHS كعضو عادي بالقناة
-    """
     if not chat_id:
         return
     try:
@@ -229,7 +164,7 @@ async def vote_cmd(event):
     else: return await event.reply("❌ رد على تصويت أو ارسل رابط.")
 
     # نستخدم بس الـ Userbots ونعوف الـ Bot الرئيسي
-    accounts_to_use = userbots[:13] 
+    accounts_to_use = ABHS 
     status_msg = await event.reply(f"⏳ جاري الفزعة بـ {len(accounts_to_use)} حساب...")
     success_count = 0
 
@@ -309,7 +244,7 @@ async def react(event, chat=None, id=None):
             continue
 @mainABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
-    for ABH in userbots:  # الحلقة هنا
+    for ABH in ABHS: 
         try:
             await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
         except Exception as E:
@@ -343,7 +278,7 @@ async def words(e):
     async def run_task(group_id):
         while posting:
             # تم التصحيح هنا: إزالة الأقواس المربعة الزائدة المحيطة بـ userbots
-            client = random.choice(userbots[:2])
+            client = random.choice(ABHS)
             try:                
                 async with client.conversation(group_id, timeout=10) as conv:
                     await conv.send_message("كلمات")
@@ -405,7 +340,7 @@ async def send_to_target(e):
         target = str(wfffp)
 
     # --- بد السيرفرات ---
-    for ABH in userbots:
+    for ABH in ABHS:
         try:
             entity = None
             # تحديد نوع الكيان
@@ -447,7 +382,8 @@ names = {
     'سمسير الولاية': ABH12,
     'سمسير الولايه': ABH12,
     'الطفل الشايب': ABH13,
-    'الكلب المستعجل': ABH14,
+    'بيتر كريفن': ABH14,
+    'افلاطون': ABH15,
 
 }
 import re
@@ -758,6 +694,4 @@ async def react_cmd(event):
 
     await event.reply(f"✅ تم حذف {total_deleted} رسالة بنجاح.")
 print('running')
-
 bot.run_until_disconnected()
-
