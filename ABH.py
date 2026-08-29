@@ -641,6 +641,26 @@ async def update_repo(event):
         await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
 import re
 from telethon import events
+async def delete_bot_messages(client, chat, limit=None):
+    messages = []
+    deleted_count = 0
+
+    
+    async for msg in client.iter_messages(chat, from_user='me', limit=limit):
+        messages.append(msg.id)
+
+        # حذف على دفعات لتجنب مشاكل الـ flood
+        if len(messages) >= 100:
+            await client.delete_messages(chat, messages)
+            deleted_count += len(messages)
+            messages = []
+
+    # حذف الباقي
+    if messages:
+        await client.delete_messages(chat, messages)
+        deleted_count += len(messages)
+
+    return deleted_count
 
 @bot.on(events.NewMessage(pattern=r'^حذف رسائل(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
