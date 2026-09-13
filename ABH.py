@@ -544,7 +544,13 @@ async def nlits(e):
         await promote_ABHS(chat_id)
         await e.reply(f"✅ تم رفع البوتات في القناة `{chat_id}`")
     elif text == "القنوات" and sender == wfffp:
-        msg = "📌 القنوات في القائمة البيضاء:\n" + "\n".join(chats) if chats else "⚠️ لا توجد قنوات مضافة حالياً"
+        msg = (
+    "📌 القنوات في القائمة البيضاء:\n\n"
+    + "\n\n".join([f"`{chat_id}`" for chat_id in chats])
+    if chats
+    else "⚠️ لا توجد قنوات مضافة حالياً"
+)
+
         await e.reply(msg)
     elif text.startswith("التفاعلات") and sender == wfffp:
         try:
