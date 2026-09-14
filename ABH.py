@@ -722,5 +722,98 @@ async def react_cmd(event):
                 continue # تخطي الحساب في حال لم يكن عضواً في الخاص أو القناة
 
     await event.reply(f"✅ تم حذف {total_deleted} رسالة بنجاح.")
+
+
+@mainABH.on(events.NewMessage(pattern=r"^(غادروا|\.غادروا)$", outgoing=True))
+async def leave_and_report_handler(event):
+    status_msg = await event.edit("⏳ **جاري تحليل الحساب وفحص القنوات...**")
+
+    # جلب القائمة البيضاء وتنسيقها
+    raw_whitelist = list_chats()
+    whitelist = set(str(chat_id) for chat_id in raw_whitelist)
+
+    # 📊 هيكل الإحصائيات الدقيقة
+    stats = {
+        "total_dialogs": 0,
+        "channels": 0,
+        "groups": 0,
+        "private_users": 0,
+        "bots": 0,
+        "whitelisted": 0,
+        "left_success": 0,
+        "left_failed": 0,
+    }
+    for client in ABH:
+        async for dialog in client.iter_dialogs():
+            stats["total_dialogs"] += 1
+            entity = dialog.entity
+
+            # --- 1. تصنيف وإحصاء المحادثات الفردية والبوتات ---
+            if isinstance(entity, User):
+                if entity.bot:
+                    stats["bots"] += 1
+                else:
+                    stats["private_users"] += 1
+                continue  # عدم المغادرة وتخطي المحادثات الشخصية
+
+            # --- 2. التعامل مع القنوات والمجموعات ---
+            is_channel = isinstance(entity, Channel) and entity.broadcast
+            is_group = isinstance(entity, Chat) or (
+                isinstance(entity, Channel) and entity.megagroup
+            )
+
+            if is_channel:
+                stats["channels"] += 1
+            elif is_group:
+                stats["groups"] += 1
+
+            # استخراج المعرفات للمطابقة
+            chat_id_str = str(entity.id)
+            full_chat_id = (
+                f"-100{entity.id}" if isinstance(entity, Channel) else chat_id_str
+            )
+            chat_username = f"@{entity.username}" if entity.username else None
+
+            # فحص القائمة البيضاء
+            is_whitelisted = (
+                chat_id_str in whitelist
+                or full_chat_id in whitelist
+                or (chat_username and chat_username in whitelist)
+            )
+
+            if is_whitelisted:
+                stats["whitelisted"] += 1
+            else:
+                try:
+                    # عملية المغادرة
+                    await client.delete_dialog(dialog.id)
+                    stats["left_success"] += 1
+                    print(
+                        f"❌ تم الخروج من: {dialog.name} (ID: {dialog.id})"
+                    )
+
+                    # مهلة زمنيّة للأمان لتجنب FloodWait
+                    await asyncio.sleep(2)
+
+                except Exception as e:
+                    stats["left_failed"] += 1
+                    print(f"⚠️ فشل المغادرة من {dialog.name}: {e}")
+
+        # --- 3. صياغة التقرير الإحصائي الدقيق ---
+        report = (
+            "📊 **إحصائيات تفصيلية لمسح الحساب:**\n"
+            "───────────────────\n"
+            f"📁 **إجمالي المحادثات بالحساب:** `{stats['total_dialogs']}`\n"
+            f"👤 **خاص (أفراد):** `{stats['private_users']}` | 🤖 **بوتات:** `{stats['bots']}`\n"
+            f"📢 **إجمالي القنوات:** `{stats['channels']}`\n"
+            f"👥 **إجمالي المجموعات:** `{stats['groups']}`\n"
+            "───────────────────\n"
+            f"🛡️ **مُثبتة بالقائمة البيضاء:** `{stats['whitelisted']}`\n"
+            f"✅ **تمت المغادرة بنجاح:** `{stats['left_success']}`\n"
+            f"❌ **فشلت مغادرتها (أخطاء):** `{stats['left_failed']}`"
+        )
+
+        await status_msg.edit(report)
+
 print('running')
 bot.run_until_disconnected()
