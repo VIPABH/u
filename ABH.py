@@ -623,7 +623,7 @@ async def nlits(e):
     elif text.startswith("حذف ") and sender == wfffp and not text == "حذف تفاعل" and not text == "حذف التفاعلات":
         try:
             chat_id = text.split(" ", 1)[1]
-            remove_chat(chat_id)
+            remove_chat(str(chat_id))
             await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
         except IndexError:
             await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
