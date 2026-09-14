@@ -742,7 +742,7 @@ async def process_single_client(client, whitelist):
             "left_channels": 0,
             "left_groups": 0,
             "whitelisted": 0,
-            "skipped_admin": 0,  # حساب القنوات المتروكة بسبب رتبة المشرف/المالك
+            "skipped_admin": 0,  # القنوات/المجموعات المتروكة بسبب رتبة المشرف أو المالك
             "left_failed": 0,
         }
 
@@ -758,13 +758,20 @@ async def process_single_client(client, whitelist):
                 isinstance(entity, Channel) and entity.megagroup
             )
 
-            # 1. التأكد من الصلاحيات (عدم المغادرة إذا كنت مالك أو مشرف)
+            # 1. فحص هل الحساب مالك أو مشرف بالصيغة الصحيحة لـ Telethon
             is_admin_or_creator = False
-            if dialog.permissions:
-                is_admin_or_creator = (
-                    dialog.permissions.is_admin
-                    or dialog.permissions.is_creator
-                )
+            if isinstance(entity, Channel):
+                # إذا كان مالك القناة/المجموعة أو يمتلك صلاحيات إشراف
+                if getattr(entity, "creator", False) or getattr(
+                    entity, "admin_rights", None
+                ):
+                    is_admin_or_creator = True
+            elif isinstance(entity, Chat):
+                # المجموعات العادية القديمة
+                if getattr(entity, "creator", False) or getattr(
+                    entity, "admin", False
+                ):
+                    is_admin_or_creator = True
 
             if is_admin_or_creator:
                 stats["skipped_admin"] += 1
@@ -798,7 +805,7 @@ async def process_single_client(client, whitelist):
                     elif is_group:
                         stats["left_groups"] += 1
 
-                    # تأخير عشوائي بين 2 إلى 4 ثوانٍ لحماية كل حساب بشكل مستقل من الـ FloodWait
+                    # مهلة أمان عشوائية لحماية الجلسة
                     await asyncio.sleep(2.5)
 
                 except Exception as e:
@@ -823,7 +830,7 @@ async def leave_and_report_handler(event):
     raw_whitelist = list_chats()
     whitelist = set(str(chat_id) for chat_id in raw_whitelist)
 
-    # تشغيل المهام لجميع العملاء في وقت واحد (Parallel Tasks)
+    # تشغيل المهام لجميع العملاء في وقت واحد
     tasks = [process_single_client(cli, whitelist) for cli in ABHS]
     results = await asyncio.gather(*tasks)
 
