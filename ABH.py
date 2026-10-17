@@ -864,3 +864,4 @@ async def leave_and_report_handler(event):
     )
     await status_msg.edit(report)
 print('running')
+bot.run_until_disconnected()
