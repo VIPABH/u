@@ -1,81 +1,867 @@
-import asyncio
-import os
-import redis
-from telethon import events, TelegramClient, connection
-api_id = int(os.getenv("API_ID", 0))
-api_hash = os.getenv("API_HASH", "")
-bot_token = os.getenv("bot_token", "")
+from telethon.tl.functions.messages import GetMessagesViewsRequest
+from telethon.tl.types import Channel, Chat, User
+from telethon import TelegramClient, events
+import os, re, random, redis, asyncio, sys
+from telethon.tl.types import (
+    ReactionEmoji,
+    ChatAdminRights)
+from telethon.tl.functions.channels import (
+    JoinChannelRequest,
+    EditAdminRequest)
+from telethon.tl.functions.messages import (
+    ImportChatInviteRequest)
+from telethon.tl.functions.messages import SendReactionRequest
+r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 wfffp = 1910015590
-MAX = 16
-REACTBOT = TelegramClient(
-    "REACTBOT",
-    api_id,
-    api_hash,
-    connection=connection.ConnectionTcpFull,
-    sequential_updates=False,
-    auto_reconnect=True,
-    connection_retries=None
-)
-r = redis.Redis(
-    host="localhost",
-    port=6379,
-    db=0,
-    decode_responses=True
-)
-bot = TelegramClient("botcode", api_id, api_hash)
-mainABH = TelegramClient("wfffp", api_id, api_hash)
-clients = {'wfffp': mainABH}
-sessions = [f'code{num}' for num in range(1, MAX)]
+target_user_id = 1421907917
+api_id = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
+bot_token = os.getenv("bot_token")
+bot = TelegramClient("botcode", api_id, api_hash).start(bot_token=bot_token)
+mainABH = TelegramClient("wfffp", int(api_id), api_hash).start()
+clients = {}
+clients['wfffp'] = mainABH
+sessions = ["code1", "code2", "code3", "code4", "code5", "code6",
+            "code7", "code8", "code9", "code10", "code11", "code12", "code13", "code14", 'code15']
 for i, session in enumerate(sessions, start=1):
-    api_id_i = os.getenv(f"API_ID{i}", api_id)
-    api_hash_i = os.getenv(f"API_HASH{i}", api_hash)
+    api_id_i = os.getenv(f"API_ID{i}")
+    api_hash_i = os.getenv(f"API_HASH{i}")
     if api_id_i and api_hash_i:
-        clients[session] = TelegramClient(session, int(api_id_i), api_hash_i)
-ABHS = [c for session_name, c in clients.items() if session_name != 'wfffp' and c is not None]
-users = {}
-async def sync_users():
-    """مزامنة معرفات الحسابات المساعدة"""
-    users.clear()
+        print(f"Starting {session}...")
+        clients[session] = TelegramClient(session, int(api_id_i), api_hash_i).start()
+        print(f"{session} is working!")
+    else:
+        print(f"Skipping {session} due to missing environment variables.")
+ABH1 = clients.get("code1")
+ABH2 = clients.get("code2")
+ABH3 = clients.get("code3")
+ABH4 = clients.get("code4")
+ABH5 = clients.get("code5")
+ABH6 = clients.get("code6")
+ABH7 = clients.get("code7")
+ABH8 = clients.get("code8")
+ABH9 = clients.get("code9")
+ABH10 = clients.get("code10")
+ABH11 = clients.get("code11")
+ABH12 = clients.get("code12")
+ABH13 = clients.get("code13")
+ABH14 = clients.get("code14")
+ABH15 = clients.get("code15")
+ABHS = [ABH1, ABH2, ABH3, ABH4, ABH5, ABH6, ABH7, ABH8, ABH9, ABH10, ABH11, ABH12, ABH13, ABH14, ABH15]
+print('All userbots are working!')
+def add_chat(chat_id):
+    r.sadd("whitelist_chats", str(chat_id))
+def remove_chat(chat_id):
+    r.srem("whitelist_chats", str(chat_id))
+def clear_chats():
+    r.delete("whitelist_chats")
+def is_chat_allowed(chat_id):
+    return str(chat_id) in r.smembers("whitelist_chats")
+def list_chats():
+    return list(r.smembers("whitelist_chats"))
+chats = list_chats()
+def add_reactions(chat_id, emojis):
+    key = f"chat_reactions:{chat_id}"
+    for emoji in emojis:
+        r.sadd(key, emoji)
+def get_reactions(chat_id):
+    key = f"chat_reactions:{chat_id}"
+    return list(r.smembers(key))
+def get_random_reaction(chat_id):
+    reactions = get_reactions(chat_id)
+    return random.choice(reactions) if reactions else None
+def clear_reactions(chat_id):
+    r.delete(f"chat_reactions:{chat_id}")
+def remove_reaction(chat_id, emoji):
+    r.srem(f"chat_reactions:{chat_id}", emoji)
+def remove_non_private_chats():
+    chats = r.smembers("whitelist_chats")
+    for chat_id in chats:
+        chat_id_str = chat_id.decode() if isinstance(chat_id, bytes) else str(chat_id)
+        if not chat_id_str.startswith("-100"):
+            r.srem("whitelist_chats", chat_id_str)
+            print(f"✅ تم حذف {chat_id_str}")
+async def startup_warmup():
+    print("جاري تهيئة الحسابات والتعرف على القنوات...")
     for ABH in ABHS:
         try:
-            if not ABH.is_connected():
-                await ABH.connect()
-            me = await ABH.get_me()
-            if me:
-                users[me.id] = ABH
+            await ABH.get_dialogs(limit=20)
+            print(f"تمت تهيئة الحساب: {ABH.session.filename}")
         except Exception as e:
-            print(f"Error syncing user: {e}")
-async def init_clients():
-    if not bot.is_connected():
-        await bot.start(bot_token=bot_token)
-        print("✅ تم تشغيل البوت الأساسي (bot)")
-    react_token = os.getenv("REACTBOT_TOKEN") or os.getenv("REACTBOT")
-    if react_token and not REACTBOT.is_connected():
-        try:
-            await REACTBOT.start(bot_token=react_token)
-            print("✅ تم تشغيل بوت الريأكشن (REACTBOT)")
-        except Exception as e:
-            print(f"⚠️ فشل تشغيل REACTBOT: {e}")
-    if not mainABH.is_connected():
-        await mainABH.start()
-        print("✅ تم تشغيل الحساب الرئيسي (wfffp)")
-    for session_name, client in clients.items():
-        if session_name == 'wfffp':
-            continue
-        if not client.is_connected():
-            try:
-                print(f"⏳ جاري بدء تشغيل الحساب: {session_name}...")
-                await client.start()
-                print(f"✅ تم تشغيل {session_name}")
-            except Exception as e:
-                print(f"❌ فشل تشغيل {session_name}: {e}")
-    await sync_users()
-async def main():
-    await init_clients()
-    all_clients = [bot, REACTBOT, mainABH] + ABHS
-    await asyncio.gather(*(client.run_until_disconnected() for client in all_clients if client))
-if __name__ == '__main__':
+            print(f"فشل تهيئة الحساب {ABH.session.filename}: {e}")
+
+async def promote_ABHS(chat_id=None, as_admin=True):
+    if not chat_id:
+        return
     try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\n🛑 تم إيقاف السكريبت بواسطة المستخدم.")
+        xxx = int(chat_id)
+    except Exception:
+        xxx = chat_id
+
+    try:
+        target_chat = await ABH1.get_input_entity(xxx)
+    except Exception as E:
+        print(f"❌ تعذر جلب القناة: {E}")
+        return
+
+    rights = ChatAdminRights(
+        change_info=True,
+        post_messages=True,
+        edit_messages=True,
+        delete_messages=True,
+        invite_users=True
+    )
+
+    for AB in ABHS:
+        id_info = None
+        try:
+            id_info = await AB.get_me()
+            user_entity = await ABH1.get_input_entity(id_info.id)
+
+            if as_admin:
+                await ABH1(EditAdminRequest(
+                    channel=target_chat,
+                    user_id=user_entity,
+                    admin_rights=rights,
+                    rank="bot"
+                ))
+                print(f"✅ تم رفع {id_info.id} مشرف بالقناة")
+            else:
+                await ABH1(InviteToChannelRequest(target_chat, [user_entity]))
+                print(f"✅ تم إضافة {id_info.id} عضو بالقناة")
+
+        except FloodWaitError as e:
+            print(f"⏳ FloodWait لمدة {e.seconds} ثانية")
+            await asyncio.sleep(e.seconds)
+        except UserAlreadyParticipantError:
+            print(f"ℹ️ {id_info.id if id_info else '?'} عضو أصلاً بالقناة")
+        except Exception as E:
+            name = getattr(getattr(AB, 'session', None), 'filename', id_info.id if id_info else '?')
+            print(f"⚠️ خطأ مع الحساب {name}: {E}")
+            continue
+import re
+import random
+import asyncio
+from telethon import events, types, functions # استدعاء عام للأوامر
+
+@mainABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
+async def vote_cmd(event):
+    reply = await event.get_reply_message()
+    choice_index = int(event.pattern_match.group(1)) if event.pattern_match.group(1) else 0
+    input_str = event.pattern_match.group(2)
+
+    msg_id = None
+    entity = None
+
+    if input_str:
+        link_match = re.search(r't\.me/(?:c/)?([^/]+)/(\d+)', input_str.strip())
+        if link_match:
+            chat_val = link_match.group(1)
+            msg_id = int(link_match.group(2))
+            entity = int(f"-100{chat_val}") if chat_val.isdigit() else chat_val
+        else: return await event.reply("❌ الرابط غلط.")
+    elif reply:
+        msg_id = reply.id
+        entity = reply.chat_id
+    else: return await event.reply("❌ رد على تصويت أو ارسل رابط.")
+
+    # نستخدم بس الـ Userbots ونعوف الـ Bot الرئيسي
+    accounts_to_use = ABHS 
+    status_msg = await event.reply(f"⏳ جاري الفزعة بـ {len(accounts_to_use)} حساب...")
+    success_count = 0
+
+    for ABH in accounts_to_use:
+        try:
+            # 1. جلب الرسالة للتأكد من بيانات التصويت (حل مشكلة Option Invalid)
+            msg_data = await ABH.get_messages(entity, ids=msg_id)
+            if not msg_data or not msg_data.media or not hasattr(msg_data.media, 'poll'):
+                print("❌ هذي الرسالة مو تصويت")
+                continue
+
+            # جلب الـ ID الخاص بالخيار من داخل التصويت نفسه
+            poll_options = msg_data.media.poll.answers
+            if choice_index >= len(poll_options):
+                print(f"❌ الخيار {choice_index} غير موجود")
+                continue
+            
+            chosen_answer = poll_options[choice_index].option # هذا هو الـ Byte الصحيح
+
+            # 2. إرسال التصويت (حل مشكلة Restricted)
+            await ABH(functions.messages.SendVoteRequest(
+                peer=msg_data.peer_id,
+                msg_id=msg_id,
+                options=[chosen_answer]
+            ))
+            
+            success_count += 1
+            await asyncio.sleep(random.uniform(0.5, 1.2))
+
+        except Exception as e:
+            print(f"❌ فشل حساب: {e}")
+            continue
+
+    await status_msg.edit(f"✅ تم التصويت بنجاح\n🔥 الأصوات: {success_count} من {len(accounts_to_use)}")
+async def react(event, chat=None, id=None):
+    if not event.is_channel or not event.message or not event.message.post:
+        return
+
+    chat_id = chat if chat else event.chat_id
+    msg_id = id if id else event.message.id
+
+    for ABH in ABHS:
+        try:
+            # 1. جلب الكيان (Entity)
+            try:
+                peer = await ABH.get_input_entity(chat_id)
+            except Exception:
+                peer = await ABH.get_entity(chat_id)
+
+            # 2. إضافة مشاهدة (View) للرسالة
+            # إرسال هذا الطلب يخبر تلغرام أن الحساب قد "رأى" الرسالة فعلياً
+            try:
+                await ABH(GetMessagesViewsRequest(
+                    peer=peer,
+                    id=[msg_id],
+                    increment=True # هذا الجزء هو المسؤول عن زيادة العداد
+                ))
+            except Exception as view_error:
+                print(f"فشل في زيادة المشاهدة: {view_error}")
+
+            # 3. اختيار الإيموجي وإرسال التفاعل
+            stored = get_reactions(event.chat_id)
+            emoji = random.choice(stored) if stored else random.choice(['❤️', '🕊', '🌚'])
+            
+            await ABH(SendReactionRequest(
+                peer=peer,
+                msg_id=msg_id,
+                reaction=[ReactionEmoji(emoticon=emoji)],
+                big=False
+            ))            
+            
+            # تأخير بسيط لتجنب حظر الحسابات (Flood Wait)
+            await asyncio.sleep(0.3)
+            
+        except Exception as e:
+            print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
+            continue
+@mainABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
+async def test(e):
+    for ABH in ABHS: 
+        try:
+            await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
+        except Exception as E:
+            x = await ABH.get_me()
+            await e.reply(f"{x.id}    {E}")
+            continue  # هذا الآن صحيح، لأننا داخل الحلقة
+@mainABH.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
+async def test(e):
+    for ABH in ABHS:  # الحلقة هنا
+        try:
+            await ABH.send_message(e.chat_id, 'نعم', reply_to=e.id)
+        except Exception as E:
+            x = await ABH.get_me()
+            await e.reply(f"{x.id}    {E}")
+            continue  
+groups = [-1002069775937, -1002522016427, -1002541767486, -1002539987965, -1002210645890]
+posting = False
+
+@mainABH.on(events.NewMessage(pattern=r'^النشر تعطيل', from_users=[1910015590, 201728276]))
+async def words(e):
+    await e.reply('تدلل حبيبي')
+    global posting
+    posting = False
+
+@mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
+async def words(e):
+    global posting
+    posting = True
+    await e.reply('تدلل حبيبي')
+    
+    async def run_task(group_id):
+        while posting:
+            # تم التصحيح هنا: إزالة الأقواس المربعة الزائدة المحيطة بـ userbots
+            client = random.choice(ABHS)
+            try:                
+                async with client.conversation(group_id, timeout=10) as conv:
+                    await conv.send_message("كلمات")
+                    while True:
+                        msg = await conv.get_response()
+                        if msg.sender_id != target_user_id:
+                            continue
+                        text = msg.raw_text.strip()
+                        match = re.search(r"\(\s*(.+?)\s*\)", text)
+                        if match:
+                            await asyncio.sleep(10) 
+                            await conv.send_message(match.group(1))
+                        break
+            except asyncio.TimeoutError:
+                print(f"انتهى الوقت في المجموعة {group_id}، إعادة المحاولة...")
+            except Exception as ex:
+                me = await client.get_me()  # جلب معلومات الحساب
+                print(f"خطأ في المجموعة `{group_id}`  -- `{me.id}`   : {ex} ")
+            await asyncio.sleep(2) 
+            
+    tasks = [run_task(g_id) for g_id in groups]
+    await asyncio.gather(*tasks)
+@mainABH.on(events.NewMessage(pattern=r'^ارسلوا(?: (\S+))?(?: (.*))?$', from_users=wfffp))
+async def send_to_target(e):
+    reply = await e.get_reply_message()
+    if not reply:
+        return
+    
+    target = e.pattern_match.group(1)
+    extra_arg = e.pattern_match.group(2)
+    reply_to_id = None
+
+    # --- منطق الاستخراج الذكي ---
+    # إذا كان الـ target نفسه عبارة عن رابط رسالة
+    if target and "t.me/" in target:
+        # استخراج اليوزر وأيدي الرسالة من الرابط
+        # يدعم الروابط العامة والروابط الخاصة t.me/c/xxxx/yyyy
+        link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', target)
+        if link_parts:
+            target = link_parts.group(1)
+            reply_to_id = int(link_parts.group(2))
+            # إذا كان الرابط خاص (أرقام)، نحوله لصيغة -100
+            if target.isdigit():
+                target = int(f"-100{target}")
+
+    # إذا كان هناك وسيط ثانٍ (extra_arg) وكان رابطاً
+    if extra_arg and "t.me/" in extra_arg:
+        link_parts = re.search(r't\.me/(?:c/)?([\w+]+)/(\d+)', extra_arg)
+        if link_parts:
+            reply_to_id = int(link_parts.group(2))
+    elif extra_arg and extra_arg.isdigit():
+        reply_to_id = int(extra_arg)
+    elif extra_arg and "reply_to=" in extra_arg:
+        digits = re.findall(r'\d+', extra_arg)
+        if digits: reply_to_id = int(digits[0])
+
+    # إذا لم يتم تحديد target نهائياً
+    if not target:
+        target = str(wfffp)
+
+    # --- بد السيرفرات ---
+    for ABH in ABHS:
+        try:
+            entity = None
+            # تحديد نوع الكيان
+            if isinstance(target, int) or (isinstance(target, str) and (target.startswith("-100") or target.replace('-', '').isdigit())):
+                try: entity = await ABH.get_entity(int(target))
+                except: entity = int(target)
+            elif "t.me/+" in str(target) or "joinchat/" in str(target):
+                invite_hash = target.split("/")[-1].replace("+", "")
+                try: await ABH(ImportChatInviteRequest(invite_hash))
+                except: pass
+                entity = await ABH.get_entity(target)
+            else:
+                entity = await ABH.get_entity(target)
+
+            if entity:
+                try: await ABH(JoinChannelRequest(entity))
+                except: pass
+                
+                await ABH.send_message(entity, reply, reply_to=reply_to_id)
+                
+        except Exception as err:
+            print(f"Error in {ABH.session.filename}: {err}")
+names = {
+    'العميل الاول': ABH1,
+    'ابو قتادة الرافضي': ABH2,
+    'ابو قتاده الرافضي': ABH2,
+    'سالو': ABH3,
+    'salo': ABH3,
+    'حسن جداحه': ABH4,
+    'حسن جداحة': ABH4,
+    'برق الشايب': ABH5,
+    'هاشم محمد': ABH6,
+    'كرت الحظ': ABH7,
+    'الخطير حسون': ABH8,
+    'حسن حسام': ABH9,
+    'عبدلمستسلم': ABH10,
+    'مستر بركر': ABH11,
+    'سمسير': ABH12,
+    'سمسير الولاية': ABH12,
+    'سمسير الولايه': ABH12,
+    'الطفل الشايب': ABH13,
+    'بيتر كريفن': ABH14,
+    'افلاطون': ABH15,
+
+}
+import re
+import random
+import asyncio
+from telethon import events, types
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.tl.functions.channels import GetFullChannelRequest
+from telethon.errors import FloodWaitError, ReactionInvalidError
+
+@mainABH.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
+async def react_cmd(event):
+    reply = await event.get_reply_message()
+    input_str = event.pattern_match.group(1)
+
+    if not input_str and not reply:
+        return await event.reply("❌ **استخدام خطأ!**\nارسل: `رياكت + رابط + ايموجي`\nأو بالرد على رسالة: `رياكت + ايموجي`")
+
+    msg_id = None
+    entity = None
+    emojis = []
+
+    # 1. تحليل المدخلات بدقة
+    if input_str:
+        parts = input_str.strip().split()
+        link_match = re.search(r't\.me/(?:c/)?([^/]+)/(\d+)', parts[0])
+        
+        if link_match:
+            chat_val = link_match.group(1)
+            msg_id = int(link_match.group(2))
+            # تحويل آيدي القنوات الخاصة للرقم الصحيح
+            entity = int(f"-100{chat_val}") if chat_val.isdigit() else chat_val
+            emojis = parts[1:]
+        else:
+            if reply:
+                msg_id = reply.id
+                entity = reply.chat_id
+                emojis = parts
+            else:
+                return await event.reply("❌ **الرابط غير صحيح أو لازم ترد على رسالة!**")
+    elif reply:
+        msg_id = reply.id
+        entity = reply.chat_id
+
+    # 2. قائمة الإيموجيات الافتراضية
+    if not emojis:
+        emoji_list = [
+    "❤️", "👍", "👎", "🔥", "🥰", "👏", "🤔", "🤯", "😱", "🤬", "😡", "😢", "🎉", "🤩", "🙏", "👌", "🕊",
+    "🤡", "🥱", "☺️", "😍", "🐳", "❤️‍🔥", "🌚", "😙", "💯", "⚡️", "🏆", "😡", "😘", "🙊", "😎", "👾", "🤷‍♂️",
+    "🤷‍♀️", "🤷", "☃️", "🗿", "🆒", "💘", "🙈", "😇", "😨", "🤝", "✍️", "🤗", "🫡", "🎅", "🎄", "😴", "😭", "🤓", "👻",
+    "👨‍💻", "👀", "🎃", "🙈", "💔", "🤨", "😐", "🍓", "🍾", "💋",  "😈"
+]
+    else:
+        emoji_list = list(emojis)
+
+    accounts_to_use = ABHS
+    status_msg = await event.reply(f"⏳ جاري العمل بواسطة {len(accounts_to_use)} حساب...")
+    
+    success_count = 0
+
+    # 3. دوران الحسابات
+    for ABH in accounts_to_use:
+        try:
+            # محاولة التعرف على القناة/الدردشة لكل حساب
+            try:
+                target = await ABH.get_input_entity(entity)
+            except Exception:
+                # محاولة أخيرة لجلب الكيان إذا كان معرف (Username)
+                if isinstance(entity, str):
+                    full = await ABH(GetFullChannelRequest(channel=entity))
+                    target = full.full_chat
+                else: raise
+
+            # خلط الإيموجيات لضمان التنوع
+            shuffled = random.sample(emoji_list, len(emoji_list))
+
+            
+            for emo in shuffled:
+                try:
+                    await ABH(SendReactionRequest(
+                        peer=target,
+                        msg_id=msg_id,
+                        reaction=[types.ReactionEmoji(emoticon=emo)],
+                        big=True # خليتها True لضمان ظهور التأثير
+                    ))
+                    success_count += 1
+                    break # نجح الحساب، ننتقل للحساب التالي
+                except ReactionInvalidError:
+                    continue # الإيموجي ممنوع، جرب غيره
+                except FloodWaitError as e:
+                    print(f"⚠️ حساب عليه انتظار: {e.seconds} ثانية")
+                    break # ننتقل للحساب التالي
+                except Exception:
+                    continue
+
+            # تأخير عشوائي بسيط بين 0.3 و 0.8 ثانية (أكثر دقة وأمان)
+
+        except Exception as e:
+            print(f"❌ فشل حساب: {e}")
+            continue
+
+    # 4. النتيجة النهائية
+    await status_msg.edit(
+        f"✅ **اكتملت العملية بنجاح**\n\n"
+        f"👥 الحسابات المشاركة: `{len(accounts_to_use)}`\n"
+        f"🔥 التفاعلات الناجحة: `{success_count}`\n"
+        f"📍 الهدف: `{entity}`"
+    )
+@mainABH.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
+async def reactauto(e):
+    await react(e)
+@ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
+async def reactauto(e):
+    if not e.text:
+        return
+    text = e.text
+    if text in names:
+        reply_text = random.choice(['الزعيم', "الغالي", "كول يالامير", "تاج الراس"])
+        try:
+            await names[text].send_message(
+                e.chat_id,
+                reply_text,
+                reply_to=e.id
+            )
+        except:
+            return
+@bot.on(events.NewMessage)
+async def nlits(e):
+    if str(e.chat_id) in list_chats():
+        try:
+            await react(e)
+        except Exception as ex:
+            print(f"خطأ في التفاعل: {ex}")
+@mainABH.on(events.NewMessage)
+async def nlits(e):
+    if not e.is_private:return
+    text = e.text
+    is_new = r.sadd('reactusers', e.chat_id)
+    total_unique_users = r.scard('reactusers')
+    print(total_unique_users)
+    chat_id = None
+    if text.startswith("اضف") and sender == wfffp:
+        try:
+            chat_id = text.split(" ", 1)[1]
+        except (IndexError, ValueError):
+            await e.reply("❌ يرجى تحديد رقم القناة بعد 'اضف'")
+            return
+        if not chat_id.startswith("-100"):
+            return
+        chat_id = int(chat_id)
+        await promote_ABHS(chat_id)
+        await e.reply(f"✅ تم إضافة القناة `{chat_id}` إلى القائمة البيضاء")
+        add_chat(chat_id)
+    elif text.startswith("ضيف") and sender == wfffp:
+        try:
+            chat_id = int(text.split(" ", 1)[1])
+        except (IndexError, ValueError):
+            chat_id = e.chat_id 
+        await promote_ABHS(chat_id)
+        await e.reply(f"✅ تم رفع البوتات في القناة `{chat_id}`")
+    elif text == "القنوات" and sender == wfffp:
+        msg = (
+    "📌 القنوات في القائمة البيضاء:\n\n"
+    + "\n\n".join([f"`{chat_id}`" for chat_id in chats])
+    if chats
+    else "⚠️ لا توجد قنوات مضافة حالياً"
+)
+
+        await e.reply(msg)
+    elif text.startswith("التفاعلات") and sender == wfffp:
+        try:
+            chat_id = text.split(" ")[1]
+            emojis = get_reactions(chat_id)
+            if emojis:
+                msg = f"📌 التفاعلات المخزنة للقناة `{chat_id}`:\n" + " ".join(emojis)
+            else:
+                msg = f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`"
+            await e.reply(msg)
+        except IndexError:
+            await e.reply("⚠️ استخدم: `تفاعلات -100xxxx`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء جلب التفاعلات: {ex}")
+    elif text == 'تصفية':
+        remove_non_private_chats()
+        await e.reply('تم التصفية')
+    elif text.startswith("تفاعل") and sender == wfffp:
+        try:
+            parts = text.split()
+            chat_id = parts[1]
+            emojis = parts[2:]
+            if not emojis:
+                await e.reply("⚠️ أرسل الإيموجيات بعد المعرف مثل:\n`تفاعل -100xxxx 😂 ❤️ 🔥`")
+                return
+            existing = get_reactions(chat_id) or []
+            updated = existing + emojis
+            add_reactions(chat_id, updated)
+            await e.reply(f"✅ تم حفظ {len(emojis)} إيموجي جديد للقناة `{chat_id}` (الإجمالي الآن {len(updated)})")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء حفظ التفاعلات: {ex}")
+    elif text.startswith("حذف تفاعل") and sender == wfffp:
+        try:
+            parts = text.split()
+            if len(parts) < 4:
+                await e.reply("⚠️ استخدم الصيغة الصحيحة:\n`حذف تفاعل -100xxxx 😂`")
+                return
+            chat_id = parts[2]
+            emoji = parts[3]
+            emojis = get_reactions(chat_id)
+            if not emojis:
+                await e.reply(f"⚠️ لا توجد تفاعلات محفوظة للقناة `{chat_id}`")
+                return
+            if emoji in emojis:
+                emojis = [em for em in emojis if em != emoji]
+                add_reactions(chat_id, emojis)
+                await e.reply(f"🗑️ تم حذف جميع التكرارات للتفاعل `{emoji}` من القناة `{chat_id}`")
+            else:
+                await e.reply(f"⚠️ التفاعل `{emoji}` غير موجود في القناة `{chat_id}`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء حذف التفاعل: {ex}")
+    elif text== "حذف التفاعلات" and sender == wfffp:
+        try:
+            parts = text.split()
+            if len(parts) < 3:
+                await e.reply("⚠️ استخدم الصيغة الصحيحة:\n`حذف التفاعلات -100xxxx`")
+                return
+            chat_id = parts[2]
+            key = f"chat_reactions:{chat_id}"
+            if r.exists(key):
+                r.delete(key)
+                await e.reply(f"🗑️ تم حذف جميع التفاعلات المخزنة للقناة `{chat_id}` بنجاح")
+            else:
+                await e.reply(f"⚠️ لا توجد تفاعلات مخزنة للقناة `{chat_id}`")
+        except Exception as ex:
+            await e.reply(f"⚠️ خطأ أثناء حذف جميع التفاعلات: {ex}")
+    elif text == "حذف الكل" and sender == wfffp:
+        clear_chats()
+        await e.reply("🗑️ تم حذف جميع القنوات من القائمة البيضاء")
+    elif text.startswith("حذف ") and sender == wfffp and not text == "حذف تفاعل" and not text == "حذف التفاعلات":
+        try:
+            chat_id = text.split(" ", 1)[1]
+            remove_chat(str(chat_id))
+            await e.reply(f"🗑️ تم حذف القناة `{chat_id}` من القائمة البيضاء")
+        except IndexError:
+            await e.reply("⚠️ استخدم: `حذف -100xxxxxxxxxx`")
+async def run_cmd(command: str):
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
+    return stdout.decode().strip(), stderr.decode().strip(), process.returncode
+@bot.on(events.NewMessage(pattern="^تحديث$", from_users=[1910015590]))
+async def update_repo(event):
+    if not event.is_private:return
+    msg = await event.respond(" جاري جلب آخر التحديثات من الريبو عبر...")
+    stdout, stderr, code = await run_cmd("git pull")
+    if code == 0:
+        await msg.edit(f" تحديث السورس بنجاح")
+        os.execv(sys.executable, [sys.executable, "p.py"])
+    else:
+        await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
+import re
+from telethon import events
+async def delete_bot_messages(client, chat, limit=None):
+    messages = []
+    deleted_count = 0
+
+    
+    async for msg in client.iter_messages(chat, from_user='me', limit=limit):
+        messages.append(msg.id)
+
+        # حذف على دفعات لتجنب مشاكل الـ flood
+        if len(messages) >= 100:
+            await client.delete_messages(chat, messages)
+            deleted_count += len(messages)
+            messages = []
+
+    # حذف الباقي
+    if messages:
+        await client.delete_messages(chat, messages)
+        deleted_count += len(messages)
+
+    return deleted_count
+
+@bot.on(events.NewMessage(pattern=r'^حذف رسائل(?: (.+))?', from_users=[wfffp, 201728276]))
+async def react_cmd(event):
+    reply = await event.get_reply_message()
+    input_str = event.pattern_match.group(1)
+
+    msg_id = None
+    entity = None
+
+    if input_str:
+        input_str = input_str.strip()
+        
+        # 1. التعامل مع رابط t.me
+        if "t.me/" in input_str:
+            # أضفنا \_ لدعم المعرفات التي تحتوي على شرطة سفلية في الرابط
+            link_parts = re.search(r't\.me/(?:c/)?([\w\d\_]+)/(\d+)', input_str)
+            if link_parts:
+                chat_info = link_parts.group(1)
+                msg_id = int(link_parts.group(2))
+                # تحويل chat_id للقناة إذا كان رقمي
+                entity = int(f"-100{chat_info}") if chat_info.isdigit() else chat_info
+            else:
+                return await event.reply("❌ الرابط غير صالح.")
+                
+        # 2. التعامل مع الآيدي (سواء كان رقم موجب للحسابات أو سالب للقنوات/المجموعات)
+        elif input_str.lstrip('-').isdigit():
+            entity = int(input_str)
+            
+        # 3. التعامل مع المعرف (المنشن @username أو username العادي)
+        else:
+            entity = input_str
+            
+    # 4. التعامل مع الرد على رسالة
+    elif reply:
+        msg_id = reply.id
+        entity = reply.chat_id
+    else:
+        return await event.reply("❌ يرجى إرسال رابط، آيدي، معرف، أو الرد على الرسالة المطلوبة.")
+
+    # رسالة تنبيه ببدء الحذف (اختيارية لكن مفيدة إذا كان العدد كبير)
+    await event.reply("⏳ جاري الحذف، يرجى الانتظار...")
+
+    # حذف الرسائل لكل عميل موجود في ABHS
+    total_deleted = 0
+    for ABH in ABHS:
+        if ABH: # للتحقق أن الحساب يعمل لتجنب الخطأ
+            try:
+                # دالة delete_bot_messages تأخذ الكيان (معرف، ايدي، رابط) وتقوم بالحذف
+                count = await delete_bot_messages(ABH, entity)
+                total_deleted += count
+            except Exception as e:
+                print(f"خطأ أثناء حذف الرسائل عبر حساب {ABH.session.filename}: {e}")
+                continue # تخطي الحساب في حال لم يكن عضواً في الخاص أو القناة
+
+    await event.reply(f"✅ تم حذف {total_deleted} رسالة بنجاح.")
+
+
+
+import asyncio
+from telethon import events
+from telethon.tl.types import Channel, Chat, User
+
+
+# دالة معالجة عميل واحد بشكل مستقل ومتوازي
+async def process_single_client(client, whitelist):
+    try:
+        me = await client.get_me()
+        client_name = me.first_name or f"User_{me.id}"
+
+        stats = {
+            "name": client_name,
+            "left_channels": 0,
+            "left_groups": 0,
+            "whitelisted": 0,
+            "skipped_admin": 0,  # القنوات/المجموعات المتروكة بسبب رتبة المشرف أو المالك
+            "left_failed": 0,
+        }
+
+        async for dialog in client.iter_dialogs():
+            entity = dialog.entity
+
+            # تخطي المحادثات الخاص والبوتات
+            if isinstance(entity, User):
+                continue
+
+            is_channel = isinstance(entity, Channel) and entity.broadcast
+            is_group = isinstance(entity, Chat) or (
+                isinstance(entity, Channel) and entity.megagroup
+            )
+
+            # 1. فحص هل الحساب مالك أو مشرف بالصيغة الصحيحة لـ Telethon
+            is_admin_or_creator = False
+            if isinstance(entity, Channel):
+                # إذا كان مالك القناة/المجموعة أو يمتلك صلاحيات إشراف
+                if getattr(entity, "creator", False) or getattr(
+                    entity, "admin_rights", None
+                ):
+                    is_admin_or_creator = True
+            elif isinstance(entity, Chat):
+                # المجموعات العادية القديمة
+                if getattr(entity, "creator", False) or getattr(
+                    entity, "admin", False
+                ):
+                    is_admin_or_creator = True
+
+            if is_admin_or_creator:
+                stats["skipped_admin"] += 1
+                continue
+
+            # 2. فحص القائمة البيضاء
+            chat_id_str = str(entity.id)
+            full_chat_id = (
+                f"-100{entity.id}"
+                if isinstance(entity, Channel)
+                else chat_id_str
+            )
+            chat_username = (
+                f"@{entity.username}" if entity.username else None
+            )
+
+            is_whitelisted = (
+                chat_id_str in whitelist
+                or full_chat_id in whitelist
+                or (chat_username and chat_username in whitelist)
+            )
+
+            if is_whitelisted:
+                stats["whitelisted"] += 1
+            else:
+                try:
+                    await client.delete_dialog(dialog.id)
+
+                    if is_channel:
+                        stats["left_channels"] += 1
+                    elif is_group:
+                        stats["left_groups"] += 1
+
+                    # مهلة أمان عشوائية لحماية الجلسة
+                    await asyncio.sleep(2.5)
+
+                except Exception as e:
+                    stats["left_failed"] += 1
+                    print(
+                        f"⚠️ [{client_name}] فشل المغادرة من {dialog.name}: {e}"
+                    )
+
+        return stats
+
+    except Exception as e:
+        print(f"❌ خطأ في معالجة إحدى الجلسات: {e}")
+        return None
+
+
+@mainABH.on(events.NewMessage(pattern=r"^(غادروا|\.غادروا)$", from_users=[wfffp]))
+async def leave_and_report_handler(event):
+    status_msg = await event.edit(
+        "⚡ **جاري فحص وتطهير الحسابات الـ 15 بالتوازي...**"
+    )
+
+    raw_whitelist = list_chats()
+    whitelist = set(str(chat_id) for chat_id in raw_whitelist)
+
+    # تشغيل المهام لجميع العملاء في وقت واحد
+    tasks = [process_single_client(cli, whitelist) for cli in ABHS]
+    results = await asyncio.gather(*tasks)
+
+    # بناء التقرير النهائي التجميعي
+    report = "📊 **تقرير التطهير الشامل للعملاء (توازي):**\n"
+    report += "───────────────────\n\n"
+
+    total_left_all = 0
+
+    for stats in results:
+        if not stats:
+            continue
+
+        total_left = stats["left_channels"] + stats["left_groups"]
+        total_left_all += total_left
+
+        report += (
+            f"👤 **العميل:** `{stats['name']}`\n"
+            f" └ 📢 قنوات مغادرة: `{stats['left_channels']}`\n"
+            f" └ 👥 مجموعات مغادرة: `{stats['left_groups']}`\n"
+            f" └ 👑 تم التخطي (مالك/مشرف): `{stats['skipped_admin']}`\n"
+            f" └ 🛡️ قائمة بيضاء: `{stats['whitelisted']}`\n"
+            f" └ 🔢 مجموع المغادَر: `{total_left}`\n"
+            "───────────────\n"
+        )
+
+    report += (
+        f"\n🏆 **إجمالي القنوات والمجموعات المغادرة للجميع:** `{total_left_all}`"
+    )
+    await status_msg.edit(report)
+print('running')
+bot.run_until_disconnected()
