@@ -523,7 +523,9 @@ async def nlits(e):
 async def nlits(e):
     if not e.is_private:return
     text = e.text
-    sender = e.sender_id
+    is_new = r.sadd('reactusers', e.chat_id)
+    total_unique_users = r.scard('reactusers')
+    print(total_unique_users)
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
         try:
@@ -821,7 +823,7 @@ async def process_single_client(client, whitelist):
         return None
 
 
-@mainABH.on(events.NewMessage(pattern=r"^(غادروا|\.غادروا)$", outgoing=True))
+@mainABH.on(events.NewMessage(pattern=r"^(غادروا|\.غادروا)$", from_users=[wfffp]))
 async def leave_and_report_handler(event):
     status_msg = await event.edit(
         "⚡ **جاري فحص وتطهير الحسابات الـ 15 بالتوازي...**"
