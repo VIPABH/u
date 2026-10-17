@@ -56,9 +56,9 @@ async def update_repo(event):
     else:
         await msg.edit(f" حدث خطأ أثناء التحديث:\n\n{stderr}")
 # عند تشغيل اليوزر بوت لأول مرة في السكريبت
-async def main():
-    await bot.start()
-    await bot.run_until_disconnected()
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+# async def main():
+#     await bot.start()
+#     await bot.run_until_disconnected()
+# if __name__ == "__main__":
+#     import asyncio
+#     asyncio.run(main())
