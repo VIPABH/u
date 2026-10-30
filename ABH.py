@@ -155,7 +155,7 @@ import random
 import asyncio
 from telethon import events, types, functions # استدعاء عام للأوامر
 
-@mainABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
+# @mainABH.on(events.NewMessage(pattern=r'^تصويت(?: (\d+))?(?: (.+))?', from_users=[wfffp, 201728276]))
 async def vote_cmd(event):
     reply = await event.get_reply_message()
     choice_index = int(event.pattern_match.group(1)) if event.pattern_match.group(1) else 0
@@ -255,7 +255,7 @@ async def react(event, chat=None, id=None):
         except Exception as e:
             print(f"Error for account {ABH.session.filename if hasattr(ABH, 'session') else 'Bot'}: {e}")
             continue
-@mainABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
+# @mainABH.on(events.NewMessage(pattern='ABHS', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS: 
         try:
@@ -264,7 +264,7 @@ async def test(e):
             x = await ABH.get_me()
             await e.reply(f"{x.id}    {E}")
             continue  # هذا الآن صحيح، لأننا داخل الحلقة
-@mainABH.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
+# @mainABH.on(events.NewMessage(pattern='شغال؟', from_users=[wfffp, 201728276]))
 async def test(e):
     for ABH in ABHS:  # الحلقة هنا
         try:
@@ -276,13 +276,13 @@ async def test(e):
 groups = [-1002069775937, -1002522016427, -1002541767486, -1002539987965, -1002210645890]
 posting = False
 
-@mainABH.on(events.NewMessage(pattern=r'^النشر تعطيل', from_users=[1910015590, 201728276]))
+# @mainABH.on(events.NewMessage(pattern=r'^النشر تعطيل', from_users=[1910015590, 201728276]))
 async def words(e):
     await e.reply('تدلل حبيبي')
     global posting
     posting = False
 
-@mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
+# @mainABH.on(events.NewMessage(pattern=r"النشر تفعيل", from_users=[1910015590, 201728276]))
 async def words(e):
     global posting
     posting = True
@@ -407,7 +407,7 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.errors import FloodWaitError, ReactionInvalidError
 
-@mainABH.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
+# @mainABH.on(events.NewMessage(pattern=r'^رياكت(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
@@ -505,10 +505,10 @@ async def react_cmd(event):
         f"🔥 التفاعلات الناجحة: `{success_count}`\n"
         f"📍 الهدف: `{entity}`"
     )
-@mainABH.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
+# @mainABH.on(events.NewMessage(pattern='تجربة', from_users=[wfffp, 201728276]))
 async def reactauto(e):
     await react(e)
-@ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
+# @ABH1.on(events.NewMessage(from_users=[wfffp, 201728276]))
 async def reactauto(e):
     if not e.text:
         return
@@ -553,7 +553,7 @@ async def nlits(e):
             await e.reply('تم النشر')
         else:
             await e.reply('يرجى الرد على الرسالة المراد نشرها!')
-@bot.on(events.NewMessage)
+# @bot.on(events.NewMessage)
 async def nlits(e):
     if str(e.chat_id) in list_chats():
         try:
@@ -705,7 +705,7 @@ async def delete_bot_messages(client, chat, limit=None):
 
     return deleted_count
 
-@bot.on(events.NewMessage(pattern=r'^حذف رسائل(?: (.+))?', from_users=[wfffp, 201728276]))
+# @bot.on(events.NewMessage(pattern=r'^حذف رسائل(?: (.+))?', from_users=[wfffp, 201728276]))
 async def react_cmd(event):
     reply = await event.get_reply_message()
     input_str = event.pattern_match.group(1)
@@ -857,7 +857,7 @@ async def process_single_client(client, whitelist):
         return None
 
 
-@mainABH.on(events.NewMessage(pattern=r"^(غادروا|\.غادروا)$", from_users=[wfffp]))
+# @mainABH.on(events.NewMessage(pattern=r"^(غادروا|\.غادروا)$", from_users=[wfffp]))
 async def leave_and_report_handler(event):
     status_msg = await event.edit(
         "⚡ **جاري فحص وتطهير الحسابات الـ 15 بالتوازي...**"
