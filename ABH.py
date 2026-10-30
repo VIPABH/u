@@ -314,7 +314,7 @@ async def words(e):
             
     tasks = [run_task(g_id) for g_id in groups]
     await asyncio.gather(*tasks)
-@mainABH.on(events.NewMessage(pattern=r'^ارسلوا(?: (\S+))?(?: (.*))?$', from_users=wfffp))
+#@mainABH.on(events.NewMessage(pattern=r'^ارسلوا(?: (\S+))?(?: (.*))?$', from_users=wfffp))
 async def send_to_target(e):
     reply = await e.get_reply_message()
     if not reply:
@@ -376,29 +376,29 @@ async def send_to_target(e):
                 
         except Exception as err:
             print(f"Error in {ABH.session.filename}: {err}")
-names = {
-    'العميل الاول': ABH1,
-    'ابو قتادة الرافضي': ABH2,
-    'ابو قتاده الرافضي': ABH2,
-    'سالو': ABH3,
-    'salo': ABH3,
-    'حسن جداحه': ABH4,
-    'حسن جداحة': ABH4,
-    'برق الشايب': ABH5,
-    'هاشم محمد': ABH6,
-    'كرت الحظ': ABH7,
-    'الخطير حسون': ABH8,
-    'حسن حسام': ABH9,
-    'عبدلمستسلم': ABH10,
-    'مستر بركر': ABH11,
-    'سمسير': ABH12,
-    'سمسير الولاية': ABH12,
-    'سمسير الولايه': ABH12,
-    'الطفل الشايب': ABH13,
-    'بيتر كريفن': ABH14,
-    'افلاطون': ABH15,
-
+Names = {
+    # 'العميل الاول': ABH1,
+    # 'ابو قتادة الرافضي': ABH2,
+    # 'ابو قتاده الرافضي': ABH2,
+    # 'سالو': ABH3,
+    # 'salo': ABH3,
+    # 'حسن جداحه': ABH4,
+    # 'حسن جداحة': ABH4,
+    # 'برق الشايب': ABH5,
+    # 'هاشم محمد': ABH6,
+    # 'كرت الحظ': ABH7,
+    # 'الخطير حسون': ABH8,
+    # 'حسن حسام': ABH9,
+    # 'عبدلمستسلم': ABH10,
+    # 'مستر بركر': ABH11,
+    # 'سمسير': ABH12,
+    # 'سمسير الولاية': ABH12,
+    # 'سمسير الولايه': ABH12,
+    # 'الطفل الشايب': ABH13,
+    # 'بيتر كريفن': ABH14,
+    # 'افلاطون': ABH15,
 }
+
 import re
 import random
 import asyncio
