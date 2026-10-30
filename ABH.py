@@ -519,7 +519,7 @@ async def nlits(e):
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
-@mainABH.on(events.NewMessage)
+@bot.on(events.NewMessage)
 async def nlits(e):
     if not e.is_private:return
     text = e.text
@@ -530,7 +530,7 @@ async def nlits(e):
         await e.reply('يجري النشر')
         msg = await ABH.get_reply_message()
         for id in r.smembers('reactusers'):
-            await ABH.send_message(id, message=msg.text)
+            await bot.send_message(id, message=msg.text)
         await e.reply('تم النشر')
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
