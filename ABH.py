@@ -526,6 +526,12 @@ async def nlits(e):
     is_new = r.sadd('reactusers', e.chat_id)
     total_unique_users = r.scard('reactusers')
     print(total_unique_users)
+    if e.text == 'نشر' and e.sender_id == wfffp:
+        await e.reply('يجري النشر')
+        r = await ABH.get_reply_message()
+        for id in r.smembers('reactusers'):
+            await ABH.send_message(id, message=r.text)
+        await e.reply('تم النشر')
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
         try:
