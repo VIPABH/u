@@ -527,11 +527,17 @@ async def nlits(e):
     total_unique_users = r.scard('reactusers')
     print(total_unique_users)
     if e.text == 'نشر' and e.sender_id == wfffp:
-        await e.reply('يجري النشر')
-        msg = await e.get_reply_message()
-        for id in r.smembers('reactusers'):
-            await bot.send_message(id, message=msg.text)
-        await e.reply('تم النشر')
+            await e.reply('يجري النشر')
+            msg = await e.get_reply_message()
+            if msg:
+                for id in r.smembers('reactusers'):
+                    try:
+                        await bot.send_message(int(id), message=msg)
+                    except Exception:
+                        continue
+                await e.reply('تم النشر')
+            else:
+                await e.reply('يرجى الرد على الرسالة المراد نشرها!')
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
         try:
