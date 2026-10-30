@@ -536,7 +536,7 @@ async def nlits(e):
         except Exception:
             pass
 
-    total_unique_users = r.scard('reactusers')
+    total_unique_users = r.scard('_reactusers')
     print(total_unique_users)
     
     if e.text == 'نشر' and e.sender_id == wfffp:
