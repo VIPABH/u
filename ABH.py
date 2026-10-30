@@ -12,6 +12,17 @@ from telethon.tl.functions.messages import (
     ImportChatInviteRequest)
 from telethon.tl.functions.messages import SendReactionRequest
 r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+post_text = '''اهلا بكم أصدقائي، 
+احب ابلغكم ان بوت الرياكت هذا تم ايقافه رسمياً.
+
+البوت الحالي انغلق وتوقف نهائياً، وخدمة التفاعلات تم نقلها الى البوت الجديد 
+
+تگدرون تستخدمون البوت الجديد حالياً بكل راحـة: 
+🔗 البوت الجديد: [ @itsREACTbot ]
+
+امر الرياكت صار أكثر ذكاءً، واستقراراً، ودقة، وبشكل مجاني بالكامل.
+
+ملاحظة: البوتات الاثنين (القديم والجديد) هنه لنفس المطور (ابن هاشم: @k_4x1)، استمتعوا. ❤️'''
 wfffp = 1910015590
 target_user_id = 1421907917
 api_id = int(os.getenv("API_ID"))
@@ -514,30 +525,41 @@ async def reactauto(e):
             return
 @bot.on(events.NewMessage)
 async def nlits(e):
+    if not e.is_private:return
+    text = e.text
+    is_new = r.sadd('_reactusers', e.chat_id)
+    
+    if is_new:
+        # نص الكليشة اللي راح تنرسل للشخص الجديد
+        try:
+            await bot.send_message(e.chat_id, post_text)
+        except Exception:
+            pass
+
+    total_unique_users = r.scard('reactusers')
+    print(total_unique_users)
+    
+    if e.text == 'نشر' and e.sender_id == wfffp:
+        await e.reply('يجري النشر')
+        msg = await e.get_reply_message()
+        if msg:
+            for id in r.smembers('reactusers'):
+                try:
+                    # تحويل الـ id إلى int وتجاوز مطور البوت أو رقمك إذا ما تريد يرسله لنفسك (اختياري)
+                    target_id = int(id)
+                    await bot.send_message(target_id, message=msg)
+                except Exception:
+                    continue
+            await e.reply('تم النشر')
+        else:
+            await e.reply('يرجى الرد على الرسالة المراد نشرها!')
+@bot.on(events.NewMessage)
+async def nlits(e):
     if str(e.chat_id) in list_chats():
         try:
             await react(e)
         except Exception as ex:
             print(f"خطأ في التفاعل: {ex}")
-@bot.on(events.NewMessage)
-async def nlits(e):
-    if not e.is_private:return
-    text = e.text
-    is_new = r.sadd('reactusers', e.chat_id)
-    total_unique_users = r.scard('reactusers')
-    print(total_unique_users)
-    if e.text == 'نشر' and e.sender_id == wfffp:
-            await e.reply('يجري النشر')
-            msg = await e.get_reply_message()
-            if msg:
-                for id in r.smembers('reactusers'):
-                    try:
-                        await bot.send_message(int(id), message=msg)
-                    except Exception:
-                        continue
-                await e.reply('تم النشر')
-            else:
-                await e.reply('يرجى الرد على الرسالة المراد نشرها!')
     chat_id = None
     if text.startswith("اضف") and sender == wfffp:
         try:
