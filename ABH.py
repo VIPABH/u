@@ -528,7 +528,7 @@ async def nlits(e):
     print(total_unique_users)
     if e.text == 'نشر' and e.sender_id == wfffp:
         await e.reply('يجري النشر')
-        msg = await bot.get_reply_message()
+        msg = await event.get_reply_message()
         for id in r.smembers('reactusers'):
             await bot.send_message(id, message=msg.text)
         await e.reply('تم النشر')
